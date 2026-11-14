@@ -78,3 +78,16 @@ it("keeps demo and personal records separate and gates report export behind revi
     screen.getByRole("heading", { name: "Your words come first." }),
   ).toBeTruthy();
 });
+
+it("reloading a fictional history replaces stale demo dates and preserves personal records", async () => {
+  const { replaceDemoEntries, putEntry } = await import("../lib/storage");
+  const { personaEntries } = await import("../lib/demo");
+  const es = personaEntries("maya");
+  await putEntry({ ...es[0], id: "personal", demo: false, persona: undefined });
+  await putEntry({ ...es[0], id: "stale-demo" });
+  await replaceDemoEntries(es);
+  const records = await loadEntries();
+  expect(records.some((e) => e.id === "personal")).toBe(true);
+  expect(records.some((e) => e.id === "stale-demo")).toBe(false);
+  expect(records.filter((e) => e.demo)).toHaveLength(es.length);
+});

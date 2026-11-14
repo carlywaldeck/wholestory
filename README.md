@@ -102,3 +102,16 @@ WholeStory centers on three steps: capture a moment, review your story, and prep
 The appointment brief starts with the user’s own priority, then links every reported observation to source entries. Counts describe logged experiences; missing days remain unknown. Synthetic personas are demonstrations, not evidence of real adoption.
 
 Hackathon priorities: a reliable live flow, editable source-attributed AI extraction, everyday-life impact, and a reviewed PDF. AI organization and natural spoken replies require server configuration; neither is simulated as a live model response.
+
+
+## Wearable context explorer
+
+Open **Your story → See patterns**, or use the sleep and movement link on Today. Explore fictional wearable records paired with three synthetic personas, or import your own normalized daily CSV locally. No live device is connected; no OAuth tokens or provider secrets are collected. Source labels identify the user-selected origin, not verified device provenance.
+
+CSV columns: `date,sleep_hours,steps`. Assign sleep to the waking date and use the same local calendar dates as journal entries. Missing values remain blank, zero stays zero, duplicate dates and malformed values are rejected. An import replaces prior wearable records, leaving journal entries untouched. Files and comparisons are processed locally, never sent to AI. Export wearable records separately; Settings → Delete all local data clears imports and check-ins too.
+
+The explorer compares descriptive means on dates with explicit daily-life impact versus dates where all journal entries explicitly report no symptoms. Other dates are excluded. Each metric requires at least three measured days per group before offering a takeaway. This is a UI sufficiency threshold, not statistical validation. Hand-shaped demo data illustrates the interface and must not be used to validate a model. There is no flare forecast, causal inference, risk score, or medical monitoring. Normal readings never invalidate pain.
+
+Users can choose a comparison for their reviewed appointment brief and PDF, and plan a local check-in. Calendar export contains generic text only; no symptoms or notes. The app does not send notifications. Live Oura/Fitbit OAuth and Apple Health native integration remain future work requiring provider setup and consent.
+
+Validation: 48 tests cover journal flows, local preferences, wearable parsing and pairing, missing data, sample thresholds, provenance, imports, check-ins, and PDF content.

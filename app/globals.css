@@ -2007,3 +2007,358 @@ textarea {
 .appointment-priority textarea {
   min-height: 95px;
 }
+
+/* Wearable context: one comparison, then its evidence and a chosen next step. */
+.pattern-home-link {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  padding: 25px 0;
+  border-bottom: 1px solid var(--line);
+}
+.pattern-home-link > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.pattern-home-link > span:first-child {
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  font-size: 9px;
+}
+.pattern-home-link strong {
+  font:
+    400 25px/1.3 Georgia,
+    serif;
+  color: var(--rose-dark);
+}
+.pattern-home-link svg {
+  display: inline;
+  margin-left: 7px;
+  vertical-align: middle;
+}
+.wearable-explorer {
+  border: 1px solid var(--line);
+  background: #fffdfd;
+  border-radius: 12px;
+  padding: 30px;
+  margin: 0 0 30px;
+}
+.wearable-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+.wearable-heading h2 {
+  font:
+    400 30px/1.2 Georgia,
+    serif;
+  letter-spacing: -0.7px;
+  margin: 12px 0;
+}
+.wearable-heading p,
+.wearable-empty p,
+.wearable-import p,
+.wearable-next p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.connection-status {
+  white-space: nowrap;
+  background: #f4eeed;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 10px;
+  color: #6c565e;
+}
+.connection-status.synthetic {
+  background: var(--blush);
+  color: var(--rose-dark);
+}
+.wearable-empty {
+  padding: 30px;
+  background: var(--blush);
+  margin: 25px 0;
+  border-radius: 8px;
+}
+.wearable-empty h3 {
+  font:
+    400 25px Georgia,
+    serif;
+  margin: 15px 0;
+}
+.wearable-empty .button {
+  margin-top: 12px;
+}
+.wearable-provenance {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.wearable-provenance strong {
+  font-size: 10px;
+  color: var(--rose-dark);
+  display: block;
+}
+.wearable-provenance span {
+  color: var(--muted);
+}
+.wearable-provenance p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+.metric-switch {
+  display: inline-flex;
+  gap: 5px;
+  background: #f8f0f2;
+  padding: 4px;
+  border-radius: 8px;
+  margin: 24px 0 18px;
+}
+.metric-switch button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.metric-switch button[aria-pressed="true"] {
+  color: var(--rose-dark);
+  background: white;
+  box-shadow: 0 1px 3px #422c3512;
+}
+.wearable-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 10px 0 20px;
+}
+.wearable-comparison > div {
+  border-left: 3px solid #e6c4d0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wearable-comparison > div:first-child {
+  border-color: var(--rose);
+}
+.wearable-comparison span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.wearable-comparison strong {
+  font:
+    400 43px Georgia,
+    serif;
+  color: var(--rose-dark);
+}
+.wearable-comparison small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.comparison-reading {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.wearable-explorer > .muted {
+  font-size: 11px;
+  line-height: 1.8;
+}
+.wearable-evidence,
+.wearable-import {
+  border-top: 1px solid var(--line);
+  padding: 18px 0;
+}
+.wearable-evidence summary,
+.wearable-import summary,
+.existing-patterns > summary {
+  cursor: pointer;
+  color: var(--rose-dark);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 0;
+}
+.wearable-table-wrap {
+  overflow-x: auto;
+}
+.wearable-explorer table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 18px;
+  text-align: left;
+}
+.wearable-explorer caption {
+  text-align: left;
+  font-size: 11px;
+  color: var(--muted);
+  padding-bottom: 14px;
+}
+.wearable-explorer td,
+.wearable-explorer th {
+  padding: 13px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+.wearable-explorer th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+}
+.wearable-explorer td:first-child {
+  white-space: nowrap;
+}
+.wearable-explorer td small {
+  display: block;
+  max-width: 400px;
+  margin-top: 8px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.day-source {
+  color: var(--rose-dark);
+  text-align: left;
+  padding: 0;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.wearable-next {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-top: 1px solid var(--line);
+  padding: 20px 0;
+}
+.wearable-next > div {
+  flex: 1;
+}
+.wearable-next h3,
+.saved-checkin h3,
+.checkin-form h3 {
+  font:
+    400 23px Georgia,
+    serif;
+  margin: 0 0 10px;
+}
+.wearable-next .button {
+  flex-shrink: 0;
+}
+.wearable-boundary {
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  margin-bottom: 0;
+}
+.checkin-form,
+.saved-checkin {
+  background: var(--blush);
+  border-radius: 8px;
+  padding: 24px;
+  margin: 15px 0;
+}
+.checkin-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.wearable-explorer label {
+  display: block;
+  font-size: 12px;
+  margin: 15px 0;
+}
+.wearable-explorer input,
+.wearable-explorer select {
+  margin-top: 8px;
+  width: 100%;
+}
+.wearable-message {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--rose-dark);
+}
+.existing-patterns {
+  margin: 20px 0;
+}
+.existing-patterns > summary {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+@media (max-width: 700px) {
+  .wearable-explorer {
+    padding: 22px 18px;
+  }
+  .wearable-heading {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .wearable-heading h2 {
+    font-size: 28px;
+  }
+  .wearable-heading .connection-status {
+    order: -1;
+    margin-bottom: 10px;
+  }
+  .wearable-comparison {
+    gap: 14px;
+  }
+  .wearable-comparison > div {
+    padding-left: 10px;
+  }
+  .wearable-comparison strong {
+    font-size: 32px;
+  }
+  .wearable-comparison span {
+    line-height: 1.5;
+    font-size: 11px;
+  }
+  .wearable-next {
+    display: block;
+  }
+  .wearable-next .button {
+    margin-top: 10px;
+  }
+  .wearable-empty {
+    padding: 22px;
+  }
+  .wearable-explorer table {
+    font-size: 10px;
+  }
+  .wearable-explorer td,
+  .wearable-explorer th {
+    padding: 12px 5px;
+  }
+  .checkin-form,
+  .saved-checkin {
+    padding: 20px 14px;
+  }
+  .checkin-fields {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+.wearable-brief-note {
+  background: #fff7f9;
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 22px 0;
+}
+.wearable-brief-note h3 {
+  margin-top: 0;
+}
+.wearable-brief-note p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--muted);
+}
