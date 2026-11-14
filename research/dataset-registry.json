@@ -30,6 +30,34 @@
       "possibleUse": "Import, normalization, missing-data and provenance checks",
       "cannotEstablish": "Endometriosis symptom prediction or diagnostic benefit",
       "licenseNote": "Current landing page lists CC BY 4.0; original downloaded license says CC BY-NC 4.0. Retain stricter labeling pending clarification."
+    },
+    {
+      "id": "pmdata-next-day-fatigue",
+      "url": "https://datasets.simula.no/pmdata/",
+      "api": "https://api.osf.io/v2/nodes/vx4bk/files/osfstorage/",
+      "access": "Anonymous public API; download and source checksums verified",
+      "actualEvaluation": {
+        "participants": 13,
+        "heldOutDays": 353,
+        "target": "Next-day fatigue on source 1\u20135 scale"
+      },
+      "clinicalValidation": false,
+      "endometriosisPopulation": false
+    },
+    {
+      "id": "silver-pain-open",
+      "url": "https://data.mendeley.com/datasets/m38f8ydn49/3",
+      "access": "Open physiology/pain labels described by original repository, CC BY 4.0; other modalities controlled",
+      "localPatientFilesAccessed": false,
+      "cannotEstablish": "Next-day endometriosis forecasting"
+    },
+    {
+      "id": "endo-knowledge-australia",
+      "url": "https://www.nature.com/articles/s44294-025-00096-6",
+      "api": "https://api.osf.io/v2/nodes/spzej/files/osfstorage/",
+      "access": "Anonymous API file listing verified; dataset license absent from node metadata",
+      "localPatientFilesAccessed": false,
+      "cannotEstablish": "Longitudinal symptom forecasting"
     }
   ]
 }
