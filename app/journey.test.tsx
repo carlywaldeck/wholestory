@@ -35,6 +35,7 @@ it("completes a manual entry with attributed fields and skips the optional quest
   await waitFor(() =>
     expect(screen.queryByText("Opening your journal…")).toBeNull(),
   );
+  await navigate(user, "Outlook");
   await user.click(screen.getByRole("button", { name: "Write an entry" }));
   await user.type(
     screen.getByLabelText("Your words"),

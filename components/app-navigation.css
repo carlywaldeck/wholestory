@@ -50,6 +50,10 @@
 :root { view-transition-name: none; }
 .persistent-nav-shell > main { view-transition-name: elya-content; }
 .app-topbar { view-transition-name: none; }
+.app-topbar { z-index: 30; }
+.overlay:has(#privacy-title) { padding-top: 110px; }
+.overlay:has(#privacy-title) .modal { max-height: calc(100svh - 134px); }
+.overlay:has(#leave-title) { z-index: 40; }
 :root:active-view-transition .page-content-transition { animation: none; }
 ::view-transition-old(elya-content) { animation: page-content-out 240ms ease both; }
 ::view-transition-new(elya-content) { animation: page-content-fade 240ms ease both; }

@@ -13,7 +13,7 @@ it("keeps the top bar mounted, uses the exact ordered links, and marks the curre
  const user=userEvent.setup();render(<AppNavigationProvider><Page/></AppNavigationProvider>);
  const bar=screen.getByTestId("persistent-topbar");
  const menu=screen.getByRole("button",{name:"Menu"});
- const wordmark=screen.getByRole("link",{name:"elya — Outlook"});
+ const wordmark=screen.getByRole("link",{name:"elya, go to the home page"});
  expect(menu.getAttribute("aria-expanded")).toBe("false");
  expect(screen.queryByRole("navigation",{name:"Main pages"})).toBeNull();
  await user.click(menu);
@@ -23,9 +23,9 @@ it("keeps the top bar mounted, uses the exact ordered links, and marks the curre
  await user.click(screen.getByRole("link",{name:"Journal"}));
  expect(screen.getByRole("heading",{name:"Your story"})).toBeTruthy();
  expect(screen.getByTestId("persistent-topbar")).toBe(bar);
- expect(screen.getByRole("link",{name:"elya — Outlook"})).toBe(wordmark);
+ expect(screen.getByRole("link",{name:"elya, go to the home page"})).toBe(wordmark);
  expect(menu.getAttribute("aria-expanded")).toBe("false");
- expect(window.location.hash).toBe("#journal");
+ expect(window.location.pathname).toBe("/journal");
  await user.click(menu);
  expect(screen.getByRole("link",{name:"Journal"}).getAttribute("aria-current")).toBe("page");
 });
@@ -55,7 +55,8 @@ it("closes on outside click and exposes Check in only on Outlook",async()=>{
  expect(menu.getAttribute("aria-expanded")).toBe("false");
  expect(document.activeElement).toBe(menu);
  expect(screen.queryByRole("link",{name:"Check in"})).toBeNull();
- await user.click(screen.getByRole("link",{name:"elya — Outlook"}));
+ await user.click(menu);
+ await user.click(screen.getByRole("link",{name:"Outlook"}));
  await user.click(screen.getByRole("link",{name:"Check in"}));
  expect(screen.getByRole("heading",{name:"Your story"})).toBeTruthy();
  expect(screen.getByTestId("checkin-request").textContent).toBe("1");

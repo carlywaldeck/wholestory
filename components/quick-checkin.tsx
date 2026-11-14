@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAppNavigation } from "./app-navigation";
 import { checkinSymptoms, emptyAnswers, type Answers } from "../lib/experience-checkins";
 import { Button } from "./ui/button";
 export function QuickCheckin({ date, onSave, onCancel, demo }: {
@@ -9,6 +10,11 @@ export function QuickCheckin({ date, onSave, onCancel, demo }: {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const navigation = useAppNavigation();
+  useEffect(()=>{
+    navigation?.setDirty(!!note.trim() || Object.values(answers).some(v=>v!==null));
+    return ()=>navigation?.setDirty(false);
+  },[note,answers,navigation?.setDirty]);
   return <section className="quick-checkin" aria-labelledby="checkin-title">
     <div className="section-heading"><h2 id="checkin-title">Check in today</h2><button onClick={onCancel}>Close check-in</button></div>
     {demo && <span className="demo-chip">Fictional demo history</span>}

@@ -104,7 +104,7 @@ export default function Home() {
   return navigation ? <HomeContent /> : <AppNavigationProvider><HomeContent /></AppNavigationProvider>;
 }
 function HomeContent() {
-  const { view, setView, settings, setSettings, checkinRequest } = useAppNavigation()!;
+  const { view, setView, settings, setSettings, checkinRequest, setDirty } = useAppNavigation()!;
   const speech = useSpokenReplies();
   const [preferences, setPreferences] =
     useState<Preferences>(defaultPreferences);
@@ -128,6 +128,7 @@ function HomeContent() {
     await savePreferences(value);
     setPreferences(value);
     setShowWelcome(false);
+    setView("Outlook");
   }
   const [persona, setPersona] = useState<PersonaId>("maya");
   const [forecastDemo, setForecastDemo] = useState<ForecastDemo | null>(null);
@@ -265,7 +266,17 @@ function HomeContent() {
   }, [demoMode, checkinVersion]);
   useEffect(() => {
     window.scrollTo(0, 0);
+    setSelected("");
+    setEditor(false);
   }, [view]);
+  useEffect(() => {
+    setDirty(editor && (review || !!text.trim() || !!answer.trim()));
+  }, [editor, review, text, answer, setDirty]);
+  useEffect(()=>{
+    const home=()=>{setEditor(false);setCheckin(false);setSelected("");};
+    window.addEventListener("elya-home",home);
+    return ()=>window.removeEventListener("elya-home",home);
+  },[]);
   useEffect(() => {
     if (evidence)
       document
@@ -616,7 +627,7 @@ function HomeContent() {
                 <button
                   className="opening-start"
                   aria-label="Write an entry"
-                  onClick={() => open()}
+                  onClick={() => preferences.setupComplete ? setView("Outlook") : setShowWelcome(true)}
                 >
                   <span>Start your story</span>
                   <ArrowRight size={18} aria-hidden="true" />

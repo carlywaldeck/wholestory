@@ -29,6 +29,7 @@ it("opens the fabric home and keeps personalization in Settings", async () => {
   await screen.findByRole("heading", { name: "Your life with endometriosis deserves to be understood." });
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
   expect(screen.queryByRole("dialog")).toBeNull();
+  await navigate(user, "Outlook");
   await user.click(screen.getByRole("button", { name: "Write an entry" }));
   expect(screen.queryByText("Find your voice.")).toBeNull();
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
