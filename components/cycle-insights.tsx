@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { Entry } from "../lib/model";
 import { cycleAnalysis, cycleContext } from "../lib/cycles";
+import { DataLegend } from "./brand-states";
 export function CycleInsights({
   entries,
   onEvidence,
@@ -53,11 +54,12 @@ export function CycleInsights({
         {c.unknownDays === 1 ? "day has" : "days have"} incomplete cycle
         context.
       </p>
+      <DataLegend />
       {mode === "cycle" && c.starts.length ? (
         <>
           <ResponsiveContainer width="100%" height={230}>
             <LineChart data={c.plot}>
-              <CartesianGrid stroke="#f1e3e9" />
+              <CartesianGrid stroke="var(--line)" />
               <XAxis
                 dataKey="day"
                 tick={{ fontSize: 10 }}
@@ -77,7 +79,8 @@ export function CycleInsights({
                   name={`Cycle starting ${start}`}
                   type="linear"
                   dataKey={start}
-                  stroke={["#ad567d", "#d19aa9", "#b59a7c", "#987e98"][i]}
+                  stroke="var(--ink)"
+                  strokeDasharray={["", "8 4", "3 4", "10 3 2 3"][i % 4]}
                   strokeWidth={2}
                   connectNulls={false}
                   dot={{ r: 3 }}
@@ -95,7 +98,8 @@ export function CycleInsights({
               <span key={start}>
                 <i
                   style={{
-                    background: ["#ad567d", "#d19aa9", "#b59a7c", "#987e98"][i],
+                    background: "var(--ink)",
+                    borderRadius: i % 2 ? "0" : "50%",
                   }}
                 />
                 {start}
@@ -107,7 +111,7 @@ export function CycleInsights({
         <>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={scored}>
-              <CartesianGrid stroke="#f1e3e9" />
+              <CartesianGrid stroke="var(--line)" />
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
               <YAxis width={25} domain={[0, 10]} tick={{ fontSize: 10 }} />
               <Tooltip />
@@ -115,7 +119,7 @@ export function CycleInsights({
                 type="linear"
                 dataKey="pain"
                 name="Reported pain (0–10)"
-                stroke="#ad567d"
+                stroke="var(--ink)"
                 connectNulls={false}
                 isAnimationActive={false}
               />

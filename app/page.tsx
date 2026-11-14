@@ -54,6 +54,7 @@ import { VoicePicker } from "../components/voice-picker";
 import { PersonalPreferences } from "../components/personal-preferences";
 import { JourneyProgress } from "../components/journey-progress";
 import { HeroBackground } from "../components/hero-background";
+import { DataLegend, SymptomOutlook } from "../components/brand-states";
 import {
   defaultPreferences,
   loadPreferences,
@@ -563,7 +564,7 @@ export default function Home() {
         </header>
         {demo && (
           <div className="demo-banner">
-            SYNTHETIC DEMO DATA{" "}
+            <span className="demo-chip">Fictional demo history</span>{" "}
             <span>Fictional entries for exploring WholeStory.</span>
             <select
               aria-label="Demo persona"
@@ -669,6 +670,7 @@ export default function Home() {
                     Write or record what happened and how it affected your day.
                   </p>
                 </section>
+                <SymptomOutlook />
                 <JourneyProgress
                   current="capture"
                   hasEntries={entries.length > 0}
@@ -820,9 +822,9 @@ export default function Home() {
             {calendar && (
               <section className="calendar">
                 <p>
-                  Last 30 days · ● symptoms · ○ explicitly symptom-free · —
-                  unlogged
+                  Last 30 days · Only your explicit reports are observations.
                 </p>
+                <DataLegend />
                 <div>
                   {Array.from({ length: 30 }, (_, i) => {
                     const d = new Date();
@@ -836,17 +838,17 @@ export default function Home() {
                     return (
                       <button
                         key={day}
-                        className={es.length ? "logged" : ""}
-                        aria-label={`${day}: ${es.length ? (es.every((e) => e.symptomFree) ? "symptom-free" : "logged") : "unlogged"}`}
+                        className={es.length ? (es.every((e) => e.symptomFree) ? "none-reported" : "logged") : "unknown-day"}
+                        aria-label={`${day}: ${es.length ? (es.every((e) => e.symptomFree) ? "None reported" : "Observation") : "Unknown"}`}
                         onClick={() => setSelected(selected === day ? "" : day)}
                       >
                         {d.getDate()}
                         <span>
                           {es.length
                             ? es.every((e) => e.symptomFree)
-                              ? "○"
+                              ? "◯✓"
                               : "●"
-                            : "—"}
+                            : "Unknown"}
                         </span>
                       </button>
                     );
@@ -938,7 +940,7 @@ export default function Home() {
                       width={135}
                     />
                     <Tooltip />
-                    <Bar dataKey="days" fill="#b97191" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="days" fill="var(--ink)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </section>
@@ -1009,7 +1011,8 @@ export default function Home() {
                 <div className="section-kicker">
                   <BookOpen /> {BRAND} / PATIENT-REPORTED SUMMARY
                 </div>
-                {demo && <b>SYNTHETIC DEMO DATA</b>}
+                {demo && <b className="demo-chip">Fictional demo history</b>}
+                <DataLegend />
                 <h2>Appointment brief</h2>
                 <p>
                   {brief.range} · {brief.logged} logged days
@@ -1238,6 +1241,7 @@ export default function Home() {
             <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
+          <p>Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
         </footer>
       </main>
       {showWelcome && (
@@ -1289,6 +1293,7 @@ export default function Home() {
             <h2 id="entry-title">
               {review ? "Review your entry." : "Today, in your words."}
             </h2>
+            {demo && <span className="demo-chip">Fictional demo history</span>}
             {!review && (
               <div className="entry-tabs">
                 <button
@@ -1599,6 +1604,8 @@ export default function Home() {
             <ShieldCheck />
             <div className="eyebrow">YOUR SPACE</div>
             <h2 id="privacy-title">Settings</h2>
+            {demo && <span className="demo-chip">Fictional demo history</span>}
+            <p className="brand-boundary">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
             <section className="settings-section">
               <h3>Your preferences</h3>
               <PersonalPreferences
@@ -1769,7 +1776,7 @@ export default function Home() {
               <span className="cycle-tag">Cycle day {cycleContext(e).day}</span>
             )}
             {e.symptomFree ? (
-              <span className="free">Symptom-free · explicitly reported</span>
+              <span className="free"><span aria-hidden="true">◯✓ </span>None reported · explicitly confirmed</span>
             ) : (
               [
                 ...new Set(
