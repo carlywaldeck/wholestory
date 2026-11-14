@@ -119,6 +119,33 @@ it("requires same-origin JSON and explicit server-processing consent", async () 
     sentToExternalAI: false,
   });
 });
+it("supports the public preview Host when Next uses an internal localhost URL", async () => {
+  const d = forecastDemo("maya", "2026-11-15");
+  const r = await handleForecast(
+    new Request("http://localhost:3101/api/forecast", {
+      method: "POST",
+      headers: {
+        Host: "127.0.0.1:3101",
+        Origin: "http://127.0.0.1:3101",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ consentToServerProcessing: true, input: d.input }),
+    }),
+  );
+  expect(r.status).toBe(200);
+  const invalid = await handleForecast(
+    new Request(endpoint, {
+      method: "POST",
+      headers: {
+        Host: "bad@elsewhere.test",
+        Origin: "https://elsewhere.test",
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+    }),
+  );
+  expect(invalid.status).toBe(403);
+});
 it("rejects mixed-source histories, excessive input and bad demos without echoing health records", async () => {
   const d = forecastDemo("maya", "2026-11-15");
   const mixed = await handleForecast(

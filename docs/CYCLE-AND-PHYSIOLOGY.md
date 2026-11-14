@@ -1,6 +1,6 @@
 # Cycle timing and physiological inputs for Elya
 
-Reviewed November 14, 2026. This is the engineering evidence map for the experimental backend, not a medical treatment guide. Lexi's UI files were not edited.
+Reviewed November 14, 2026. This is the engineering evidence map for the experimental backend, not a medical treatment guide. Lexi's layout and styling were left unchanged; the separately requested Elya rename updates branding strings only.
 
 ## What the research supports testing
 
