@@ -52,3 +52,20 @@ class LifeSnapsFeatures(unittest.TestCase):
         self.assertIsNone(result['people'][0]['rows'][-1]['x'][8])
         self.assertEqual(result['quality']['outOfRange:rmssd'],1)
         with self.assertRaisesRegex(ValueError,'Duplicate'):prepare(rows+[rows[0]])
+
+    def test_temporal_features_use_actual_prior_dates_and_keep_zero_mad_unknown(self):
+        rows=fixture()
+        for i,row in enumerate(rows):row['rmssd']=str(40+i)
+        before=prepare(rows,with_trends=True)['people'][0]['rows'][-1]
+        self.assertEqual(len(before['x']),34)
+        self.assertAlmostEqual(before['x'][23],1)
+        self.assertIsNone(before['x'][16])
+        self.assertEqual(before['x'][17],3)
+        rows[-1].update({'rmssd':'499','steps':'150000','minutesAsleep':'1'})
+        after=prepare(rows,with_trends=True)['people'][0]['rows'][-1]
+        self.assertEqual(before['x'],after['x'])
+
+    def test_default_features_and_targets_are_preserved_when_trends_are_added(self):
+        plain=prepare(fixture())['people'][0]['rows']
+        temporal=prepare(fixture(),with_trends=True)['people'][0]['rows']
+        self.assertEqual([(r['date'],r['y'],r['x']) for r in plain],[(r['date'],r['y'],r['x'][:14]) for r in temporal])
