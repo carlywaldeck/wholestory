@@ -1,0 +1,35 @@
+{
+  "reviewedOn": "2026-11-14",
+  "clinicalValidationCompleted": false,
+  "datasets": [
+    {
+      "id": "ki-endolist-1.0.0",
+      "url": "https://physionet.org/content/ki-endolist/1.0.0/",
+      "population": "34 people with diagnosed endometriosis; regular cycles; not using hormonal treatment at enrollment",
+      "contains": "Individual longitudinal symptom reports; individualized scales; no matched wearable data described",
+      "access": "Registration and signed PhysioNet data use agreement",
+      "localPatientFilesAccessed": false,
+      "possibleUse": "Exploratory symptom-only temporal evaluation after authorized access and codebook review",
+      "cannotEstablish": "Diagnostic discrimination, wearable forecasting benefit, or performance in all suspected-endometriosis populations"
+    },
+    {
+      "id": "endotech-2025",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12048534/",
+      "population": "68 participants with confirmed endometriosis in an exploratory actigraphy study",
+      "contains": "Paired symptom and actigraphy observations described in publication",
+      "access": "Individual data not in a public repository; research request subject to ethical approval",
+      "localPatientFilesAccessed": false,
+      "possibleUse": "Motivates studying within-person symptom/activity relationships",
+      "cannotEstablish": "A validated next-day forecast or diagnostic test for this app"
+    },
+    {
+      "id": "pmdata-public-excerpt",
+      "url": "https://datasets.simula.no/pmdata/",
+      "contains": "Public Fitbit research measurements; no endometriosis outcome labels",
+      "access": "Public excerpt already included, separately from symptom demo",
+      "possibleUse": "Import, normalization, missing-data and provenance checks",
+      "cannotEstablish": "Endometriosis symptom prediction or diagnostic benefit",
+      "licenseNote": "Current landing page lists CC BY 4.0; original downloaded license says CC BY-NC 4.0. Retain stricter labeling pending clarification."
+    }
+  ]
+}
