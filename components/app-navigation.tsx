@@ -21,7 +21,7 @@ const destinations = [
   { label: "Privacy", view: "Privacy", href: "/privacy", Icon: Settings },
 ];
 export function AppNavigationProvider({ children }: { children: ReactNode }) {
-  const [view, updateView] = useState("Today");
+  const [view, updateView] = useState("Outlook");
   const [dirty, setDirty] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const pending = useRef<(() => void) | null>(null);
@@ -33,7 +33,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
     updateView(next);
     const href = destinations.find(d=>d.view===next)?.href;
     if (href && window.location.pathname !== href) window.history.pushState(null, "", href);
-    if (next === "Today" && window.location.pathname !== "/") window.history.pushState(null, "", "/");
+    if (next === "Today" && window.location.pathname !== "/welcome") window.history.pushState(null, "", "/welcome");
   };
   const [settings, setSettings] = useState(false);
   const [open, setOpen] = useState(false);
@@ -54,7 +54,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fromHash = () => {
       const route = destinations.find(d=>d.href===window.location.pathname);
-      updateView(route?.view ?? "Today"); setOpen(false); setSettings(window.location.pathname === "/settings");
+      updateView(route?.view ?? (window.location.pathname==="/welcome"?"Today":"Outlook")); setOpen(false); setSettings(window.location.pathname === "/settings");
     };
     fromHash(); window.addEventListener("popstate", fromHash);
     window.addEventListener("hashchange", fromHash);
@@ -78,8 +78,8 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
           onKeyDown={e=>{
             if(e.key==="ArrowDown"||e.key==="ArrowUp") {
               e.preventDefault();
-              if(open) anchor.current?.querySelectorAll<HTMLAnchorElement>("nav a")[e.key==="ArrowUp"?3:0]?.focus();
-              else {focusOnOpen.current=e.key==="ArrowUp"?3:0;setOpen(true);}
+              if(open) anchor.current?.querySelectorAll<HTMLAnchorElement>("nav a")[e.key==="ArrowUp"?4:0]?.focus();
+              else {focusOnOpen.current=e.key==="ArrowUp"?4:0;setOpen(true);}
             }
           }}>Menu</button>
         <GlassCard as="nav" id="app-menu" className={`app-menu${open?" is-open":""}`} aria-label="Main pages" aria-hidden={!open} inert={!open}
@@ -94,9 +94,11 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
           {destinations.map(({label,view:next,href,Icon})=><a key={next} href={href} className={current===next?"is-current":""} aria-current={current===next?"page":undefined} onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();requestLeave(()=>navigate(next));}}>
             <Icon size={18} aria-hidden="true"/><span>{label}</span>{current===next&&<Check size={16} aria-hidden="true" className="app-current-check"/>}
           </a>)}
+          <div className="app-menu-divider"/>
+          <a href="/settings" className="app-settings-link" onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();requestLeave(()=>{close();window.history.pushState(null,"","/settings");setSettings(true);});}}>Settings</a>
         </GlassCard>
       </div>
-      <Link className="app-wordmark-link" href="/" aria-label="elya, go to the home page" onNavigate={e=>{e.preventDefault();requestLeave(()=>navigate("Today"));}}><Wordmark /></Link>
+      <Link className="app-wordmark-link" href="/" aria-label="elya, go to the home page" onNavigate={e=>{e.preventDefault();requestLeave(()=>{navigate("Outlook");window.history.replaceState(null,"","/");});}}><Wordmark /></Link>
       <a href="/journal" className="app-checkin-pill" hidden={view!=="Outlook"} onClick={e=>{e.preventDefault();requestLeave(()=>{window.dispatchEvent(new Event("elya-checkin-today"));navigate("Your story");});}}>Check in</a>
     </div>
     {leaving && <div className="overlay"><section className="modal" role="alertdialog" aria-modal="true" aria-labelledby="leave-title">

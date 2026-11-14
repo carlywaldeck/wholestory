@@ -28,7 +28,7 @@ it("shows only actual estimates, dates them accurately, and blocks future observ
  render(<LinenOutlook {...props()} selected="2026-11-15" forecast={result}/>);
  expect(screen.getByText("Pelvic pain / cramps may be more likely on November 15, 2026.")).toBeTruthy();
  expect(screen.queryByRole("button",{name:"Add entry"})).toBeNull();
- const list=screen.getByRole("list");expect(within(list).getAllByRole("listitem")).toHaveLength(1);
+ const list=document.querySelector(".outlook-prediction-detail ul") as HTMLElement;expect(within(list).getAllByRole("listitem")).toHaveLength(1);
  expect(within(list).queryByText("Fatigue")).toBeNull();
 });
 it("selects a crowded logged date and exposes the full source entry",async()=>{

@@ -23,17 +23,17 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
-it("opens the fabric home and keeps personalization in Settings", async () => {
+it("opens Outlook and keeps personalization in Settings", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Your life with endometriosis deserves to be understood." });
+  await screen.findByRole("heading", { name: "Today’s summary" });
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
   expect(screen.queryByRole("dialog")).toBeNull();
   await navigate(user, "Outlook");
-  await user.click(screen.getByRole("button", { name: "Write an entry" }));
+  await user.click(screen.getByRole("button", { name: "Check in today" }));
   expect(screen.queryByText("Find your voice.")).toBeNull();
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
-  await user.click(screen.getByRole("button", { name: "Close editor" }));
+  expect(screen.getByLabelText("What are you experiencing today?")).toBeTruthy();
   app.unmount();
   render(<Home />);
   await waitFor(() =>
@@ -44,7 +44,7 @@ it("opens the fabric home and keeps personalization in Settings", async () => {
 it("saves a name and entry preference, then restores them without onboarding", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Your life with endometriosis deserves to be understood." });
+  await screen.findByRole("heading", { name: "Today’s summary" });
   await navigate(user, "Settings");
   await user.type(
     screen.getByRole("textbox", { name: /What should we call you/ }),

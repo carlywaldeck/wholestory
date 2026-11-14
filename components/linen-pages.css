@@ -139,6 +139,23 @@
 .brief-empty {padding:8px 0 20px;}
 .brief-empty p {margin-bottom:24px;}
 .brief-print-document {display:none;}
+.outlook-forecast-title {font-size:22px!important;margin:28px 0 16px!important;}
+.outlook-forecast-rows {list-style:none;margin:0;padding:0;}
+.outlook-forecast-rows li {display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px;}
+.outlook-forecast-rows li>span:last-child {text-align:right;padding:8px 12px;border-radius:18px;font-size:13px;}
+.outlook-forecast-rows small {display:block;font-size:12px;margin-top:4px;}
+.forecast-elevated {background:var(--rose-soft);color:var(--rose-deep);}
+.forecast-usual {background:var(--pearl-deep);color:var(--ink);}
+.forecast-learning {border:1px dashed var(--ink-soft);color:var(--ink-soft);}
+.outlook-context-note {font-size:13px;line-height:1.6;color:var(--ink-soft);margin-top:20px;}
+.outlook-checkin-action {margin-top:24px;}
+.forecast-demo-control {display:flex;align-items:center;gap:12px;margin:20px 0;font-size:14px;}
+.forecast-demo-control select {background:rgba(255,255,255,.7);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:10px 16px;min-height:44px;font:inherit;max-width:100%;}
+.journal-statuses {display:grid!important;grid-template-columns:1fr 1fr;gap:12px!important;}
+.journal-symptom-answer {display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:12px 0;font-size:14px;}
+.journal-symptom-answer select {border-radius:999px;min-height:44px;background:rgba(255,255,255,.7);border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px;max-width:160px;}
+.journal-symptom-answer select:has(option[value=present]:checked) {background:var(--rose-soft);border-color:var(--rose-deep);}
+@media(max-width:700px){.journal-statuses{grid-template-columns:1fr;}.outlook-forecast-rows li{gap:10px;}.forecast-demo-control{flex-wrap:wrap;}}
 @media(max-width:600px){.brief-heading{align-items:flex-start;flex-direction:column;gap:10px;}.brief-heading h1{font-size:28px;}.brief-date-controls{gap:10px;}.brief-date-controls label{flex:1;min-width:0;}.brief-date-controls input{width:100%;box-sizing:border-box;}.brief-document-editor>label{flex-wrap:wrap;gap:6px;}.brief-export-actions{justify-content:flex-start;}}
 @media print{
  .linen-panel.appointment-document> :not(.brief-print-document){display:none!important;}

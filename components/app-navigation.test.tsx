@@ -18,7 +18,7 @@ it("keeps the top bar mounted, uses the exact ordered links, and marks the curre
  expect(screen.queryByRole("navigation",{name:"Main pages"})).toBeNull();
  await user.click(menu);
  const links=screen.getAllByRole("link").filter(l=>l.closest("#app-menu"));
- expect(links.map(l=>l.textContent)).toEqual(["Journal","Outlook","Appointment Brief","Settings"]);
+ expect(links.map(l=>l.textContent)).toEqual(["Journal","Outlook","Appointment Brief","Privacy","Settings"]);
  expect(screen.getByRole("link",{name:"Outlook"}).getAttribute("aria-current")).toBe("page");
  await user.click(screen.getByRole("link",{name:"Journal"}));
  expect(screen.getByRole("heading",{name:"Your story"})).toBeTruthy();
@@ -42,7 +42,7 @@ it("supports arrow keys, Enter, Escape and the requested tab order",async()=>{
  expect(document.activeElement).toBe(menu);
  expect(menu.getAttribute("aria-expanded")).toBe("false");
  await user.click(menu);
- for(const name of ["Journal","Outlook","Appointment Brief","Settings"]){
+ for(const name of ["Journal","Outlook","Appointment Brief","Privacy","Settings"]){
    await user.tab();expect(document.activeElement).toBe(screen.getByRole("link",{name}));
  }
  await user.keyboard("{Home}{Enter}");
@@ -54,11 +54,11 @@ it("closes on outside click and exposes Check in only on Outlook",async()=>{
  await user.click(menu);await user.click(screen.getByRole("heading"));
  expect(menu.getAttribute("aria-expanded")).toBe("false");
  expect(document.activeElement).toBe(menu);
- expect(screen.queryByRole("link",{name:"Check in"})).toBeNull();
+ expect(screen.getByRole("link",{name:"Check in"})).toBeTruthy();
  await user.click(menu);
  await user.click(screen.getByRole("link",{name:"Outlook"}));
  await user.click(screen.getByRole("link",{name:"Check in"}));
  expect(screen.getByRole("heading",{name:"Your story"})).toBeTruthy();
- expect(screen.getByTestId("checkin-request").textContent).toBe("1");
+ expect(window.location.pathname).toBe("/journal");
  expect(screen.queryByRole("link",{name:"Check in"})).toBeNull();
 });

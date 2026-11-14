@@ -611,12 +611,16 @@ function HomeContent() {
         )}
         {demo && openingMode && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
         {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
-        {!openingMode ? <LinenPages view={view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
+        {!openingMode && view!=="Insights" ? <LinenPages view={view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
+          wearableNote={wearableNote}
+          demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p></details>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={async()=>{await storage.clearEntries();clearConfirmedDays();await refresh();setCheckinVersion(n=>n+1);}}
           onSave={async entry=>{
             const saved=validateEntry({...entry,...(demo?{persona}: {})});
-            if(demo){setForecastDemo(current=>current?{...current,demoJournalEntries:[saved,...current.demoJournalEntries.filter(e=>e.id!==saved.id)]}:current);}
-            else {await storage.putEntry(saved);const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:null])) as Answers;saveConfirmedDay(checkinRecord(saved.date,answers,saved.text).day);await refresh();setCheckinVersion(n=>n+1);}
+            const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:saved.facts.some(f=>f.kind===s.kind&&/^(no|none|absent|not present|false|0)\b/i.test(f.value))?false:null])) as Answers;
+            const day=checkinRecord(saved.date,answers,saved.text).day;
+            if(demo){setForecastDemo(current=>{if(!current)return current;const input={...current.demoInput,asOf:new Date().toISOString(),days:[...current.demoInput.days.filter(d=>d.date!==day.date),day]};return {...current,demoInput:input,forecast:symptomRisk(input,{evaluate:false}),demoJournalEntries:[saved,...current.demoJournalEntries.filter(e=>e.id!==saved.id)]};});}
+            else {await storage.putEntry(saved);saveConfirmedDay(day);await refresh();setCheckinVersion(n=>n+1);}
           }}/>:String(view) === "Outlook" ? (
           <>
           <ForecastOutlook result={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} error={settings ? "" : forecastError}
@@ -792,7 +796,7 @@ function HomeContent() {
               )}
             </section>}
           </>
-        ) : view === "Your story" ? (
+        ) : String(view) === "Your story" ? (
           <>
             <section className="page-title">
               <div className="eyebrow">YOUR JOURNAL</div>

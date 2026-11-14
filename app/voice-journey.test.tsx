@@ -71,65 +71,17 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
-it("reads one follow-up aloud, records its answer, and saves both without feedback", async () => {
-  const user = userEvent.setup();
-  render(<Home />);
-  await waitFor(() =>
-    expect(screen.queryByText("Opening your journal…")).toBeNull(),
-  );
-  await navigate(user, "Settings");
-  await user.click(screen.getByText("Voice & spoken replies", { exact: true }));
-  await user.click(screen.getByRole("button", { name: "Preview Coral" }));
-  await user.click(
-    screen.getByLabelText(
-      "Allow OpenAI to turn the app’s reply text into natural speech. This sends reply text to OpenAI, separately from journal extraction.",
-    ),
-  );
-  await user.click(screen.getByRole("button", { name: "Use this voice" }));
-  await user.click(screen.getByRole("button", { name: "Close settings" }));
-  await user.click(screen.getByRole("button", { name: "Record instead" }));
-  await user.click(screen.getByRole("button", { name: "Start recording" }));
-  expect(screen.getByText("Listening to your entry…")).toBeTruthy();
-  const entryMic = Recognition.instances[0];
-  expect(entryMic.start).toHaveBeenCalled();
-
-  act(() =>
-    entryMic.onresult?.({
-      results: [[{ transcript: "My lower abdomen hurt this morning." }]],
-    }),
-  );
-  await user.click(screen.getByRole("button", { name: "Stop recording" }));
-  await user.click(screen.getByRole("button", { name: "Continue" }));
-  const spoken = voiceFetch.mock.calls
-    .filter((c) => c[1]?.method === "POST")
-    .map((c) => JSON.parse(c[1].body as string).text as string);
-  expect(
-    spoken.filter((t) => t.includes("Did the symptoms interfere")),
-  ).toHaveLength(1);
-  await user.click(screen.getByRole("button", { name: "Answer by voice" }));
-  const answerMic = Recognition.instances[1];
-
-  act(() =>
-    answerMic.onresult?.({
-      results: [[{ transcript: "I missed my first class." }]],
-    }),
-  );
-  await user.click(
-    screen.getByRole("button", { name: "Stop answer recording" }),
-  );
-  expect(
-    (
-      screen.getByPlaceholderText(
-        "A few words, if you’d like…",
-      ) as HTMLTextAreaElement
-    ).value,
-  ).toBe("I missed my first class.");
-  expect(
-    (screen.getByLabelText("Your words") as HTMLTextAreaElement).value,
-  ).toBe("My lower abdomen hurt this morning.");
-  await user.click(screen.getByRole("button", { name: "Save entry" }));
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  const [saved] = await loadEntries();
-  expect(saved.text).toContain("I missed my first class.");
-  expect(saved.text).toContain("Follow-up: Did the symptoms interfere");
+it("records only after Speak, keeps the transcript editable, and saves without automatic replies", async () => {
+ const user=userEvent.setup();render(<Home/>);await navigate(user,"Journal");
+ expect(Recognition.instances).toHaveLength(0);
+ await user.click(screen.getByRole("button",{name:"Speak"}));
+ expect(Recognition.instances).toHaveLength(1);expect(Recognition.instances[0].start).toHaveBeenCalledOnce();
+ act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}]]}));
+ await user.click(screen.getByRole("button",{name:"Stop"}));
+ expect((screen.getByLabelText("What are you experiencing today?") as HTMLTextAreaElement).value).toContain("Fictional cramping");
+ await user.selectOptions(screen.getByLabelText("Pelvic pain / cramps status"),"present");
+ await user.click(screen.getByRole("button",{name:"Add to calendar"}));
+ await screen.findByRole("heading",{name:"Today’s summary"});
+ expect((await loadEntries())[0].text).toContain("Fictional cramping interrupted my walk.");
+ expect(voiceFetch.mock.calls.filter(c=>c[1]?.method==="POST")).toHaveLength(0);
 });

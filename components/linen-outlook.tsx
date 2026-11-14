@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import type { Entry } from "../lib/model";
 import { factKinds, isPresentFact } from "../lib/model";
 import { checkinSymptoms } from "../lib/experience-checkins";
@@ -12,9 +13,10 @@ export function loggedLabels(entries: Entry[]) {
   return [...new Set(entries.flatMap(e=>e.symptomFree?["No symptoms"]:e.facts.filter(f=>symptomKinds.has(f.kind)&&isPresentFact(f)).map(f=>f.value)))];
 }
 
-export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry}: {
+export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry,demoControls}: {
   today:string;selected:string;onSelect:(date:string)=>void;onEdit:(date:string)=>void;
   entries:Entry[];forecast:ForecastResult|null;loading:boolean;error:string;onRetry:()=>void;
+  demoControls?:ReactNode;
 }) {
   const [month,setMonth]=useState(selected.slice(0,7));
   useEffect(()=>setMonth(selected.slice(0,7)),[selected]);
@@ -36,10 +38,13 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
   return <div className="outlook-composition">
     <section className="linen-panel outlook-summary" aria-labelledby="outlook-summary-heading">
       <div className="outlook-summary-top"><h1 id="outlook-summary-heading">Today’s summary</h1><span>{displayDate(today)}</span></div>
+      {demoControls}
       {loading?<p role="status">Loading outlook…</p>:error?<div role="alert"><p>{error}</p><button className="button" onClick={onRetry}>Try again</button></div>:available.length?<>
         <p className="outlook-summary-line">{higher.length?`${higher[0].label} may be more likely ${target===today?"today":"on "+targetLabel}.`:`No elevated likelihood in the available estimates for ${targetLabel}.`}</p>
         <span className="outlook-estimate-tag">◇ Estimate · experimental</span>
       </>:<p className="outlook-summary-line">{target?`No estimate available for ${targetLabel} yet.`:"No outlook available yet."}</p>}
+      {!loading&&!error&&<><h2 className="outlook-forecast-title">Tomorrow’s outlook</h2><ul className="outlook-forecast-rows">{checkinSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?"○ Still learning":s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>}
+      <div className="outlook-checkin-action"><button className="button primary" onClick={()=>onEdit(today)}>Check in today</button></div>
     </section>
     <section className="linen-panel outlook-calendar-panel" aria-labelledby="calendar-month">
       <div className="outlook-calendar-heading"><h2 id="calendar-month" aria-live="polite">{first.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</h2><div className="outlook-month-controls"><button onClick={()=>{setMonth(today.slice(0,7));onSelect(today);}}>Today</button><button aria-label="Previous month" onClick={()=>moveMonth(-1)}>←</button><button aria-label="Next month" onClick={()=>moveMonth(1)}>→</button></div></div>
