@@ -9,6 +9,10 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { Button } from "./ui/button";
+import {
+  WearableConnections,
+  PublicWearableSample,
+} from "./wearable-connections";
 import { Entry } from "../lib/model";
 import {
   WearableRecord,
@@ -263,6 +267,17 @@ export function WearableExplorer({
           </div>
         </>
       )}
+      {!demo && (
+        <WearableConnections
+          onImported={async (value) => {
+            await saveWearables(value);
+            setRecord(value);
+            onInclude("");
+            setError("");
+          }}
+        />
+      )}
+      <PublicWearableSample />
       {!demo && (
         <details className="wearable-import">
           <summary>Import sleep & activity</summary>
