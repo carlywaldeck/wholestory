@@ -1,12 +1,12 @@
 # elya demo journey
 
-The default `/` screen is Outlook; `/outlook` is an alias. The approved animated fabric opening is preserved at `/welcome` and is available from Settings. Journal, Appointment Brief, Privacy and Settings retain their routes.
+The default `/` screen is the approved animated fabric opening. Scroll down to the same Journal form used at `/journal`. Outlook remains at `/outlook`; `/welcome` is an alias for the opening. The wordmark always links home. Appointment Brief, Privacy and Settings retain their routes.
 
 ## Four-minute walkthrough
 
 1. Start on Outlook. Choose Maya, Alex or Jules under Demo history. The fictional label stays visible. Each choice loads the forecast and matching journal history from the existing forecast API.
 2. Show the four independent tomorrow states. Missing estimates say Still learning. Percentages are not confidence scores; no clinical accuracy is claimed. Wearables are context only.
-3. Click Check in today. Confirm present, none reported, or leave symptoms unanswered; optionally write. Save changes / Add to calendar returns to the selected calendar day. Click Edit entry to review the stored text and answers.
+3. Click Check in today. Tap symptom bubbles to select experienced symptoms, and tap again to clear them. Unselected symptoms are unanswered. No symptoms today explicitly records absence; optional per-symptom absence controls are behind a disclosure. Optionally write. Save changes / Add to calendar returns to the selected calendar day. Click Edit entry to review the stored text and answers.
 4. Open Appointment Brief. Choose dates, add what you want understood and your questions, review the sources, check the review box, then Copy or Print / Save as PDF.
 
 No wearable purchase or additional account is needed. Demo changes stay in memory and do not overwrite personal IndexedDB records. Switching persona resets appointment draft text to avoid mixing fictional histories. Personal check-ins compute locally; they are not posted to an AI service.

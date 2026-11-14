@@ -1,4 +1,10 @@
 .linen-experience { color:var(--ink); position:relative; isolation:isolate; }
+#home-journal .linen-content {padding-top:48px;}
+#home-journal .linen-static {position:absolute;}
+#home-journal {scroll-margin-top:100px;}
+.journal-symptom-bubbles {display:flex;flex-wrap:wrap;gap:10px;}
+.journal-absence-options {margin:0 0 24px;font-size:14px;}
+.journal-absence-options summary {cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--ink-soft);}
 .linen-static {position:fixed;inset:0;z-index:-1;pointer-events:none;}
 .linen-static .hero-background {position:absolute;inset:0;opacity:1;}
 .shell:has(.linen-experience) {background:transparent;}

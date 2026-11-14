@@ -139,7 +139,6 @@ function HomeContent() {
   const [checkin, setCheckin] = useState(false);
   const [checkinVersion, setCheckinVersion] = useState(0);
   const [journalLimit, setJournalLimit] = useState(14);
-  const [homeDraft, setHomeDraft] = useState("");
   const forecastRequest = useRef(0);
   const [customQuestion, setCustomQuestion] = useState("");
   const [entryMode, setEntryMode] = useState<"write" | "voice">("write");
@@ -272,10 +271,10 @@ function HomeContent() {
     setEditor(false);
   }, [view]);
   useEffect(() => {
-    setDirty(!!homeDraft.trim() || (editor && (review || !!text.trim() || !!answer.trim())));
-  }, [editor, review, text, answer, homeDraft, setDirty]);
+    setDirty(editor && (review || !!text.trim() || !!answer.trim()));
+  }, [editor, review, text, answer, setDirty]);
   useEffect(()=>{
-    const home=()=>{setEditor(false);setCheckin(false);setSelected("");setHomeDraft("");};
+    const home=()=>{setEditor(false);setCheckin(false);setSelected("");};
     window.addEventListener("elya-home",home);
     return ()=>window.removeEventListener("elya-home",home);
   },[]);
@@ -586,6 +585,17 @@ function HomeContent() {
     }
   }
   const openingMode = view === "Today";
+  const journalExperience = <LinenPages view={openingMode?"Your story":view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
+          wearableNote={wearableNote}
+          demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p></details>}</div>}
+          onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={async()=>{await storage.clearEntries();clearConfirmedDays();await refresh();setCheckinVersion(n=>n+1);}}
+          onSave={async entry=>{
+            const saved=validateEntry({...entry,...(demo?{persona}: {})});
+            const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:saved.facts.some(f=>f.kind===s.kind&&/^(no|none|absent|not present|false|0)\b/i.test(f.value))?false:null])) as Answers;
+            const day=checkinRecord(saved.date,answers,saved.text).day;
+            if(demo){setForecastDemo(current=>{if(!current)return current;const input={...current.demoInput,asOf:new Date().toISOString(),days:[...current.demoInput.days.filter(d=>d.date!==day.date),day]};return {...current,demoInput:input,forecast:symptomRisk(input,{evaluate:false}),demoJournalEntries:[saved,...current.demoJournalEntries.filter(e=>e.id!==saved.id)]};});}
+            else {await storage.putEntry(saved);saveConfirmedDay(day);await refresh();setCheckinVersion(n=>n+1);}
+          }}/>;
   return (
     <div className={`shell persistent-nav-shell${openingMode ? " opening-mode" : ""}`}>
       <main className={openingMode ? undefined : "page-content-transition"}>
@@ -611,17 +621,7 @@ function HomeContent() {
         )}
         {demo && openingMode && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
         {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
-        {!openingMode && view!=="Insights" ? <LinenPages view={view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
-          wearableNote={wearableNote}
-          demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p></details>}</div>}
-          onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={async()=>{await storage.clearEntries();clearConfirmedDays();await refresh();setCheckinVersion(n=>n+1);}}
-          onSave={async entry=>{
-            const saved=validateEntry({...entry,...(demo?{persona}: {})});
-            const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:saved.facts.some(f=>f.kind===s.kind&&/^(no|none|absent|not present|false|0)\b/i.test(f.value))?false:null])) as Answers;
-            const day=checkinRecord(saved.date,answers,saved.text).day;
-            if(demo){setForecastDemo(current=>{if(!current)return current;const input={...current.demoInput,asOf:new Date().toISOString(),days:[...current.demoInput.days.filter(d=>d.date!==day.date),day]};return {...current,demoInput:input,forecast:symptomRisk(input,{evaluate:false}),demoJournalEntries:[saved,...current.demoJournalEntries.filter(e=>e.id!==saved.id)]};});}
-            else {await storage.putEntry(saved);saveConfirmedDay(day);await refresh();setCheckinVersion(n=>n+1);}
-          }}/>:String(view) === "Outlook" ? (
+        {!openingMode && view!=="Insights" ? journalExperience:String(view) === "Outlook" ? (
           <>
           <ForecastOutlook result={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} error={settings ? "" : forecastError}
             onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)}
@@ -735,25 +735,7 @@ function HomeContent() {
                 </section>
               </>
             )}
-            {openingMode && <section id="home-journal" className="home-journal-entry" aria-labelledby="home-journal-title">
-              <h2 id="home-journal-title">Journal</h2>
-              <form onSubmit={e=>{
-                e.preventDefault();
-                open();
-                setText(homeDraft);
-                setReview(true);
-                setQuestion(null);
-                setHomeDraft("");
-              }}>
-                <label htmlFor="home-journal-words">How are you feeling?</label>
-                <textarea id="home-journal-words" placeholder="Describe your symptoms…" maxLength={10000} value={homeDraft} onChange={e=>setHomeDraft(e.target.value)} />
-                <div className="toolbar">
-                  <Button type="submit" className="primary" disabled={!homeDraft.trim()}>Review entry</Button>
-                  <Button type="button" onClick={()=>{open(undefined,"voice");setText(homeDraft);setHomeDraft("");}}>Speak</Button>
-                </div>
-              </form>
-              <Button onClick={()=>setView("Your story")}>Past entries</Button>
-            </section>}
+            {openingMode && <div id="home-journal">{journalExperience}</div>}
             {!openingMode && entries.length > 0 && (
               <section className="next-step">
                 <div>

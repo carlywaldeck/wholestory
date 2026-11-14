@@ -44,7 +44,7 @@ class AudioMock {
 const OriginalURL = URL;
 let voiceFetch: ReturnType<typeof vi.fn>;
 beforeEach(async () => {
-  window.history.replaceState(null, "", "/");
+  window.history.replaceState(null, "", "/outlook");
   await clearEntries();
   await savePreferences({ ...defaultPreferences, setupComplete: true });
   localStorage.clear();
@@ -79,7 +79,7 @@ it("records only after Speak, keeps the transcript editable, and saves without a
  act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}]]}));
  await user.click(screen.getByRole("button",{name:"Stop"}));
  expect((screen.getByLabelText("What are you experiencing today?") as HTMLTextAreaElement).value).toContain("Fictional cramping");
- await user.selectOptions(screen.getByLabelText("Pelvic pain / cramps status"),"present");
+ await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
  await user.click(screen.getByRole("button",{name:"Add to calendar"}));
  await screen.findByRole("heading",{name:"Today’s summary"});
  expect((await loadEntries())[0].text).toContain("Fictional cramping interrupted my walk.");

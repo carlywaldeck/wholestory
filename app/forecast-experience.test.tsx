@@ -9,7 +9,7 @@ import { clearEntries, putEntry, loadEntries } from "../lib/storage";
 import { defaultPreferences, savePreferences } from "../lib/preferences";
 import { handleForecast } from "../lib/server-forecast";
 beforeEach(async()=>{
-  window.history.replaceState(null, "", "/");
+  window.history.replaceState(null, "", "/outlook");
   await clearEntries(); localStorage.clear();
   await savePreferences({...defaultPreferences,setupComplete:true});
   vi.spyOn(window,"scrollTo").mockImplementation(()=>{});
@@ -23,8 +23,8 @@ it("uses matching backend history and isolates a demo check-in from personal rec
  await screen.findByText("Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.");
  expect(screen.getAllByText(/Estimate · experimental/).length).toBeGreaterThan(0);
  await user.click(screen.getByRole("button",{name:"Check in today"}));
- await user.selectOptions(screen.getByLabelText("Pelvic pain / cramps status"),"present");
- await user.selectOptions(screen.getByLabelText("Fatigue status"),"absent");
+ await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
+ await user.click(screen.getByText("Record a symptom as absent"));await user.selectOptions(screen.getByLabelText("Fatigue status"),"absent");
  await user.type(screen.getByLabelText("What are you experiencing today?")," I missed a fictional rehearsal.");
  await user.click(screen.getByRole("button",{name:"Save changes"}));await screen.findByRole("heading",{name:"Today’s summary"});
  expect(screen.queryByText("Personal private words.")).toBeNull();expect((await loadEntries()).map(e=>e.id)).toEqual(["private"]);
@@ -35,7 +35,7 @@ it("uses matching backend history and isolates a demo check-in from personal rec
 });
 it("keeps personal absence false and unanswered null without transmitting records",async()=>{
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Check in today"}));
- await user.selectOptions(screen.getByLabelText("Bloating status"),"absent");
+ await user.click(screen.getByText("Record a symptom as absent"));await user.selectOptions(screen.getByLabelText("Bloating status"),"absent");
  await user.click(screen.getByRole("button",{name:"Add to calendar"}));await screen.findByRole("heading",{name:"Today’s summary"});
  const days=JSON.parse(localStorage.getItem("elya-confirmed-checkins-v1")!);
  expect(days[0].symptoms.bloating).toBe(false);expect(days[0].symptoms.pelvicPain).toBeNull();expect(days[0].availableAt).toBeTruthy();

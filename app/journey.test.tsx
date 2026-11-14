@@ -9,7 +9,7 @@ import { clearEntries, loadEntries } from "../lib/storage";
 import { savePreferences, defaultPreferences } from "../lib/preferences";
 import { handleForecast } from "../lib/server-forecast";
 beforeEach(async () => {
-  window.history.replaceState(null, "", "/");
+  window.history.replaceState(null, "", "/outlook");
   localStorage.clear();
   vi.stubGlobal("fetch",vi.fn((url:string)=>handleForecast(new Request(new URL(url,"http://localhost").href))));
   await clearEntries();
@@ -32,7 +32,7 @@ afterEach(() => {
 it("saves a confirmed entry, reviews it on the calendar, and edits without duplicating entries",async()=>{
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.type(screen.getByLabelText("What are you experiencing today?"),"My lower abdomen ached this morning.");
- await user.selectOptions(screen.getByLabelText("Pelvic pain / cramps status"),"present");
+ await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
  await user.click(screen.getByRole("button",{name:"Add to calendar"}));await screen.findByRole("heading",{name:"Today’s summary"});
  await user.click(screen.getByRole("button",{name:"Edit entry"}));await user.type(screen.getByLabelText("What are you experiencing today?")," I missed a walk.");
  await user.click(screen.getByRole("button",{name:"Save changes"}));await screen.findByRole("heading",{name:"Today’s summary"});

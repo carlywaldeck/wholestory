@@ -21,7 +21,7 @@ const destinations = [
   { label: "Privacy", view: "Privacy", href: "/privacy", Icon: Settings },
 ];
 export function AppNavigationProvider({ children }: { children: ReactNode }) {
-  const [view, updateView] = useState("Outlook");
+  const [view, updateView] = useState("Today");
   const [dirty, setDirty] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const pending = useRef<(() => void) | null>(null);
@@ -33,7 +33,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
     updateView(next);
     const href = destinations.find(d=>d.view===next)?.href;
     if (href && window.location.pathname !== href) window.history.pushState(null, "", href);
-    if (next === "Today" && window.location.pathname !== "/welcome") window.history.pushState(null, "", "/welcome");
+    if (next === "Today" && window.location.pathname !== "/") window.history.pushState(null, "", "/");
   };
   const [settings, setSettings] = useState(false);
   const [open, setOpen] = useState(false);
@@ -54,7 +54,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fromHash = () => {
       const route = destinations.find(d=>d.href===window.location.pathname);
-      updateView(route?.view ?? (window.location.pathname==="/welcome"?"Today":"Outlook")); setOpen(false); setSettings(window.location.pathname === "/settings");
+      updateView(route?.view ?? (window.location.pathname==="/settings"?"Outlook":"Today")); setOpen(false); setSettings(window.location.pathname === "/settings");
     };
     fromHash(); window.addEventListener("popstate", fromHash);
     window.addEventListener("hashchange", fromHash);
@@ -98,7 +98,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
           <a href="/settings" className="app-settings-link" onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();requestLeave(()=>{close();window.history.pushState(null,"","/settings");setSettings(true);});}}>Settings</a>
         </GlassCard>
       </div>
-      <Link className="app-wordmark-link" href="/" aria-label="elya, go to the home page" onNavigate={e=>{e.preventDefault();requestLeave(()=>{navigate("Outlook");window.history.replaceState(null,"","/");});}}><Wordmark /></Link>
+      <Link className="app-wordmark-link" href="/" aria-label="elya, go to the home page" onNavigate={e=>{e.preventDefault();requestLeave(()=>navigate("Today"));}}><Wordmark /></Link>
       <a href="/journal" className="app-checkin-pill" hidden={view!=="Outlook"} onClick={e=>{e.preventDefault();requestLeave(()=>{window.dispatchEvent(new Event("elya-checkin-today"));navigate("Your story");});}}>Check in</a>
     </div>
     {leaving && <div className="overlay"><section className="modal" role="alertdialog" aria-modal="true" aria-labelledby="leave-title">

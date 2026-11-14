@@ -7,7 +7,7 @@ function Page() {
   const nav=useAppNavigation()!;
   return <div><h1>{nav.view}</h1><span data-testid="checkin-request">{nav.checkinRequest}</span>{nav.settings&&<p>Settings opened</p>}</div>;
 }
-beforeEach(()=>window.history.replaceState(null,"","/"));
+beforeEach(()=>window.history.replaceState(null,"","/outlook"));
 afterEach(cleanup);
 it("keeps the top bar mounted, uses the exact ordered links, and marks the current page",async()=>{
  const user=userEvent.setup();render(<AppNavigationProvider><Page/></AppNavigationProvider>);

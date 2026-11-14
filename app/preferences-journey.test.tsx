@@ -8,7 +8,7 @@ import { navigate } from "./test-navigation";
 import { clearPreferences, loadPreferences } from "../lib/preferences";
 import { clearEntries } from "../lib/storage";
 beforeEach(async () => {
-  window.history.replaceState(null, "", "/");
+  window.history.replaceState(null, "", "/outlook");
   await clearPreferences();
   await clearEntries();
   localStorage.clear();
@@ -22,6 +22,17 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+});
+it("opens the animated home with Journal and toggleable symptom bubbles below it", async()=>{
+  window.history.replaceState(null,"","/");
+  const user=userEvent.setup();render(<Home/>);
+  await screen.findByRole("heading",{name:"Your life with endometriosis deserves to be understood."});
+  expect(document.getElementById("home-journal")?.querySelector("#linen-entry")).toBeTruthy();
+  const bubble=screen.getByRole("button",{name:"Fatigue"});
+  expect(bubble.getAttribute("aria-pressed")).toBe("false");
+  await user.click(bubble);expect(bubble.getAttribute("aria-pressed")).toBe("true");
+  await user.click(bubble);expect(bubble.getAttribute("aria-pressed")).toBe("false");
+  expect(window.location.pathname).toBe("/");
 });
 it("opens Outlook and keeps personalization in Settings", async () => {
   const user = userEvent.setup();
