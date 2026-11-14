@@ -23,6 +23,7 @@ export const combinedFeatureNames = [
   "restingHeartRateBpm:value", "restingHeartRateBpm:changeFromPersonalMedian",
 ];
 const journalCycleColumns = Array.from({ length: 9 }, (_, i) => i);
+const journalOnlyColumns = [0, 1, 2, 3];
 const allColumns = combinedFeatureNames.map((_, i) => i);
 
 /** Fixed L2 logistic regression. All preprocessing is fit on training rows only. */
@@ -159,15 +160,27 @@ export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: Candidat
       const firstTestOrigin = test.length ? schedule.origin(test[0].date) : null;
       const train = firstTestOrigin === null ? [] : rows.slice(0, split).filter(r => Date.parse(r.availableAt) <= firstTestOrigin);
       const evaluation = enough(train) && test.length >= 20 ? (() => {
+        const journalOnly = fitPersonalLogistic(train, journalOnlyColumns);
         const journal = fitPersonalLogistic(train, journalCycleColumns);
         const combined = fitPersonalLogistic(train, allColumns);
         const onsetJournal = onsetFit(train, journalCycleColumns);
         const onsetCombined = onsetFit(train, allColumns);
         const onsetTest = test.filter(r => !r.previous);
+        const cycleKnown = (r: LearningRow) => r.x.slice(4, 9).every(v => v !== null);
+        const cycleTrain = train.filter(cycleKnown);
+        const cycleTest = test.filter(cycleKnown);
         const prevalence = (train.reduce((s, r) => s+r.y, 0)+1)/(train.length+2);
         return { trainingDays: train.length, testDays: test.length,
           lastTrainingTarget: train.at(-1)!.date, firstTestTarget: test[0].date,
           journalAndCycle: candidateMetrics(test.map(r => ({ ...r, p: journal.predict(r.x) }))),
+          cycleAblation: {
+            trainingDaysWithCycle: cycleTrain.length, testDaysWithCycle: cycleTest.length,
+            journalOnly: candidateMetrics(test.map(r => ({ ...r, p: journalOnly.predict(r.x) }))),
+            onCycleSupportedDays: cycleTrain.length >= 14 && cycleTest.length ? {
+              journalOnly: candidateMetrics(cycleTest.map(r => ({ ...r, p: journalOnly.predict(r.x) }))),
+              journalAndCycle: candidateMetrics(cycleTest.map(r => ({ ...r, p: journal.predict(r.x) }))),
+            } : null,
+          },
           journalCycleAndWearables: candidateMetrics(test.map(r => ({ ...r, p: combined.predict(r.x) }))),
           historicalRate: candidateMetrics(test.map(r => ({ ...r, p: prevalence }))),
           persistence: candidateMetrics(test.map(r => ({ ...r, p: Number(r.previous) }))),

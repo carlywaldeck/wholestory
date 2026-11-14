@@ -67,3 +67,24 @@ it("can use a preceding-day wearable signal to forecast synthetic new symptoms",
   expect(result.evaluation!.journalCycleAndWearables.newOnset.recall).toBeGreaterThan(.5);
   expect(result.evaluation!.journalCycleAndWearables.all.brier!).toBeLessThan(result.evaluation!.journalAndCycle.all.brier!);
 });
+
+it("removing unavailable cycle features leaves identical paired predictions", () => {
+  const demo = forecastDemo("alex", "2026-11-15");
+  const result = combinedSymptomCandidate(demo.input, []);
+  for (const row of result.symptoms) if (row.evaluation) {
+    expect(row.evaluation.cycleAblation.journalOnly).toEqual(row.evaluation.journalAndCycle);
+    expect(row.evaluation.cycleAblation.trainingDaysWithCycle).toBe(0);
+    expect(row.evaluation.cycleAblation.onCycleSupportedDays).toBeNull();
+  }
+});
+
+it("period starts learned only at the final cutoff cannot leak into historical cycle features", () => {
+  const demo = forecastDemo("maya", "2026-11-15");
+  demo.input.cycle.periodStarts.forEach(start => { start.availableAt = demo.input.asOf; });
+  const result = combinedSymptomCandidate(demo.input, []);
+  for (const row of result.symptoms) if (row.evaluation) {
+    expect(row.evaluation.cycleAblation.journalOnly).toEqual(row.evaluation.journalAndCycle);
+    expect(row.evaluation.cycleAblation.trainingDaysWithCycle).toBe(0);
+    expect(row.evaluation.cycleAblation.testDaysWithCycle).toBe(0);
+  }
+});
