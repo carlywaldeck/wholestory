@@ -1,165 +1,194 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-export type VoiceOption = {
-  id: string;
-  name: string;
-  lang: string;
-  local: boolean;
-};
-const voiceId = (voice: SpeechSynthesisVoice) =>
-  voice.voiceURI || `${voice.name}:${voice.lang}`;
-const noveltyVoice =
-  /^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Good News|Hysterical|Jester|Junior|Organ|Ralph|Superstar|Trinoids|Whisper|Wobble|Zarvox)$/i;
-const familiarVoiceRank = (name: string) => {
-  const preferred = ["Samantha", "Karen", "Daniel", "Moira", "Tessa", "Rishi"];
-  const index = preferred.findIndex((n) => name.startsWith(n));
-  return index < 0 ? 100 : index;
-};
-const previewText =
-  "Hi. I'm here to help you tell your story, one moment at a time. Take your time. We can go at your pace.";
+import { naturalVoices } from "../lib/voice-options";
 
-/** Replies are silent until a person explicitly chooses a previewed browser voice. */
+/** Natural AI audio only. Preview samples never contain journal text. */
 export function useSpokenReplies() {
-  const [enabled, setEnabled] = useState(false),
-    [supported, setSupported] = useState(false),
+  const [enabled, setEnabledState] = useState(false),
+    [consent, setConsentState] = useState(false),
+    [configured, setConfigured] = useState<boolean | null>(null),
     [speaking, setSpeaking] = useState(false),
+    [preparing, setPreparing] = useState(false),
     [speechError, setSpeechError] = useState(""),
-    [voices, setVoices] = useState<VoiceOption[]>([]),
     [selectedVoice, setSelectedVoice] = useState(""),
     [rate, setRate] = useState(1);
-  const active = useRef<SpeechSynthesisUtterance | null>(null);
-  const enabledRef = useRef(false),
+  const current = useRef<HTMLAudioElement | null>(null),
+    objectURL = useRef<string | null>(null),
+    pending = useRef<AbortController | null>(null),
+    generation = useRef(0),
+    enabledRef = useRef(false),
+    consentRef = useRef(false),
     selectedRef = useRef(""),
+    configuredRef = useRef<boolean | null>(null),
     rateRef = useRef(1);
   rateRef.current = rate;
-  const stop = useCallback(() => {
-    if (active.current) {
-      active.current.onend = null;
-      active.current.onerror = null;
-      active.current = null;
+  const release = useCallback(() => {
+    if (current.current) {
+      current.current.onended = null;
+      current.current.onerror = null;
+      current.current.pause();
+      current.current.src = "";
+      current.current = null;
     }
-    if (typeof window !== "undefined" && window.speechSynthesis)
-      window.speechSynthesis.cancel();
+    if (objectURL.current) {
+      URL.revokeObjectURL(objectURL.current);
+      objectURL.current = null;
+    }
+  }, []);
+  const stop = useCallback(() => {
+    generation.current++;
+    pending.current?.abort();
+    pending.current = null;
+    release();
     setSpeaking(false);
+    setPreparing(false);
+  }, [release]);
+  const checkStatus = useCallback(async () => {
+    try {
+      const r = await fetch("/api/voice", { cache: "no-store" });
+      if (!r.ok) throw Error();
+      const d = await r.json();
+      configuredRef.current = d.configured === true;
+      setConfigured(d.configured === true);
+    } catch {
+      configuredRef.current = false;
+      setConfigured(false);
+    }
   }, []);
   useEffect(() => {
-    const synth = window.speechSynthesis;
-    setSupported(Boolean(synth && window.SpeechSynthesisUtterance));
-    const update = () => {
-      const all = synth?.getVoices() || [];
-      const english = all.filter((v) => v.lang.startsWith("en"));
-      setVoices(
-        (english.length ? english : all)
-          .filter((v) => !noveltyVoice.test(v.name))
-          .map((v) => ({
-            id: voiceId(v),
-            name: v.name,
-            lang: v.lang,
-            local: v.localService,
-          }))
-          .sort(
-            (a, b) =>
-              familiarVoiceRank(a.name) - familiarVoiceRank(b.name) ||
-              a.name.localeCompare(b.name),
-          ),
-      );
-    };
-    update();
+    checkStatus();
     try {
-      const saved = localStorage.getItem("wholestory.voice") || "";
-      setSelectedVoice(saved);
-      selectedRef.current = saved;
+      const saved = localStorage.getItem("wholestory.naturalVoice") || "";
+      if (naturalVoices.some((v) => v.id === saved)) {
+        selectedRef.current = saved;
+        setSelectedVoice(saved);
+      }
     } catch {}
-    synth?.addEventListener?.("voiceschanged", update);
     return () => {
-      synth?.removeEventListener?.("voiceschanged", update);
-      if (active.current) {
-        active.current.onend = null;
-        active.current.onerror = null;
-      }
-      synth?.cancel();
+      generation.current++;
+      pending.current?.abort();
+      release();
     };
-  }, []);
+  }, [checkStatus, release]);
   const play = useCallback(
-    (text: string, id: string) => {
-      stop();
-      if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
-        setSpeechError(
-          "Spoken replies are unavailable in this browser. Your reply is still shown on screen.",
-        );
-        return;
-      }
-      const voice = window.speechSynthesis
-        .getVoices()
-        .find((v) => voiceId(v) === id);
-      if (!voice) {
-        setSpeechError(
-          "Choose an available voice and use its preview first. We will not switch you to a default voice.",
-        );
-        return;
-      }
-      setSpeechError("");
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.voice = voice;
-      utterance.lang = voice.lang;
-      utterance.rate = rateRef.current;
-      const finish = () => {
-        if (active.current === utterance) {
-          active.current = null;
-          setSpeaking(false);
-        }
+    async (src: string, token: number) => {
+      if (token !== generation.current) return;
+      const audio = new Audio(src);
+      audio.playbackRate = rateRef.current;
+      current.current = audio;
+      audio.onended = () => {
+        if (token !== generation.current) return;
+        release();
+        setSpeaking(false);
       };
-      utterance.onend = finish;
-      utterance.onerror = () => {
-        if (active.current !== utterance) return;
-        finish();
+      audio.onerror = () => {
+        if (token !== generation.current) return;
+        release();
+        setSpeaking(false);
         setSpeechError(
-          "This voice could not play. Try another preview or use the text reply.",
+          "This audio could not play. Try another preview or read the reply.",
         );
       };
-      active.current = utterance;
+      setPreparing(false);
       setSpeaking(true);
       try {
-        window.speechSynthesis.speak(utterance);
+        await audio.play();
       } catch {
-        finish();
+        if (token !== generation.current) return;
+        release();
+        setSpeaking(false);
         setSpeechError(
-          "This voice could not play. Try another preview or use the text reply.",
+          "Your browser could not play the audio. Try the preview button again.",
         );
       }
     },
-    [stop],
+    [release],
+  );
+  const preview = useCallback(
+    (id: string) => {
+      const voice = naturalVoices.find((v) => v.id === id);
+      if (!voice) return;
+      stop();
+      setSpeechError("");
+      void play(voice.sample, generation.current);
+    },
+    [stop, play],
   );
   const speak = useCallback(
-    (text: string, force = false) => {
+    async (text: string, force = false) => {
       if (!enabledRef.current && !force) return;
       if (!selectedRef.current) {
+        setSpeechError("Choose a natural voice from the previews first.");
+        return;
+      }
+      if (!consentRef.current) {
         setSpeechError(
-          "Choose your voice from the previews before turning on spoken replies.",
+          "Enable consent for sending reply text to OpenAI before using live spoken replies.",
         );
         return;
       }
-      play(text, selectedRef.current);
-    },
-    [play],
-  );
-  const preview = useCallback((id: string) => play(previewText, id), [play]);
-  const chooseVoice = useCallback(
-    (id: string) => {
+      if (configuredRef.current === false) {
+        setSpeechError(
+          "Live natural replies need the server API key. The voice samples are ready to preview.",
+        );
+        return;
+      }
       stop();
-      if (!window.speechSynthesis?.getVoices().some((v) => voiceId(v) === id)) {
-        setSpeechError(
-          "That voice is no longer available. Choose another preview.",
-        );
-        return;
-      }
-      selectedRef.current = id;
-      enabledRef.current = true;
-      setSelectedVoice(id);
-      setEnabled(true);
+      const token = generation.current;
+      const controller = new AbortController();
+      pending.current = controller;
+      setPreparing(true);
       setSpeechError("");
       try {
-        localStorage.setItem("wholestory.voice", id);
+        const r = await fetch("/api/voice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text,
+            voice: selectedRef.current,
+            consent: true,
+          }),
+          signal: controller.signal,
+        });
+        if (token !== generation.current) return;
+        if (!r.ok) {
+          const error = await r.json();
+          if (r.status === 503) {
+            configuredRef.current = false;
+            setConfigured(false);
+          }
+          throw Error(error.error || "Natural voice unavailable");
+        }
+        const blob = await r.blob();
+        if (token !== generation.current) return;
+        objectURL.current = URL.createObjectURL(blob);
+        pending.current = null;
+        await play(objectURL.current, token);
+      } catch (e) {
+        if (token !== generation.current || controller.signal.aborted) return;
+        setPreparing(false);
+        setSpeaking(false);
+        setSpeechError(
+          e instanceof Error
+            ? e.message
+            : "Natural voice unavailable. The reply is still on screen.",
+        );
+      }
+    },
+    [stop, play],
+  );
+  const chooseVoice = useCallback(
+    (id: string) => {
+      if (!naturalVoices.some((v) => v.id === id)) return;
+      stop();
+      selectedRef.current = id;
+      setSelectedVoice(id);
+      const ready = consentRef.current && configuredRef.current === true;
+      enabledRef.current = ready;
+      setEnabledState(ready);
+      setSpeechError("");
+      try {
+        localStorage.setItem("wholestory.naturalVoice", id);
       } catch {}
     },
     [stop],
@@ -168,34 +197,55 @@ export function useSpokenReplies() {
     (value: boolean) => {
       if (
         value &&
-        !window.speechSynthesis
-          ?.getVoices()
-          .some((v) => voiceId(v) === selectedVoice)
+        (!selectedRef.current ||
+          !consentRef.current ||
+          configuredRef.current !== true)
       ) {
-        setSpeechError("Choose your voice from the previews first.");
-        enabledRef.current = false;
-        setEnabled(false);
+        setSpeechError(
+          !selectedRef.current
+            ? "Choose a natural voice first."
+            : !consentRef.current
+              ? "Consent to send reply text to OpenAI before enabling live speech."
+              : "Live natural replies need the server API key. Previews work now.",
+        );
         return;
       }
       enabledRef.current = value;
-      setEnabled(value);
+      setEnabledState(value);
       if (!value) stop();
     },
-    [selectedVoice, stop],
+    [stop],
+  );
+  const setConsent = useCallback(
+    (value: boolean) => {
+      consentRef.current = value;
+      setConsentState(value);
+      if (!value) {
+        enabledRef.current = false;
+        setEnabledState(false);
+        stop();
+      }
+    },
+    [stop],
   );
   return {
     enabled,
     setEnabled: toggle,
-    supported,
+    supported: true,
     speaking,
+    preparing,
     speechError,
     speak,
     stop,
-    voices,
+    voices: naturalVoices,
     selectedVoice,
     chooseVoice,
     preview,
     rate,
     setRate,
+    consent,
+    setConsent,
+    configured,
+    checkStatus,
   };
 }

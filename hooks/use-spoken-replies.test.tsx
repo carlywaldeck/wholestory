@@ -1,115 +1,157 @@
 // @vitest-environment jsdom
-import { renderHook, act, cleanup } from "@testing-library/react";
+import { renderHook, act, cleanup, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, it, expect, vi } from "vitest";
 import { useSpokenReplies } from "./use-spoken-replies";
-class Utterance {
-  text: string;
-  voice: unknown = null;
-  rate = 1;
-  lang = "";
-  onend: (() => void) | null = null;
+class AudioMock {
+  static instances: AudioMock[] = [];
+  src: string;
+  playbackRate = 1;
+  onended: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  constructor(text: string) {
-    this.text = text;
+  play = vi.fn().mockResolvedValue(undefined);
+  pause = vi.fn();
+  constructor(src: string) {
+    this.src = src;
+    AudioMock.instances.push(this);
   }
 }
-const local = {
-  voiceURI: "local",
-  name: "Local English",
-  lang: "en-US",
-  localService: true,
-};
-const remote = {
-  voiceURI: "remote",
-  name: "Remote English",
-  lang: "en-US",
-  localService: false,
-};
-let synth: {
-  speak: ReturnType<typeof vi.fn>;
-  cancel: ReturnType<typeof vi.fn>;
-  getVoices: () => unknown[];
-};
+const OriginalURL = URL;
+let request: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   localStorage.clear();
-  synth = { speak: vi.fn(), cancel: vi.fn(), getVoices: () => [remote, local] };
-  vi.stubGlobal("speechSynthesis", synth);
-  vi.stubGlobal("SpeechSynthesisUtterance", Utterance);
+  AudioMock.instances = [];
+  vi.stubGlobal("Audio", AudioMock);
+  vi.stubGlobal(
+    "URL",
+    class extends OriginalURL {
+      static createObjectURL = vi.fn(() => "blob:reply");
+      static revokeObjectURL = vi.fn();
+    },
+  );
+  request = vi.fn(async (_url: string, options?: RequestInit) =>
+    options?.method === "POST"
+      ? new Response(new Blob(["audio"], { type: "audio/wav" }))
+      : Response.json({ configured: true }),
+  );
+  vi.stubGlobal("fetch", request);
 });
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
-it("never chooses a default voice or speaks before the user chooses", () => {
+it("does not play a system voice or send text before consent", async () => {
   const { result } = renderHook(useSpokenReplies);
-  act(() => result.current.speak("Private journal text"));
-  act(() => result.current.setEnabled(true));
-  expect(synth.speak).not.toHaveBeenCalled();
-  expect(result.current.enabled).toBe(false);
-  expect(result.current.speechError).toContain("Choose");
+  await waitFor(() => expect(result.current.configured).toBe(true));
+  await act(async () => {
+    await result.current.speak("Private text", true);
+  });
+  expect(AudioMock.instances).toHaveLength(0);
+  act(() => result.current.chooseVoice("coral"));
+  await act(async () => {
+    await result.current.speak("Private text", true);
+  });
+  expect(
+    request.mock.calls.filter((c) => c[1]?.method === "POST"),
+  ).toHaveLength(0);
+  expect(result.current.speechError).toContain("consent");
 });
-it("previews without enabling replies, then uses the exact chosen voice", () => {
+it("plays official AI previews without an API key or journal transmission", async () => {
+  request.mockResolvedValue(Response.json({ configured: false }));
   const { result } = renderHook(useSpokenReplies);
-  act(() => result.current.preview("remote"));
-  expect(synth.speak.mock.calls[0][0].voice).toBe(remote);
-  expect(result.current.enabled).toBe(false);
-  act(() => result.current.chooseVoice("local"));
-  act(() =>
-    result.current.speak("One optional question. How long did it last?"),
+  await waitFor(() => expect(result.current.configured).toBe(false));
+  act(() => result.current.preview("coral"));
+  expect(AudioMock.instances[0].src).toBe(
+    "https://cdn.openai.com/API/docs/audio/coral.wav",
   );
-  const u = synth.speak.mock.calls[1][0];
-  expect(u.voice).toBe(local);
-  expect(result.current.speaking).toBe(true);
-  act(() => u.onend());
-  expect(result.current.speaking).toBe(false);
+  expect(result.current.enabled).toBe(false);
+  expect(
+    request.mock.calls.filter((c) => c[1]?.method === "POST"),
+  ).toHaveLength(0);
 });
-it("cancels prior replies and never falls back when a chosen voice disappears", () => {
+it("uses the exact selected natural voice after separate consent", async () => {
   const { result } = renderHook(useSpokenReplies);
-  act(() => result.current.chooseVoice("local"));
-  act(() => result.current.speak("First"));
-  const first = synth.speak.mock.calls[0][0];
-  act(() => result.current.speak("Second"));
-  expect(first.onend).toBeNull();
-  expect(synth.cancel).toHaveBeenCalled();
-  synth.getVoices = () => [remote];
-  act(() => result.current.speak("Third"));
-  expect(synth.speak).toHaveBeenCalledTimes(2);
-  expect(result.current.speechError).toContain("not switch you");
+  await waitFor(() => expect(result.current.configured).toBe(true));
+  act(() => {
+    result.current.setConsent(true);
+    result.current.chooseVoice("sage");
+  });
+  await act(async () => {
+    await result.current.speak("One optional question. How long did it last?");
+  });
+  const post = request.mock.calls.find((c) => c[1]?.method === "POST")!;
+  expect(JSON.parse(post[1].body as string)).toEqual({
+    text: "One optional question. How long did it last?",
+    voice: "sage",
+    consent: true,
+  });
+  expect(AudioMock.instances[0].src).toBe("blob:reply");
+  expect(result.current.speaking).toBe(true);
 });
-it("muting blocks even callbacks captured before mute", () => {
-  const { result, unmount } = renderHook(useSpokenReplies);
-  act(() => result.current.chooseVoice("local"));
+it("muting blocks callbacks captured before mute and stops existing playback", async () => {
+  const { result } = renderHook(useSpokenReplies);
+  await waitFor(() => expect(result.current.configured).toBe(true));
+  act(() => {
+    result.current.setConsent(true);
+    result.current.chooseVoice("coral");
+    result.current.preview("coral");
+  });
   const pendingSpeak = result.current.speak;
   act(() => result.current.setEnabled(false));
-  act(() => pendingSpeak("A late reply"));
-  expect(synth.speak).not.toHaveBeenCalled();
-  unmount();
-  expect(synth.cancel).toHaveBeenCalled();
+  await act(async () => {
+    await pendingSpeak("Late reply");
+  });
+  expect(AudioMock.instances[0].pause).toHaveBeenCalled();
+  expect(
+    request.mock.calls.filter((c) => c[1]?.method === "POST"),
+  ).toHaveLength(0);
 });
-it("remembers the choice but starts the next session muted", () => {
-  localStorage.setItem("wholestory.voice", "local");
+it("remembers only the natural voice choice and starts each session muted", async () => {
+  localStorage.setItem("wholestory.naturalVoice", "alloy");
   const { result } = renderHook(useSpokenReplies);
-  expect(result.current.selectedVoice).toBe("local");
+  await waitFor(() => expect(result.current.selectedVoice).toBe("alloy"));
   expect(result.current.enabled).toBe(false);
+  expect(result.current.consent).toBe(false);
 });
-it("falls back to visible text if synthesis is unavailable", () => {
-  vi.stubGlobal("speechSynthesis", undefined);
+it("never falls back to a system voice when the natural provider fails", async () => {
   const { result } = renderHook(useSpokenReplies);
-  act(() => result.current.preview("local"));
-  expect(result.current.speechError).toContain("unavailable");
+  await waitFor(() => expect(result.current.configured).toBe(true));
+  act(() => {
+    result.current.setConsent(true);
+    result.current.chooseVoice("coral");
+  });
+  request.mockResolvedValueOnce(
+    Response.json({ error: "Provider unavailable" }, { status: 422 }),
+  );
+  await act(async () => {
+    await result.current.speak("Reply");
+  });
+  expect(result.current.speechError).toBe("Provider unavailable");
+  expect(AudioMock.instances).toHaveLength(0);
+  expect(result.current.preparing).toBe(false);
+});
+it("cancels pending generation when speech is stopped", async () => {
+  const { result } = renderHook(useSpokenReplies);
+  await waitFor(() => expect(result.current.configured).toBe(true));
+  act(() => {
+    result.current.setConsent(true);
+    result.current.chooseVoice("coral");
+  });
+  let resolve!: (r: Response) => void;
+  request.mockImplementationOnce(
+    () =>
+      new Promise<Response>((r) => {
+        resolve = r;
+      }),
+  );
+  let speaking: Promise<void>;
+  act(() => {
+    speaking = result.current.speak("Reply");
+  });
+  act(() => result.current.stop());
+  await act(async () => {
+    resolve(new Response(new Blob(["audio"])));
+    await speaking!;
+  });
+  expect(AudioMock.instances).toHaveLength(0);
   expect(result.current.speaking).toBe(false);
-});
-
-it("offers conversational choices before novelty system voices", () => {
-  synth.getVoices = () => [
-    { ...local, voiceURI: "albert", name: "Albert" },
-    { ...local, voiceURI: "samantha", name: "Samantha" },
-    { ...local, voiceURI: "karen", name: "Karen" },
-  ];
-  const { result } = renderHook(useSpokenReplies);
-  expect(result.current.voices.map((v) => v.name)).toEqual([
-    "Samantha",
-    "Karen",
-  ]);
-  expect(result.current.selectedVoice).toBe("");
 });

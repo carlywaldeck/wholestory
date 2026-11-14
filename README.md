@@ -5,7 +5,7 @@ WholeStory turns scattered symptoms into a clear, evidence-linked story for a he
 **“These patterns may be worth discussing with a healthcare professional. This tool does not diagnose endometriosis or replace medical care.”**
 
 - [Private live app](https://wholestory-journal.ingeniouscondor8.chatgpt.site)
-- [Private source repository](https://github.com/cwaldecknts/wholestory)
+- [Intended personal source repository — pending setup](https://github.com/carlywaldeck/wholestory)
 - [Combined product and source rationale](docs/PRODUCT.md)
 
 ## Run locally
@@ -20,7 +20,7 @@ npm run dev
 
 Open http://localhost:3000. If the environment cannot start a filesystem watcher, use `npm run build && npm start` instead.
 
-Optional: set server-side `OPENAI_API_KEY` and `OPENAI_MODEL` (default `gpt-4.1-mini`) in `.env.local`, then restart. Never put the key in a `NEXT_PUBLIC` variable or commit it. Manual entry, forms, browser voices, demos, analytics, and PDF generation need no API key.
+Optional: set server-side `OPENAI_API_KEY` and `OPENAI_MODEL` (default `gpt-4.1-mini`) in `.env.local`, then restart. Never put the key in a `NEXT_PUBLIC` variable or commit it. Manual entry, forms, natural voice previews, demos, analytics, and PDF generation need no API key.
 
 ```sh
 npm test
@@ -29,15 +29,15 @@ npm run build
 npm start
 ```
 
-## Voice: choose before speaking
+## Natural AI voice previews
 
-1. Open the microphone or typed entry flow.
-2. In **A voice that feels right to you**, choose an available browser voice and select **Preview voice**. Adjust the pace if you like. Previews use a fixed, non-medical sentence.
-3. Select **Use this voice** to enable replies. No voice is chosen automatically, and there is no fallback to a different/default voice. The choice is remembered locally; each new session starts muted.
-4. Choose **Start recording**, describe the entry, and stop. Review manually or consent to AI extraction. The single optional follow-up can be read aloud, replayed, skipped, or answered with **Answer by voice**.
-5. Review and save. **Stop speaking** interrupts a reply or preview. Unchecking **Read replies aloud** mutes replies, including late AI results.
+The device/system voices have been removed. WholeStory now offers official OpenAI sample recordings for **Coral**, **Sage**, and **Alloy**. Select a preview, adjust pace, and choose **Use this voice**. The public demo samples need no API key and send no journal text. Live delivery can differ from the samples.
 
-Starting a recording stops playback; playing a preview stops recording. Source dictation and follow-up dictation have separate targets and append to existing words. Device/browser voices vary in quality and availability. Browser speech services may process audio or spoken text externally; the interface discloses this before activation. No raw audio is stored. The app does not claim to use a premium AI voice service: these are voices provided by the user's browser/system.
+For live natural replies, configure server-side `OPENAI_API_KEY` and optional `OPENAI_VOICE_MODEL` (default `gpt-audio-1.5`). The interface separately asks permission to send the app's reply text to OpenAI for speech. This consent is independent of journal extraction. No live speech is enabled until a voice is selected, the service is configured, and consent is granted. Each session starts muted. The server requests a verbatim reading and checks the provider-returned transcript against the intended reply before returning audio; changed words or counts are rejected. This check is a guard on the provider transcript, not independent transcription of the audio waveform.
+
+**Start recording** still uses browser speech recognition with its own disclosure. **Answer by voice** targets the optional follow-up. Recording stops playback; previewing or reading stops recording. **Stop speaking** cancels pending generation and playback. There is no fallback to a system voice. Generated audio is played from memory and its object URL is revoked after use; it is not stored in the journal. Requests use `store:false`, which does not override provider data-handling policies.
+
+The voice endpoint and local demo samples are separate. `/api/voice` GET returns only configuration status; POST validates separate consent and bounded reply text, and returns validated audio. No server key is exposed in frontend code. To enable on Sites, add `OPENAI_API_KEY` as a secret runtime variable and redeploy. For local use, put it in `.env.local` and restart. Do not paste a key into chat.
 
 ## The merged symptom workflow
 
@@ -73,22 +73,23 @@ No diagnostic model, disease probability, treatment recommendation, or causal ef
 
 The repository stores source; the working app is hosted separately on Sites. GitHub Pages cannot run this application's server-side AI endpoint.
 
-For Vercel, import `cwaldecknts/wholestory`, use the Next.js preset, and configure server secrets. A Node host uses `npm run build` then `npm start`. Use HTTPS for speech features. The key-enabled endpoint needs authenticated rate limiting/abuse protection before a broad public release.
+For Vercel, import `carlywaldeck/wholestory`, use the Next.js preset, and configure server secrets. A Node host uses `npm run build` then `npm start`. Use HTTPS for speech features. The key-enabled endpoint needs authenticated rate limiting/abuse protection before a broad public release.
 
 For Sites, `npm run build:sites` packages Next's actual prerendered single route, client assets, and the same extraction handler into a Worker at `dist/server/index.js`. `.openai/hosting.json` retains Site identity. Rebuild/update the adapter if adding server routes or changing Next's asset layout. Publish through the Sites source workflow and keep the existing access audience. Runtime API keys belong in secret environment settings, followed by redeployment.
 
 ## Modules and checks
 
 - `app/page.tsx`: views and entry workflow.
-- `hooks/use-spoken-replies.ts`, `components/voice-picker.tsx`: chosen voice previews, playback, mute, cancellation.
+- `hooks/use-spoken-replies.ts`, `components/voice-picker.tsx`: natural AI samples, chosen voice, playback, mute, cancellation.
 - `components/structured-details.tsx`: source-attributed optional form.
 - `lib/model.ts`, `lib/cycles.ts`: schemas, exact quotation/numeric validation, distinct-day counts, recurring observations and source links.
 - `lib/storage.ts`: IndexedDB and validated atomic import.
 - `lib/demo.ts`: separate fictional personas.
 - `lib/pdf.ts`: deterministic report generation and evidence appendix.
 - `lib/server-extract.ts`: consent-gated server extraction.
+- `lib/server-voice.ts`: consent-gated natural speech and provider transcript verification.
 - `components/safety-section.tsx`, `lib/clinical-context.ts`: sourced general context and care guidance.
 
-33 automated tests cover counts, missing data, source attribution, numeric/cycle consistency, storage, AI consent/failure, form entry, persona isolation, cycle recurrence, PDF layout, and voice selection/preview/mute/answer routing. TypeScript and production builds are checked. Browser speech recognition and audio quality still need testing on each target device; automated tests mock speech engines, and no live OpenAI extraction was made without a configured key.
+37 automated tests cover counts, missing data, source attribution, numeric/cycle consistency, storage, AI consent/failure, form entry, persona isolation, cycle recurrence, PDF layout, and natural-voice consent, transcript checks, preview/mute/cancellation, and answer routing. TypeScript and production builds are checked. Browser speech recognition and audio quality still need testing on each target device; automated tests mock speech engines, and no live OpenAI extraction was made without a configured key.
 
-Next priorities: patient/clinical and accessibility review, encrypted backups, clinician-reviewed questions, more flexible report date ranges, and a separately consented higher-quality voice provider if browser previews do not meet expectations.
+Next priorities: patient/clinical and accessibility review, encrypted backups, clinician-reviewed questions, more flexible report date ranges, and testing the natural voice provider on target devices and controlling voice latency/costs.

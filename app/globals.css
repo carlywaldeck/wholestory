@@ -1333,3 +1333,25 @@ input[type="date"] {
 .voice-preview-grid button:hover {
   background: #f9f3fc;
 }
+.preview-option small {
+  display: block;
+  font-size: 9px;
+  color: #9a7eac;
+  margin-top: 9px;
+}
+.voice-setup {
+  padding: 12px;
+  background: #f9f2e8;
+  border: 1px solid #eadcc9;
+  border-radius: 8px;
+  font-size: 11px;
+  margin-top: 12px;
+  color: #977b52;
+}
+.voice-setup button {
+  text-decoration: underline;
+  font-size: 10px;
+}
+.voice-setup strong {
+  font-weight: 500;
+}

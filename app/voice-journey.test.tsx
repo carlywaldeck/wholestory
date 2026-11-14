@@ -28,28 +28,39 @@ class Utterance {
     this.text = text;
   }
 }
-const synth = {
-  speak: vi.fn(),
-  cancel: vi.fn(),
-  getVoices: () => [
-    {
-      voiceURI: "test-voice",
-      name: "Test voice",
-      lang: "en-US",
-      localService: true,
-    },
-  ],
-};
+class AudioMock {
+  src: string;
+  playbackRate = 1;
+  onended: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  play = vi.fn().mockResolvedValue(undefined);
+  pause = vi.fn();
+  constructor(src: string) {
+    this.src = src;
+  }
+}
+const OriginalURL = URL;
+let voiceFetch: ReturnType<typeof vi.fn>;
 beforeEach(async () => {
   await clearEntries();
   localStorage.clear();
   Recognition.instances = [];
-  synth.speak.mockClear();
-  synth.cancel.mockClear();
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   vi.stubGlobal("SpeechRecognition", Recognition);
-  vi.stubGlobal("SpeechSynthesisUtterance", Utterance);
-  vi.stubGlobal("speechSynthesis", synth);
+  vi.stubGlobal("Audio", AudioMock);
+  vi.stubGlobal(
+    "URL",
+    class extends OriginalURL {
+      static createObjectURL = vi.fn(() => "blob:reply");
+      static revokeObjectURL = vi.fn();
+    },
+  );
+  voiceFetch = vi.fn(async (_url: string, options?: RequestInit) =>
+    options?.method === "POST"
+      ? new Response(new Blob(["audio"], { type: "audio/wav" }))
+      : Response.json({ configured: true }),
+  );
+  vi.stubGlobal("fetch", voiceFetch);
 });
 afterEach(() => {
   cleanup();
@@ -65,16 +76,18 @@ it("reads one follow-up aloud, records its answer, and saves both without feedba
   await user.click(
     screen.getByRole("button", { name: "Create a voice entry" }),
   );
-  await user.selectOptions(screen.getByLabelText("Reply voice"), "test-voice");
-  await user.click(screen.getByRole("button", { name: "Preview voice" }));
-  expect(synth.speak.mock.calls[0][0].text).toContain("tell your story");
+  await user.click(screen.getByRole("button", { name: "Preview Coral" }));
+  await user.click(
+    screen.getByLabelText(
+      "Allow OpenAI to turn the app’s reply text into natural speech. This sends reply text to OpenAI, separately from journal extraction.",
+    ),
+  );
   await user.click(screen.getByRole("button", { name: "Use this voice" }));
-  synth.speak.mockClear();
   await user.click(screen.getByRole("button", { name: "Start recording" }));
   expect(screen.getByText("Listening to your entry…")).toBeTruthy();
   const entryMic = Recognition.instances[0];
   expect(entryMic.start).toHaveBeenCalled();
-  expect(synth.speak).not.toHaveBeenCalled();
+
   act(() =>
     entryMic.onresult?.({
       results: [[{ transcript: "My lower abdomen hurt this morning." }]],
@@ -82,13 +95,15 @@ it("reads one follow-up aloud, records its answer, and saves both without feedba
   );
   await user.click(screen.getByRole("button", { name: "Stop recording" }));
   await user.click(screen.getByRole("button", { name: /Review manually/ }));
-  const spoken = synth.speak.mock.calls.map((call) => call[0].text as string);
+  const spoken = voiceFetch.mock.calls
+    .filter((c) => c[1]?.method === "POST")
+    .map((c) => JSON.parse(c[1].body as string).text as string);
   expect(
     spoken.filter((t) => t.includes("Did the symptoms interfere")),
   ).toHaveLength(1);
   await user.click(screen.getByRole("button", { name: "Answer by voice" }));
   const answerMic = Recognition.instances[1];
-  expect(synth.cancel).toHaveBeenCalled();
+
   act(() =>
     answerMic.onresult?.({
       results: [[{ transcript: "I missed my first class." }]],

@@ -466,7 +466,7 @@ export default function Home() {
       <main>
         <header>
           <span>Your experience matters. All of it.</span>
-          {speech.speaking && (
+          {(speech.speaking || speech.preparing) && (
             <button className="stop-reply" onClick={speech.stop}>
               <VolumeX size={14} /> Stop speaking
             </button>
@@ -1066,7 +1066,7 @@ export default function Home() {
                   {recording ? <Square size={16} /> : <Mic size={16} />}{" "}
                   {recording ? "Stop recording" : "Start recording"}
                 </Button>
-                {speech.speaking && (
+                {(speech.speaking || speech.preparing) && (
                   <Button onClick={speech.stop}>
                     <VolumeX size={16} /> Stop speaking
                   </Button>
@@ -1081,7 +1081,7 @@ export default function Home() {
                     speech.setEnabled(e.target.checked);
                   }}
                 />{" "}
-                Read replies aloud (browser voice service)
+                Read replies aloud with OpenAI
               </label>
               <p className="muted">
                 Recording uses browser speech recognition, which may use an
@@ -1091,11 +1091,13 @@ export default function Home() {
               <div className="voice-status" role="status">
                 {recording
                   ? `Listening to your ${voiceTarget === "answer" ? "follow-up answer" : "entry"}…`
-                  : speech.speaking
-                    ? "Speaking…"
-                    : speech.enabled
-                      ? "Spoken replies on · Microphone off"
-                      : "Microphone off"}
+                  : speech.preparing
+                    ? "Preparing natural voice…"
+                    : speech.speaking
+                      ? "Speaking…"
+                      : speech.enabled
+                        ? "Natural replies on · Microphone off"
+                        : "Microphone off"}
               </div>
               {speech.speechError && (
                 <p role="status" className="muted">
@@ -1285,9 +1287,10 @@ export default function Home() {
             <p>
               AI extraction requires your explicit consent per session. Only the
               entry text is sent to OpenAI; previous entries are not sent.
-              Browser speech recognition and browser voices may process audio or
-              spoken text externally. Spoken replies are opt-in; turn off “Read
-              replies aloud” or use “Stop speaking” at any time.
+              Browser speech recognition may process audio externally. Natural
+              spoken replies send reply text to OpenAI after separate consent.
+              Spoken replies are opt-in; turn off “Read replies aloud” or use
+              “Stop speaking” at any time.
             </p>
             <div className="toolbar">
               <Button
