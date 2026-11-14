@@ -30,6 +30,12 @@ export async function createBrief(
   if (entries.some((e) => e.demo)) line("SYNTHETIC DEMO DATA", 9);
   line(`${r.range} | ${r.logged} logged days`, 10);
   line("Patient-reported documentation. Unlogged days are unknown.", 9, 4);
+  if (statement.trim()) {
+    p.setFont("helvetica", "bold");
+    line("Patient statement (user authored)", 11);
+    p.setFont("helvetica", "normal");
+    line(statement.slice(0, 600), 9);
+  }
   p.setFont("helvetica", "bold");
   line("Symptoms & everyday impact", 12);
   p.setFont("helvetica", "normal");
@@ -76,12 +82,6 @@ export async function createBrief(
         9,
       );
     });
-  }
-  if (statement.trim()) {
-    p.setFont("helvetica", "bold");
-    line("Patient statement (user authored)", 11);
-    p.setFont("helvetica", "normal");
-    line(statement.slice(0, 600), 9);
   }
   if (questions.length) {
     p.setFont("helvetica", "bold");

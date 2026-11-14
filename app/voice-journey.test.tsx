@@ -5,6 +5,7 @@ import { render, screen, cleanup, act, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
 import { clearEntries, loadEntries } from "../lib/storage";
+import { savePreferences, defaultPreferences } from "../lib/preferences";
 class Recognition {
   static instances: Recognition[] = [];
   lang = "";
@@ -43,6 +44,7 @@ const OriginalURL = URL;
 let voiceFetch: ReturnType<typeof vi.fn>;
 beforeEach(async () => {
   await clearEntries();
+  await savePreferences({ ...defaultPreferences, setupComplete: true });
   localStorage.clear();
   Recognition.instances = [];
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
@@ -73,9 +75,8 @@ it("reads one follow-up aloud, records its answer, and saves both without feedba
   await waitFor(() =>
     expect(screen.queryByText("Opening your journal…")).toBeNull(),
   );
-  await user.click(
-    screen.getByRole("button", { name: "Create a voice entry" }),
-  );
+  await user.click(screen.getByRole("button", { name: "Privacy settings" }));
+  await user.click(screen.getByText("Voice & spoken replies", { exact: true }));
   await user.click(screen.getByRole("button", { name: "Preview Coral" }));
   await user.click(
     screen.getByLabelText(
@@ -83,6 +84,8 @@ it("reads one follow-up aloud, records its answer, and saves both without feedba
     ),
   );
   await user.click(screen.getByRole("button", { name: "Use this voice" }));
+  await user.click(screen.getByRole("button", { name: "Close settings" }));
+  await user.click(screen.getByRole("button", { name: "Record instead" }));
   await user.click(screen.getByRole("button", { name: "Start recording" }));
   expect(screen.getByText("Listening to your entry…")).toBeTruthy();
   const entryMic = Recognition.instances[0];
@@ -94,7 +97,7 @@ it("reads one follow-up aloud, records its answer, and saves both without feedba
     }),
   );
   await user.click(screen.getByRole("button", { name: "Stop recording" }));
-  await user.click(screen.getByRole("button", { name: /Review manually/ }));
+  await user.click(screen.getByRole("button", { name: "Continue" }));
   const spoken = voiceFetch.mock.calls
     .filter((c) => c[1]?.method === "POST")
     .map((c) => JSON.parse(c[1].body as string).text as string);

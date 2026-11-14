@@ -57,7 +57,7 @@ export function CycleInsights({
         <>
           <ResponsiveContainer width="100%" height={230}>
             <LineChart data={c.plot}>
-              <CartesianGrid stroke="#eee8f1" />
+              <CartesianGrid stroke="#f1e3e9" />
               <XAxis
                 dataKey="day"
                 tick={{ fontSize: 10 }}
@@ -77,7 +77,7 @@ export function CycleInsights({
                   name={`Cycle starting ${start}`}
                   type="linear"
                   dataKey={start}
-                  stroke={["#8a6ba5", "#be8c9d", "#8d9c78", "#a88d6c"][i]}
+                  stroke={["#ad567d", "#d19aa9", "#b59a7c", "#987e98"][i]}
                   strokeWidth={2}
                   connectNulls={false}
                   dot={{ r: 3 }}
@@ -95,7 +95,7 @@ export function CycleInsights({
               <span key={start}>
                 <i
                   style={{
-                    background: ["#8a6ba5", "#be8c9d", "#8d9c78", "#a88d6c"][i],
+                    background: ["#ad567d", "#d19aa9", "#b59a7c", "#987e98"][i],
                   }}
                 />
                 {start}
@@ -107,7 +107,7 @@ export function CycleInsights({
         <>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={scored}>
-              <CartesianGrid stroke="#eee8f1" />
+              <CartesianGrid stroke="#f1e3e9" />
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
               <YAxis width={25} domain={[0, 10]} tick={{ fontSize: 10 }} />
               <Tooltip />
@@ -115,7 +115,7 @@ export function CycleInsights({
                 type="linear"
                 dataKey="pain"
                 name="Reported pain (0–10)"
-                stroke="#8a6ba5"
+                stroke="#ad567d"
                 connectNulls={false}
                 isAnimationActive={false}
               />

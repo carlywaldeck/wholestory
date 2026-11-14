@@ -58,6 +58,8 @@ export function useSpokenReplies() {
   useEffect(() => {
     checkStatus();
     try {
+      const savedPace = Number(localStorage.getItem("wholestory.voicePace"));
+      if ([0.9, 1, 1.1].includes(savedPace)) setRate(savedPace);
       const saved = localStorage.getItem("wholestory.naturalVoice") || "";
       if (naturalVoices.some((v) => v.id === saved)) {
         selectedRef.current = saved;
@@ -228,7 +230,32 @@ export function useSpokenReplies() {
     },
     [stop],
   );
+  const updateRate = useCallback((value: number) => {
+    if (![0.9, 1, 1.1].includes(value)) return;
+    rateRef.current = value;
+    setRate(value);
+    try {
+      localStorage.setItem("wholestory.voicePace", String(value));
+    } catch {}
+  }, []);
+  const resetPreferences = useCallback(() => {
+    stop();
+    enabledRef.current = false;
+    consentRef.current = false;
+    selectedRef.current = "";
+    rateRef.current = 1;
+    setEnabledState(false);
+    setConsentState(false);
+    setSelectedVoice("");
+    setRate(1);
+    try {
+      localStorage.removeItem("wholestory.naturalVoice");
+      localStorage.removeItem("wholestory.voicePace");
+      localStorage.removeItem("wholestory.voice");
+    } catch {}
+  }, [stop]);
   return {
+    resetPreferences,
     enabled,
     setEnabled: toggle,
     supported: true,
@@ -242,7 +269,7 @@ export function useSpokenReplies() {
     chooseVoice,
     preview,
     rate,
-    setRate,
+    setRate: updateRate,
     consent,
     setConsent,
     configured,
