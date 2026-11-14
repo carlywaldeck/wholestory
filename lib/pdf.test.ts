@@ -40,3 +40,16 @@ it("keeps each fictional persona summary compact and includes source-linked cycl
     expect(p.output()).toContain("Source key");
   }
 });
+
+it("includes a user-selected wearable observation with its limitations", async () => {
+  const p = await createBrief(
+    demoEntries(),
+    "",
+    [],
+    false,
+    "WholeStory",
+    "SYNTHETIC DEMO. Sleep comparison; not a prediction.",
+  );
+  expect(p.output()).toContain("Wearable context");
+  expect(p.output()).toContain("not a prediction");
+});

@@ -43,6 +43,8 @@ import {
 import * as storage from "../lib/storage";
 import { personas, personaEntries, PersonaId } from "../lib/demo";
 import { StructuredDetails } from "../components/structured-details";
+import { WearableExplorer } from "../components/wearable-explorer";
+import { clearWearables } from "../lib/wearables";
 import { CycleInsights } from "../components/cycle-insights";
 import { SafetySection } from "../components/safety-section";
 import { safetyBoundary } from "../lib/clinical-context";
@@ -82,6 +84,7 @@ export default function Home() {
   const [preferences, setPreferences] =
     useState<Preferences>(defaultPreferences);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [wearableNote, setWearableNote] = useState("");
   useEffect(() => {
     let active = true;
     loadPreferences()
@@ -214,7 +217,8 @@ export default function Home() {
   }, []);
   useEffect(() => {
     setReviewed(false);
-  }, [allEntries]);
+    setWearableNote("");
+  }, [allEntries, demoMode, persona]);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [view]);
@@ -445,7 +449,7 @@ export default function Home() {
 
   async function tryDemo(chosen: PersonaId = persona) {
     try {
-      await storage.importEntries(personaEntries(chosen));
+      await storage.replaceDemoEntries(personaEntries(chosen));
       setPersona(chosen);
       await refresh();
       setDemoMode(true);
@@ -460,7 +464,14 @@ export default function Home() {
     if (!reviewed) return;
     try {
       const { downloadBrief } = await import("../lib/pdf");
-      await downloadBrief(entries, statement, questions, appendix, BRAND);
+      await downloadBrief(
+        entries,
+        statement,
+        questions,
+        appendix,
+        BRAND,
+        wearableNote,
+      );
     } catch {
       setError("The PDF could not be generated. Please try again.");
     }
@@ -682,6 +693,18 @@ export default function Home() {
                 </Button>
               </section>
             )}
+            <button
+              className="pattern-home-link"
+              onClick={() => setView("Insights")}
+            >
+              <span>Sleep, movement & your experience</span>
+              <strong>
+                Explore what changes on difficult days <ArrowRight size={16} />
+              </strong>
+              <span>
+                Start with a fictional wearable demo, or import a daily export.
+              </span>
+            </button>
             <section className="recent">
               <div className="section-heading">
                 <h2>
@@ -794,78 +817,92 @@ export default function Home() {
               >
                 ← Your story
               </button>
-              <h1>Your patterns, in context.</h1>
+              <h1>Your days, connected.</h1>
               <p>
-                What you’ve recorded, with the moments behind each observation.
+                Bring together what you feel and what your wearable records.
               </p>
             </section>
-            <div className="stats">
-              <div>
-                <strong>{data.logged}</strong>
-                <span>logged days</span>
+            <WearableExplorer
+              entries={entries}
+              demo={demo}
+              onDemo={() => tryDemo()}
+              onEvidence={setEvidence}
+              onInclude={(text) => {
+                setWearableNote(text);
+                setReviewed(false);
+                if (text) setView("Appointment brief");
+              }}
+            />
+            <details className="existing-patterns">
+              <summary>Explore symptoms & cycle patterns</summary>
+              <div className="stats">
+                <div>
+                  <strong>{data.logged}</strong>
+                  <span>logged days</span>
+                </div>
+                <div>
+                  <strong>{data.free}</strong>
+                  <span>explicitly symptom-free days</span>
+                </div>
+                <div>
+                  <strong>
+                    {data.items.find((i) => i.kind === "Daily-life impact")
+                      ?.days || 0}
+                  </strong>
+                  <span>days with daily-life impact</span>
+                </div>
               </div>
-              <div>
-                <strong>{data.free}</strong>
-                <span>explicitly symptom-free days</span>
-              </div>
-              <div>
-                <strong>
-                  {data.items.find((i) => i.kind === "Daily-life impact")
-                    ?.days || 0}
-                </strong>
-                <span>days with daily-life impact</span>
-              </div>
-            </div>
-            <p className="muted">
-              Based only on your logged days. Missing logs are unknown.{" "}
-              {data.logged < 30
-                ? "This is a small sample; patterns may change as you log more."
-                : ""}{" "}
-              Counts do not establish a cause.
-            </p>
-            <CycleInsights entries={entries} onEvidence={setEvidence} />
-            <section className="chart-card">
-              <h2>What you’ve mentioned</h2>
-              <ResponsiveContainer
-                width="100%"
-                height={Math.max(
-                  180,
-                  data.items.filter((i) => i.days).length * 34,
-                )}
-              >
-                <BarChart
-                  layout="vertical"
-                  data={data.items.filter((i) => i.days)}
+              <p className="muted">
+                Based only on your logged days. Missing logs are unknown.{" "}
+                {data.logged < 30
+                  ? "This is a small sample; patterns may change as you log more."
+                  : ""}{" "}
+                Counts do not establish a cause.
+              </p>
+              <CycleInsights entries={entries} onEvidence={setEvidence} />
+              <section className="chart-card">
+                <h2>What you’ve mentioned</h2>
+                <ResponsiveContainer
+                  width="100%"
+                  height={Math.max(
+                    180,
+                    data.items.filter((i) => i.days).length * 34,
+                  )}
                 >
-                  <XAxis type="number" allowDecimals={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="kind"
-                    tick={{ fontSize: 10 }}
-                    width={135}
-                  />
-                  <Tooltip />
-                  <Bar dataKey="days" fill="#b97191" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </section>
-            {data.items
-              .filter((i) => i.days)
-              .map((i) => (
-                <button
-                  key={i.kind}
-                  className="insight-row"
-                  onClick={() => setEvidence(i.ids)}
-                >
-                  <span>
-                    <strong>{i.kind}</strong> was reported on {i.days} logged{" "}
-                    {i.days === 1 ? "day" : "days"}.
-                  </span>
-                  <span>
-                    See evidence <ArrowUpRight size={16} />
-                  </span>
-                </button>
-              ))}
+                  <BarChart
+                    layout="vertical"
+                    data={data.items.filter((i) => i.days)}
+                  >
+                    <XAxis type="number" allowDecimals={false} />
+                    <YAxis
+                      type="category"
+                      dataKey="kind"
+                      tick={{ fontSize: 10 }}
+                      width={135}
+                    />
+                    <Tooltip />
+                    <Bar dataKey="days" fill="#b97191" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </section>
+              {data.items
+                .filter((i) => i.days)
+                .map((i) => (
+                  <button
+                    key={i.kind}
+                    className="insight-row"
+                    onClick={() => setEvidence(i.ids)}
+                  >
+                    <span>
+                      <strong>{i.kind}</strong> was reported on {i.days} logged{" "}
+                      {i.days === 1 ? "day" : "days"}.
+                    </span>
+                    <span>
+                      See evidence <ArrowUpRight size={16} />
+                    </span>
+                  </button>
+                ))}
+            </details>
             {evidence && (
               <section id="supporting-entries">
                 <div className="section-heading">
@@ -937,6 +974,20 @@ export default function Home() {
                     Your words, included at the start of your downloaded brief.
                   </p>
                 </div>
+                {wearableNote && (
+                  <section className="wearable-brief-note">
+                    <h3>Wearable context · chosen by you</h3>
+                    <p>{wearableNote}</p>
+                    <Button
+                      onClick={() => {
+                        setWearableNote("");
+                        setReviewed(false);
+                      }}
+                    >
+                      Remove wearable comparison
+                    </Button>
+                  </section>
+                )}
                 <h3>What your entries tell us</h3>
                 {brief.claims.map((c) => (
                   <p key={c.kind}>
@@ -1499,6 +1550,22 @@ export default function Home() {
                 </p>
               )}
             </details>
+            <details className="settings-section">
+              <summary>Wearable data</summary>
+              <p>
+                Explore sleep and activity using a local daily CSV import or
+                fictional demo. No device is connected automatically. Imports
+                stay in this browser and are not sent to AI.
+              </p>
+              <Button
+                onClick={() => {
+                  setSettings(false);
+                  setView("Insights");
+                }}
+              >
+                Manage wearable data <ArrowRight size={15} />
+              </Button>
+            </details>
             <h3 className="settings-subheading">Privacy & your data</h3>
             <p>
               Entries stay in this browser’s IndexedDB. Local browser data is
@@ -1562,6 +1629,7 @@ export default function Home() {
                 ) {
                   await storage.clearEntries();
                   await clearPreferences();
+                  await clearWearables();
                   setPreferences(defaultPreferences);
                   speech.resetPreferences();
                   await refresh();

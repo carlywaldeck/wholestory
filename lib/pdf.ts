@@ -7,6 +7,7 @@ export async function createBrief(
   questions: string[],
   appendix: boolean,
   brand: string,
+  wearableNote = "",
 ) {
   const { jsPDF } = await import("jspdf");
   const p = new jsPDF();
@@ -82,6 +83,12 @@ export async function createBrief(
         9,
       );
     });
+  }
+  if (wearableNote) {
+    p.setFont("helvetica", "bold");
+    line("Wearable context (user selected)", 11);
+    p.setFont("helvetica", "normal");
+    line(wearableNote, 9);
   }
   if (questions.length) {
     p.setFont("helvetica", "bold");

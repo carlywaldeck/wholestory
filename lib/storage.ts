@@ -27,3 +27,21 @@ export async function importEntries(input: unknown) {
   await Promise.all(entries.map((e) => tx.store.put(e)));
   await tx.done;
 }
+
+/** Reload only the selected fictional history, so relative dates never accumulate across days. */
+export async function replaceDemoEntries(input: Entry[]) {
+  const entries = input.map(validateEntry);
+  const persona = entries[0]?.persona;
+  if (!persona || entries.some((e) => !e.demo || e.persona !== persona))
+    throw Error("Expected one fictional persona.");
+  const d = await db();
+  const tx = d.transaction("entries", "readwrite");
+  let cursor = await tx.store.openCursor();
+  while (cursor) {
+    if (cursor.value.demo && cursor.value.persona === persona)
+      await cursor.delete();
+    cursor = await cursor.continue();
+  }
+  for (const entry of entries) await tx.store.put(entry);
+  await tx.done;
+}
