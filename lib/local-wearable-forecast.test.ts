@@ -1,8 +1,19 @@
 import { expect, it } from "vitest";
 import { forecastDemo } from "./forecast-demo";
-import { previewWearableForecast } from "./local-wearable-forecast";
+import { previewWearableForecast, previewLearningWearableForecast } from "./local-wearable-forecast";
+import { createPersonalLearner } from "./personal-learning";
 
 const consent = { experimentalPreview: true } as const;
+it("connects a local CSV to a persistent-learning snapshot without uploading or backfilling", () => {
+  const { input } = forecastDemo("maya", "2026-11-15");
+  const state = createPersonalLearner("demo-one", "synthetic", input.timeZone!);
+  const result = previewLearningWearableForecast(state, input,
+    "date,sleep_hours\n2026-11-14,6", { source: "synthetic", kind: "synthetic", timeZone: input.timeZone!, importedAt: input.asOf }, consent);
+  expect(result.personal.state.records).toHaveLength(8);
+  expect(result.personal.symptoms.every(s => s.trainingPairs === 0)).toBe(true);
+  expect(result.personal.state.records[0].x[9]).toBe(6);
+  expect(result.personal.privacy.networkRequestsMade).toBe(0);
+});
 it("connects normalized imports to the local model without inventing historical access", () => {
   const { input } = forecastDemo("maya", "2026-11-15");
   const options = { source: "synthetic", kind: "synthetic", timeZone: input.timeZone, importedAt: input.asOf } as const;
