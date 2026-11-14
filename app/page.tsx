@@ -523,8 +523,8 @@ export default function Home() {
         </nav>
         <div className="sidebar-bottom">
           <p className="sidebar-note">
-            A record of your days.
-            <br />A little less to remember.
+            Your entries stay on this device.
+            <br />Review them when you need them.
           </p>
           <button onClick={() => setSettings(true)}>
             <Settings size={16} /> Privacy & settings
@@ -619,8 +619,7 @@ export default function Home() {
                 How are you feeling <em>today?</em>
               </h1>
               <p>
-                A place for what you feel, and how it shapes your day.
-                <br className="desktop-break" /> Small details are welcome here.
+                Write or record what happened and how it affected your day.
               </p>
             </section>
             <JourneyProgress
@@ -635,7 +634,7 @@ export default function Home() {
             <section className="capture">
               <div className="capture-copy">
                 <span className="section-kicker">A NEW ENTRY</span>
-                <h2>Start with a moment.</h2>
+                <h2>Add an entry.</h2>
                 <p>
                   Talk it through or write it down.
                   <br />
@@ -699,11 +698,10 @@ export default function Home() {
                   <span className="section-kicker">
                     YOUR WORDS, READY TO BE HEARD
                   </span>
-                  <h2>A little less to carry into your appointment.</h2>
+                  <h2>Prepare an appointment brief.</h2>
                   <p>
-                    Bring together what happened, how it affected your days, and
-                    what you want to ask. Every observation links back to your
-                    entries.
+                    Review your entries, choose what to include, and export a
+                    source-linked PDF.
                   </p>
                 </div>
                 <Button onClick={() => setView("Appointment brief")}>
@@ -725,12 +723,12 @@ export default function Home() {
                   <div className="empty-icon">
                     <BookOpen size={23} />
                   </div>
-                  <p>Your first page is waiting.</p>
+                  <p>No entries yet.</p>
                   <span>
-                    You don’t need the right words. Just start with today.
+                    Add an entry to start your journal.
                   </span>
                   <Button onClick={() => tryDemo()}>
-                    Explore a sample journal <ArrowRight size={15} />
+                    Try a fictional journal <ArrowRight size={15} />
                   </Button>
                 </div>
               ) : (
@@ -743,7 +741,7 @@ export default function Home() {
             <section className="page-title">
               <div className="eyebrow">YOUR JOURNAL</div>
               <h1>Your story</h1>
-              <p>A record of what you felt, and what it meant for your day.</p>
+              <p>Edit entries and review the details you want to bring to care.</p>
             </section>
             <JourneyProgress
               current="review"
@@ -933,8 +931,8 @@ export default function Home() {
           <>
             <section className="page-title">
               <div className="eyebrow">APPOINTMENT PREPARATION</div>
-              <h1>A clearer conversation.</h1>
-              <p>Gather the details you want your clinician to understand.</p>
+              <h1>Appointment brief</h1>
+              <p>Review your symptoms, daily-life impact, and questions before you export.</p>
             </section>
             <JourneyProgress
               current="prepare"
@@ -949,17 +947,16 @@ export default function Home() {
                 <span className="section-kicker">
                   START WITH YOUR EXPERIENCE
                 </span>
-                <h2>Your words come first.</h2>
+                <h2>Add an entry to build your brief.</h2>
                 <p>
-                  Add an entry about what you felt and what it changed about
-                  your day. Then we’ll bring your notes together into a brief
-                  you can review and share.
+                  Your brief will include reported symptoms, daily-life impact,
+                  what you tried, and questions for your clinician.
                 </p>
                 <Button className="primary" onClick={() => open()}>
                   Write your first entry <ArrowRight size={16} />
                 </Button>
                 <button className="back-link" onClick={() => tryDemo()}>
-                  Explore a fictional example
+                  Try a fictional example
                 </button>
               </section>
             ) : (
@@ -1193,7 +1190,7 @@ export default function Home() {
         <footer>
           <span>
             <span className="footer-wordmark">WholeStory</span>{" "}
-            <span>A little less to remember.</span>
+            <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
         </footer>
