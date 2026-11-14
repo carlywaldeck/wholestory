@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { localDate, shiftDate } from "./forecast-time";
+export const physiologySources = ["oura", "fitbit", "apple-health", "garmin", "manual", "synthetic"] as const;
 export const physiologyDaySchema = z
   .object({
     date: z.iso.date(), // Sleep/nocturnal signals belong to the local waking date.
     availableAt: z.iso.datetime({ offset: true }),
-    source: z.enum(["oura", "fitbit", "manual", "synthetic"]),
+    source: z.enum(physiologySources),
     kind: z.enum(["real", "synthetic"]),
     sleepHours: z.number().min(0).max(24).nullable(),
     nightHeartRateBpm: z.number().min(20).max(220).nullable(),
