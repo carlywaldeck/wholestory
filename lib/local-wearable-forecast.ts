@@ -1,6 +1,7 @@
 import { combinedSymptomCandidate } from "./combined-forecast-candidate";
 import { riskInputSchema } from "./symptom-risk";
 import { importWearableCSV, type WearableImportOptions } from "./wearable-csv-import";
+import { symptomRiskOutlook } from "./symptom-risk-outlook";
 
 /** Local research entry point. No upload, storage, or changes to the public forecast. */
 export function previewWearableForecast(
@@ -17,13 +18,15 @@ export function previewWearableForecast(
     throw Error("Journal and wearable import must use the same data kind and time zone");
   if (Date.parse(imported.metadata.importedAt) > Date.parse(input.asOf))
     throw Error("Forecast cutoff precedes wearable receipt; choose a current cutoff");
+  const forecast = combinedSymptomCandidate(input, imported.candidateDays);
   return {
     status: "experimental-local-preview" as const,
     clinicalValidation: false as const,
     privacy: { networkRequestsMade: 0, persisted: false },
     import: imported.metadata,
     // Preserve resting HR separately rather than substituting it for nighttime HR.
-    forecast: combinedSymptomCandidate(input, imported.candidateDays),
+    forecast,
+    outlook: symptomRiskOutlook(forecast.symptoms, input.targetDate),
     disclosure: "Experimental wearable-informed estimates. Added predictive benefit has not been established. This does not diagnose endometriosis or replace medical care.",
     historicalEvaluation: "Imported readings were first available at receipt. Earlier forecasts cannot use them; retrospective wearable validation requires independently recorded availability timestamps.",
   };
