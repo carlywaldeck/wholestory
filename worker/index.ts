@@ -1,16 +1,18 @@
+import { handleOura, type OuraEnv } from "../lib/server-oura";
 import assets from "../work/assets.json";
 import { extract } from "../lib/server-extract";
 import { generateVoice, voiceStatus } from "../lib/server-voice";
 export default {
   async fetch(
     req: Request,
-    env: {
+    env: OuraEnv & {
       OPENAI_API_KEY?: string;
       OPENAI_MODEL?: string;
       OPENAI_VOICE_MODEL?: string;
     },
   ) {
     const path = new URL(req.url).pathname;
+    if (path.startsWith("/api/wearables/oura/")) return handleOura(req, env);
     if (path === "/api/voice") {
       if (req.method === "GET") return voiceStatus(env);
       if (req.method === "POST") return generateVoice(req, env);
