@@ -1,6 +1,6 @@
 import {Entry,report} from './model';
 /** A compact first page with numbered source references; quotes get separate pages. */
-export async function downloadBrief(entries:Entry[],statement:string,questions:string[],appendix:boolean,brand:string){
+export async function createBrief(entries:Entry[],statement:string,questions:string[],appendix:boolean,brand:string){
  const {jsPDF}=await import('jspdf');const p=new jsPDF();const r=report(entries);let y=19;
  const ref=(id:string)=>entries.findIndex(e=>e.id===id)+1;
  const line=(text:string,size=10,space=2)=>{p.setFontSize(size);const lines=p.splitTextToSize(text,174);p.text(lines,18,y);y+=lines.length*(size*.42)+space;};
@@ -20,5 +20,7 @@ export async function downloadBrief(entries:Entry[],statement:string,questions:s
  }
  line('Not a diagnosis or a treatment recommendation. Review with your clinician.',8);
  if(appendix){p.addPage();y=20;line('Evidence appendix',17);r.quotes.forEach(q=>{const content=`[${ref(q.id)}] ${q.date} | ${q.kind}: "${q.quote}"`;p.setFontSize(9);for(const row of p.splitTextToSize(content,174)){if(y>278){p.addPage();y=20;}p.text(row,18,y);y+=4.5}y+=3;});}
- p.save('wholestory-appointment-brief.pdf');
+ return p;
 }
+
+export async function downloadBrief(...args:Parameters<typeof createBrief>){const p=await createBrief(...args);p.save('wholestory-appointment-brief.pdf');}
