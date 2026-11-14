@@ -1,6 +1,6 @@
 # elya demo journey
 
-The default `/` screen is the approved animated fabric opening. Scroll down to the same Journal form used at `/journal`. Outlook remains at `/outlook`; `/welcome` is an alias for the opening. The wordmark always links home. Appointment Brief, Privacy and Settings retain their routes.
+The default `/` screen is the animated fabric welcome. It greets the saved name when one is set, without inventing a name. Start your story has a down arrow and scrolls to Journal. Continue scrolling through Journal → Outlook → Appointment Brief, all sharing the same history. Saving an embedded Journal entry scrolls to its Outlook date. The standalone routes remain available from Menu; `/welcome` is an alias for the opening. The wordmark always links home.
 
 ## Four-minute walkthrough
 

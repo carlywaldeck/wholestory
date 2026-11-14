@@ -16,10 +16,10 @@ const kindFor = (label: string): Fact["kind"] => label === "Pelvic pain / cramps
 const pretty = (date: string) => new Date(date+"T12:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
 type SpeechSession = {start:()=>void;stop:()=>void;abort:()=>void;continuous:boolean;interimResults:boolean;lang:string;onresult:((event:{results:ArrayLike<ArrayLike<{transcript:string}>>})=>void)|null;onerror:((event:{error:string})=>void)|null;onend:(()=>void)|null};
 
-export function LinenPages({view, entries, forecast, loading, forecastError, onSave, onSettings, onDelete, demo, onRetry, demoControls, wearableNote}: {
+export function LinenPages({view, entries, forecast, loading, forecastError, onSave, onSettings, onDelete, demo, onRetry, demoControls, wearableNote, continuous=false}: {
   view:string; entries:Entry[]; forecast:ForecastResult|null; loading:boolean; forecastError:string;
   onSave:(entry:Entry)=>Promise<void>; onSettings:()=>void; onDelete:()=>Promise<void>; demo:boolean; onRetry:()=>void;
-  demoControls?:ReactNode; wearableNote?:string;
+  demoControls?:ReactNode; wearableNote?:string; continuous?:boolean;
 }) {
   const nav = useAppNavigation()!;
   const [date,setDate]=useState(localToday);
@@ -37,6 +37,7 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
   useEffect(()=>{recognition.current?.stop();},[view]);
   useEffect(()=>{const checkin=()=>setDate(localToday());window.addEventListener("elya-checkin-today",checkin);return()=>window.removeEventListener("elya-checkin-today",checkin);},[]);
   const estimates=(day:string)=>forecast?.targetDate===day ? forecast.symptoms.filter(s=>s.state==="experimental-estimate"&&s.probability!==null).map(s=>({label:checkinSymptoms.find(c=>c.key===s.symptom)?.label??s.symptom,high:s.outlook==="higher-estimated-likelihood"})) : [];
+  function goJournal(day=localToday()){setDate(day);if(continuous){document.getElementById("home-journal")?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});}else nav.setView("Your story");}
   function changeDate(next:string) { if(!next||next>localToday())return; if(dirty&&!window.confirm("Leave without saving? Your entry isn't saved yet."))return;setDate(next); }
   function speak(){
     if(recording){recognition.current?.stop();return;}
@@ -62,14 +63,14 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
       const preserved=(existing?.facts??[]).filter(f=>text.includes(f.quote)&&!labels.some(l=>kindFor(l)===f.kind));
       const facts:Fact[]=[...preserved,...chips.map(l=>({kind:kindFor(l),value:l,quote:`I reported ${l.toLowerCase()}.`})),...absent.map(l=>({kind:kindFor(l),value:"No",quote:`I reported no ${l.toLowerCase()}.`}))];
       const entry=validateEntry({id:existing?.id??crypto.randomUUID(),date,text,facts,symptomFree:none,demo,...(existing?.persona?{persona:existing.persona}:{})});
-      await onSave(entry);setDirty(false);nav.setDirty(false);nav.setView("Outlook");
+      await onSave(entry);setDirty(false);nav.setDirty(false);if(continuous){document.getElementById("home-outlook")?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});}else nav.setView("Outlook");
     }catch(e){setError(e instanceof Error?e.message:"Your entry could not be saved. Please try again.");}finally{setBusy(false);}
   }
   return <div className="linen-experience">
     <div className="linen-static"><HeroBackground frozen /></div>
     <div className="linen-content">
       {demo&&<p className="demo-chip">Fictional demo history</p>}
-      {view==="Your story"?<section className="linen-panel journal-panel" aria-labelledby="journal-heading">
+      {(continuous||view==="Your story")&&<section className="linen-panel journal-panel" aria-labelledby="journal-heading">
         <div className="linen-date-heading"><button aria-label="Previous day" onClick={()=>changeDate(shiftDate(date,-1))}>←</button><h1 id="journal-heading">Journal <span>— {pretty(date)}</span></h1><button aria-label="Next day" disabled={date>=localToday()} onClick={()=>changeDate(shiftDate(date,1))}>→</button></div>
         <label className="linen-date-picker">Entry date<input type="date" value={date} max={localToday()} onChange={e=>changeDate(e.target.value)}/></label>
         {estimates(date).length>0&&<div className="linen-forecast"><strong>{date===localToday()?"Today’s outlook":"Outlook"}</strong><p>{estimates(date).map(s=>s.label).join(", ")}</p><span>Estimate · experimental</span></div>}
@@ -81,8 +82,10 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
         <label className="linen-none"><input type="checkbox" checked={none} onChange={e=>{setNone(e.target.checked);if(e.target.checked){setChips([]);setAbsent([...labels]);}else setAbsent([]);setDirty(true);}}/>No symptoms today</label>
         {error&&<p role="alert">{error}</p>}
         <div className="linen-main-action"><button className="button primary" disabled={busy||recording} onClick={save}>{busy?"Saving…":existing?"Save changes":"Add to calendar"}</button></div>
-      </section>:view==="Outlook"?<LinenOutlook today={localToday()} selected={date} onSelect={setDate} onEdit={day=>{setDate(day);nav.setView("Your story");}} entries={entries} forecast={forecast} demoControls={demoControls} loading={loading} error={forecastError} onRetry={onRetry}/>: view==="Privacy"?<section className="linen-panel"><h1>Privacy</h1><h2>Storage</h2><p>Personal journal entries are saved in this browser’s IndexedDB. Preferences and confirmed check-ins use local storage. Fictional demo entries stay separate from personal entries.</p><h2>Voice</h2><p>Speak uses your browser’s speech recognition when available. Your browser may send audio to its speech service. Microphone access starts only when you press Speak.</p><h2>Export and deletion</h2><p>Appointment Brief lets you copy your selected entries or print them to PDF. Deleting browser data does not delete files you have already exported.</p><button className="button" onClick={onSettings}>Connections and preferences</button><button className="button" onClick={()=>setConfirmDelete(true)}>Delete personal journal data</button>{confirmDelete&&<div><p>Delete saved personal entries and confirmed check-ins from this browser?</p><button className="button" onClick={()=>setConfirmDelete(false)}>Cancel</button><button className="button primary" onClick={async()=>{try{await onDelete();setConfirmDelete(false);setCopied("Personal journal data deleted.");}catch{setError("Deletion failed. Please try again.");}}}>Delete data</button></div>}{copied&&<p role="status">{copied}</p>}{error&&<p role="alert">{error}</p>}</section>:null}
-      <div hidden={view!=="Appointment brief"}><LinenBrief wearableNote={wearableNote} key={demo?entries[0]?.persona??"demo":"personal"} active={view==="Appointment brief"} entries={entries} today={localToday()} onSource={entry=>{setDate(entry.date);nav.setView("Your story");}} onJournal={()=>{setDate(localToday());nav.setView("Your story");}}/></div>
+      </section>}
+      {(continuous||view==="Outlook")&&<section id={continuous?"home-outlook":undefined} aria-label="Outlook"><LinenOutlook today={localToday()} selected={date} onSelect={setDate} onEdit={goJournal} entries={entries} forecast={forecast} demoControls={demoControls} loading={loading} error={forecastError} onRetry={onRetry}/></section>}
+      {view==="Privacy"?<section className="linen-panel"><h1>Privacy</h1><h2>Storage</h2><p>Personal journal entries are saved in this browser’s IndexedDB. Preferences and confirmed check-ins use local storage. Fictional demo entries stay separate from personal entries.</p><h2>Voice</h2><p>Speak uses your browser’s speech recognition when available. Your browser may send audio to its speech service. Microphone access starts only when you press Speak.</p><h2>Export and deletion</h2><p>Appointment Brief lets you copy your selected entries or print them to PDF. Deleting browser data does not delete files you have already exported.</p><button className="button" onClick={onSettings}>Connections and preferences</button><button className="button" onClick={()=>setConfirmDelete(true)}>Delete personal journal data</button>{confirmDelete&&<div><p>Delete saved personal entries and confirmed check-ins from this browser?</p><button className="button" onClick={()=>setConfirmDelete(false)}>Cancel</button><button className="button primary" onClick={async()=>{try{await onDelete();setConfirmDelete(false);setCopied("Personal journal data deleted.");}catch{setError("Deletion failed. Please try again.");}}}>Delete data</button></div>}{copied&&<p role="status">{copied}</p>}{error&&<p role="alert">{error}</p>}</section>:null}
+      <div id={continuous?"home-appointment-brief":undefined} hidden={!continuous&&view!=="Appointment brief"}><LinenBrief wearableNote={wearableNote} key={demo?entries[0]?.persona??"demo":"personal"} active={continuous||view==="Appointment brief"} entries={entries} today={localToday()} onSource={entry=>goJournal(entry.date)} onJournal={()=>goJournal()}/></div>
       <p className="linen-disclaimer">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
     </div>
   </div>;

@@ -2,6 +2,10 @@
 #home-journal .linen-content {padding-top:48px;}
 #home-journal .linen-static {position:absolute;}
 #home-journal {scroll-margin-top:100px;}
+#home-outlook,#home-appointment-brief {scroll-margin-top:110px;}
+#home-outlook {margin-top:64px;}
+#home-appointment-brief {margin-top:64px;}
+@media print{.opening-screen,#home-journal .journal-panel,#home-outlook,.opening-mode .safety-section,.opening-mode footer{display:none!important;}#home-appointment-brief{margin-top:0;}}
 .journal-symptom-bubbles {display:flex;flex-wrap:wrap;gap:10px;}
 .journal-absence-options {margin:0 0 24px;font-size:14px;}
 .journal-absence-options summary {cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--ink-soft);}

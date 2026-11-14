@@ -4,6 +4,7 @@ import {
   Mic,
   ArrowUpRight,
   ArrowRight,
+  ArrowDown,
   BookOpen,
   ChartNoAxesCombined,
   FileText,
@@ -523,7 +524,7 @@ function HomeContent() {
     setForecastLoading(true);
     setForecastError("");
     setCheckin(false);
-    setView("Outlook");
+    if(view!=="Today")setView("Outlook");
     try {
       const response = await fetch(`/api/forecast?persona=${chosen}&targetDate=${shiftDate(today(), 1)}`);
       if (!response.ok) throw Error("The fictional outlook could not be loaded. Please try again.");
@@ -585,7 +586,7 @@ function HomeContent() {
     }
   }
   const openingMode = view === "Today";
-  const journalExperience = <LinenPages view={openingMode?"Your story":view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
+  const journalExperience = <LinenPages continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
           demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p></details>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={async()=>{await storage.clearEntries();clearConfirmedDays();await refresh();setCheckinVersion(n=>n+1);}}
@@ -633,16 +634,16 @@ function HomeContent() {
               <section className="opening-screen" aria-label="Start your story">
                 <HeroBackground />
                 <div className="opening-copy">
-                  <h1>Your life with endometriosis deserves to be understood.</h1>
+                  <h1>Welcome{preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
                   <p>Bring Oura data and your symptom notes together to prepare for care.</p>
                 </div>
                 <button
                   className="opening-start"
-                  aria-label="Write an entry"
-                  onClick={() => preferences.setupComplete ? setView("Outlook") : setShowWelcome(true)}
+                  aria-label="Start your story, go to Journal"
+                  onClick={() => document.getElementById("home-journal")?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"})}
                 >
                   <span>Start your story</span>
-                  <ArrowRight size={18} aria-hidden="true" />
+                  <ArrowDown size={18} aria-hidden="true" />
                 </button>
                 <button className="visually-hidden" onClick={() => voice()}>
                   Record instead

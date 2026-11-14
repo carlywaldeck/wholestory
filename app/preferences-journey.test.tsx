@@ -5,7 +5,7 @@ import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
 import { navigate } from "./test-navigation";
-import { clearPreferences, loadPreferences } from "../lib/preferences";
+import { clearPreferences, loadPreferences, savePreferences, defaultPreferences } from "../lib/preferences";
 import { clearEntries } from "../lib/storage";
 beforeEach(async () => {
   window.history.replaceState(null, "", "/outlook");
@@ -26,13 +26,24 @@ afterEach(() => {
 it("opens the animated home with Journal and toggleable symptom bubbles below it", async()=>{
   window.history.replaceState(null,"","/");
   const user=userEvent.setup();render(<Home/>);
-  await screen.findByRole("heading",{name:"Your life with endometriosis deserves to be understood."});
+  await screen.findByRole("heading",{name:"Welcome. How are you feeling today?"});
   expect(document.getElementById("home-journal")?.querySelector("#linen-entry")).toBeTruthy();
+  const journal=document.querySelector("#home-journal .journal-panel")!;
+  const outlook=document.getElementById("home-outlook")!;
+  const brief=document.getElementById("home-appointment-brief")!;
+  expect(journal.compareDocumentPosition(outlook)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(outlook.compareDocumentPosition(brief)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   const bubble=screen.getByRole("button",{name:"Fatigue"});
   expect(bubble.getAttribute("aria-pressed")).toBe("false");
   await user.click(bubble);expect(bubble.getAttribute("aria-pressed")).toBe("true");
   await user.click(bubble);expect(bubble.getAttribute("aria-pressed")).toBe("false");
   expect(window.location.pathname).toBe("/");
+});
+it("uses the saved name in the home greeting", async()=>{
+  window.history.replaceState(null,"","/");
+  await savePreferences({...defaultPreferences,name:"Alexis"});
+  render(<Home/>);
+  await screen.findByRole("heading",{name:"Welcome, Alexis. How are you feeling today?"});
 });
 it("opens Outlook and keeps personalization in Settings", async () => {
   const user = userEvent.setup();
