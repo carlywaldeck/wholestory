@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import "fake-indexeddb/auto";
 import { beforeEach, afterEach, it, expect, vi } from "vitest";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
 import { clearEntries, loadEntries } from "../lib/storage";
@@ -90,4 +90,19 @@ it("reloading a fictional history replaces stale demo dates and preserves person
   expect(records.some((e) => e.id === "personal")).toBe(true);
   expect(records.some((e) => e.id === "stale-demo")).toBe(false);
   expect(records.filter((e) => e.demo)).toHaveLength(es.length);
+});
+
+// Keep timing/context out of treatment evidence in the combined experience.
+it("groups only interventions and treatment responses under what was tried", async () => {
+  const { putEntry } = await import("../lib/storage");
+  await putEntry({ id:"treatment-grouping", date:"2026-11-13", text:"I am not on my period. A heat pad helped.", symptomFree:false, demo:false, facts:[
+    {kind:"Menstrual context",value:"Outside period",quote:"I am not on my period."},
+    {kind:"What helped",value:"Heat pad",quote:"A heat pad helped."},
+  ] });
+  const user=userEvent.setup(); render(<Home />);
+  await waitFor(()=>expect(screen.queryByText("Opening your journal…")).toBeNull());
+  await user.click(screen.getByRole("button",{name:/^Appointment brief$/}));
+  const section=screen.getByRole("heading",{name:"What I tried and what I noticed"}).parentElement!;
+  expect(within(section).getByText(/A heat pad helped/)).toBeTruthy();
+  expect(within(section).queryByText(/not on my period/)).toBeNull();
 });

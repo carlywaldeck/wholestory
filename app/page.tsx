@@ -241,8 +241,8 @@ export default function Home() {
     categories.includes(claim.kind as (typeof categories)[number]),
   );
   const impactClaims = brief.claims.filter((claim) => claim.kind === "Daily-life impact");
-  const contextEntries = entries.filter((e) => e.facts.some((f) =>
-    ["Menstrual context", "Timing", "Intervention", "Medication effect", "What helped"].includes(f.kind),
+  const treatmentEntries = entries.filter((e) => e.facts.some((f) =>
+    ["Intervention", "Medication effect", "What helped"].includes(f.kind),
   )).slice(0, 4);
   const visible = entries.filter(
     (e) =>
@@ -1072,10 +1072,10 @@ export default function Home() {
                 </div>
                 <div className="brief-section">
                   <h3>What I tried and what I noticed</h3>
-                  {contextEntries.length ? contextEntries.map((e) => (
+                  {treatmentEntries.length ? treatmentEntries.map((e) => (
                     <p key={e.id}>
                       <button className="claim" onClick={() => { setEvidence([e.id]); setView("Insights"); }}>
-                        {e.date}: {e.facts.filter((f) => ["Intervention", "Medication effect", "What helped", "Timing", "Menstrual context"].includes(f.kind)).map((f) => `“${f.quote}”`).join(" ")} <ArrowUpRight size={13} />
+                        {e.date}: {e.facts.filter((f) => ["Intervention", "Medication effect", "What helped"].includes(f.kind)).map((f) => `“${f.quote}”`).join(" ")} <ArrowUpRight size={13} />
                       </button>
                     </p>
                   )) : <p className="muted">Nothing has been added here yet. Your original notes remain available in Your story.</p>}
