@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { openDB } from "idb";
+import { classifyJournalDay } from "./wearable-labels";
 import { Entry, isPresentFact } from "./model";
 
 // Calendar-date alignment: sleep belongs to its waking date, not the previous evening.
@@ -12,6 +13,21 @@ export const wearableDaySchema = z
   .strict();
 export type WearableDay = z.infer<typeof wearableDaySchema>;
 export type WearableRecord = { source: string; days: WearableDay[] };
+export function validateWearableDays(input: unknown): WearableDay[] {
+  const days = z.array(wearableDaySchema).max(3660).parse(input);
+  const seen = new Set<string>();
+  for (const day of days) {
+    if (seen.has(day.date)) throw Error(`Duplicate wearable date: ${day.date}`);
+    seen.add(day.date);
+  }
+  return days.sort((a, b) => a.date.localeCompare(b.date));
+}
+export function validateWearableRecord(input: WearableRecord): WearableRecord {
+  return {
+    source: z.string().trim().max(60).parse(input.source),
+    days: validateWearableDays(input.days),
+  };
+}
 export type CheckIn = { date: string; time: string; note: string };
 const empty: WearableRecord = { source: "", days: [] };
 async function database() {
@@ -28,7 +44,7 @@ export async function loadWearables(): Promise<WearableRecord> {
     return value
       ? {
           source: z.string().max(60).parse(value.source),
-          days: z.array(wearableDaySchema).max(3660).parse(value.days),
+          days: validateWearableDays(value.days),
         }
       : empty;
   } finally {
@@ -36,9 +52,10 @@ export async function loadWearables(): Promise<WearableRecord> {
   }
 }
 export async function saveWearables(value: WearableRecord) {
+  const validated = validateWearableRecord(value);
   const db = await database();
   try {
-    await db.put("data", value, "wearables");
+    await db.put("data", validated, "wearables");
   } finally {
     db.close();
   }
@@ -136,19 +153,23 @@ export function syntheticWearables(entries: Entry[]): WearableDay[] {
     });
 }
 export function pairDays(entries: Entry[], days: WearableDay[]) {
-  return days.map((day) => {
+  return validateWearableDays(days).map((day) => {
     const es = entries.filter((e) => e.date === day.date);
-    const impact = es.some((e) =>
-      e.facts.some((f) => f.kind === "Daily-life impact" && isPresentFact(f)),
-    );
-    const free = es.length > 0 && es.every((e) => e.symptomFree);
+    const label = classifyJournalDay(es);
     return {
       ...day,
-      group: impact
-        ? ("impact" as const)
-        : free
-          ? ("free" as const)
-          : ("unknown" as const),
+      group:
+        label === "impact"
+          ? ("impact" as const)
+          : label === "symptom-free"
+            ? ("free" as const)
+            : ("unknown" as const),
+      exclusionReason:
+        label === "conflicting"
+          ? "Conflicting journal reports"
+          : label === "unknown"
+            ? "No explicit comparison label"
+            : null,
       ids: es.map((e) => e.id),
       quotes: es.flatMap((e) =>
         e.facts
