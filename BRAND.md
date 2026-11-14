@@ -21,6 +21,24 @@ only its requested font family, semibold weight and tracking change. Its animati
 and wording are unchanged. The PDF renderer retains built-in Helvetica: next/font
 does not embed fonts in jsPDF; its on-screen brief uses the new typography.
 
+Navigation is owned by AppNavigationProvider in the shared app layout. The top
+bar mounts once; only page content changes. Menu links are Journal, Outlook,
+Appointment Brief, then the separated Settings link. The current row uses a
+filled pill, semibold text, a check and aria-current=page. Links use hash destinations
+so direct links and browser history work without remounting the bar.
+The wordmark links to Outlook. Its Check in pill appears only on Outlook and opens
+Journal's quick check-in. Demo history and wearable connections live in Settings.
+
+Menu uses the shared GlassCard recipe (white 55%, blur 24px/saturate 160%, light
+border and restrained inner highlight/shadow). Its radius is 24px and width 280px,
+bounded by mobile margins. Reduced transparency removes blur in favor of solid pearl;
+reduced motion removes transitions. Native page view transitions cross-fade only
+content, with a simple content fade in browsers without that API.
+Menu remains at x=42/y=40 on desktop and x=32/y=32 on mobile (plus safe-area inset).
+Browser checks confirmed identical bar/pill/logo DOM nodes and dimensions across
+all three pages, 48px rows, keyboard navigation and focus restoration. The opening
+fabric scene's shader, headline, supporting sentence and CTA layout were not edited.
+
 Typography browser audit: Home, Journal, Appointment brief and Settings headings
 resolved to Rethink Sans 600; wordmarks resolved to lowercase elya at weight 600
 with -0.04em tracking. Body resolved to Inter. Network inspection found only the

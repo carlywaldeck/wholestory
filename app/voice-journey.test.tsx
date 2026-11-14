@@ -4,6 +4,7 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, cleanup, act, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import { navigate } from "./test-navigation";
 import { clearEntries, loadEntries } from "../lib/storage";
 import { savePreferences, defaultPreferences } from "../lib/preferences";
 class Recognition {
@@ -43,6 +44,7 @@ class AudioMock {
 const OriginalURL = URL;
 let voiceFetch: ReturnType<typeof vi.fn>;
 beforeEach(async () => {
+  window.history.replaceState(null, "", "/");
   await clearEntries();
   await savePreferences({ ...defaultPreferences, setupComplete: true });
   localStorage.clear();
@@ -75,7 +77,7 @@ it("reads one follow-up aloud, records its answer, and saves both without feedba
   await waitFor(() =>
     expect(screen.queryByText("Opening your journal…")).toBeNull(),
   );
-  await user.click(screen.getByRole("button", { name: "Privacy settings" }));
+  await navigate(user, "Settings");
   await user.click(screen.getByText("Voice & spoken replies", { exact: true }));
   await user.click(screen.getByRole("button", { name: "Preview Coral" }));
   await user.click(

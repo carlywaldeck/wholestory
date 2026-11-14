@@ -1,8 +1,11 @@
 # Elya demo and interface handoff
 
-The default home is Outlook; navigation is Outlook, Journal, Appointment brief.
+The opening fabric home is retained. The persistent Menu links are Journal,
+Outlook and Appointment Brief; the centered wordmark opens Outlook.
 Personalization, spoken replies and wearable connections remain in Settings.
-The approved fabric welcome screen remains accessible through Settings.
+The approved fabric welcome screen also remains accessible through Settings.
+The demo persona selector and exit switch now live in Settings. Outlook's
+top-right Check in pill opens Journal's confirmed quick check-in.
 
 ## Backend contract used unchanged
 

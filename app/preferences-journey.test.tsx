@@ -4,9 +4,11 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import { navigate } from "./test-navigation";
 import { clearPreferences, loadPreferences } from "../lib/preferences";
 import { clearEntries } from "../lib/storage";
 beforeEach(async () => {
+  window.history.replaceState(null, "", "/");
   await clearPreferences();
   await clearEntries();
   localStorage.clear();
@@ -42,7 +44,7 @@ it("saves a name and entry preference, then restores them without onboarding", a
   const user = userEvent.setup();
   const app = render(<Home />);
   await screen.findByRole("heading", { name: "Your life with endometriosis deserves to be understood." });
-  await user.click(screen.getByRole("button", { name: "Privacy settings" }));
+  await navigate(user, "Settings");
   await user.type(
     screen.getByRole("textbox", { name: /What should we call you/ }),
     "Sam",
@@ -55,7 +57,7 @@ it("saves a name and entry preference, then restores them without onboarding", a
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   expect((await loadPreferences()).name).toBe("Sam");
   expect((await loadPreferences()).inputMode).toBe("voice");
-  await user.click(screen.getByRole("button", { name: "Privacy settings" }));
+  await navigate(user, "Settings");
   expect(
     (
       screen.getByRole("textbox", {
@@ -68,6 +70,7 @@ it("saves a name and entry preference, then restores them without onboarding", a
   await user.click(screen.getByRole("button", { name: "Close settings" }));
   app.unmount();
   render(<Home />);
-  await screen.findByText(/Sam’s journal/);
+  await navigate(user, "Settings");
+  expect((screen.getByRole("textbox", { name: /What should we call you/ }) as HTMLInputElement).value).toBe("Sam");
   expect(screen.queryByRole("heading", { name: "Set up elya." })).toBeNull();
 });

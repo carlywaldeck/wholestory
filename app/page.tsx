@@ -45,7 +45,8 @@ import * as storage from "../lib/storage";
 import type { ForecastPersona as PersonaId } from "../lib/forecast-demo";
 import { StructuredDetails } from "../components/structured-details";
 import { WearableExplorer } from "../components/wearable-explorer";
-import { clearWearables } from "../lib/wearables";
+import { clearWearables, saveWearables } from "../lib/wearables";
+import { WearableConnections } from "../components/wearable-connections";
 import { CycleInsights } from "../components/cycle-insights";
 import { SafetySection } from "../components/safety-section";
 import { safetyBoundary } from "../lib/clinical-context";
@@ -59,6 +60,7 @@ import { DataLegend, SymptomOutlook } from "../components/brand-states";
 import { ForecastOutlook, type ForecastResult } from "../components/forecast-outlook";
 import { QuickCheckin } from "../components/quick-checkin";
 import { Wordmark } from "../components/wordmark";
+import { AppNavigationProvider, useAppNavigation } from "../components/app-navigation";
 import { symptomRisk, type RiskInput } from "../lib/symptom-risk";
 import { shiftDate } from "../lib/forecast-time";
 import { checkinRecord, checkinSymptoms, loadConfirmedDays, saveConfirmedDay, forgetConfirmedDay, clearConfirmedDays, type Answers } from "../lib/experience-checkins";
@@ -98,6 +100,11 @@ type Recognition = {
   abort?: () => void;
 };
 export default function Home() {
+  const navigation = useAppNavigation();
+  return navigation ? <HomeContent /> : <AppNavigationProvider><HomeContent /></AppNavigationProvider>;
+}
+function HomeContent() {
+  const { view, setView, settings, setSettings, checkinRequest } = useAppNavigation()!;
   const speech = useSpokenReplies();
   const [preferences, setPreferences] =
     useState<Preferences>(defaultPreferences);
@@ -136,7 +143,6 @@ export default function Home() {
   const [voiceTarget, setVoiceTarget] = useState<"entry" | "answer">("entry");
   const [allEntries, setEntries] = useState<Entry[]>([]),
     [demoMode, setDemoMode] = useState(false),
-    [view, setView] = useState("Today"),
     [ready, setReady] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -154,14 +160,15 @@ export default function Home() {
     [recording, setRecording] = useState(false),
     [filter, setFilter] = useState("All symptoms"),
     [evidence, setEvidence] = useState<string[] | null>(null),
-    [settings, setSettings] = useState(false),
     [reviewed, setReviewed] = useState(false),
     [appendix, setAppendix] = useState(false),
     [statement, setStatement] = useState(""),
     [questions, setQuestions] = useState<string[]>([]),
     [selected, setSelected] = useState(""),
-    [calendar, setCalendar] = useState(false),
-    [openingMenu, setOpeningMenu] = useState(false);
+    [calendar, setCalendar] = useState(false);
+  useEffect(() => {
+    if (checkinRequest) { setCheckin(true); setEditor(false); }
+  }, [checkinRequest]);
   useEffect(() => {
     if (!editor && !settings && !showWelcome) return;
     const previous = document.activeElement as HTMLElement;
@@ -521,6 +528,7 @@ export default function Home() {
       setNotice(
         "Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.",
       );
+      setSettings(false);
     } catch (e) {
       if (request === forecastRequest.current) setForecastError((e as Error).message);
     } finally {
@@ -542,6 +550,12 @@ export default function Home() {
     setCheckin(false); setReviewed(false); setView("Your story");
     setNotice(demo ? "Fictional check-in saved. Review it in your journal." : "Check-in saved on this device. Review it in your journal.");
   }
+  function exitDemo() {
+    forecastRequest.current++;
+    setForecastLoading(false); setForecastError(""); setForecastDemo(null); setCheckin(false);
+    setDemoMode(false);
+    setNotice("Back to your personal journal. Demo entries are kept separately.");
+  }
   async function pdf() {
     if (!reviewed) return;
     try {
@@ -560,111 +574,15 @@ export default function Home() {
   }
   const openingMode = view === "Today";
   return (
-    <div className={`shell${openingMode ? " opening-mode" : ""}`}>
-      <aside>
-        <a className="brand" href="#" onClick={() => setView("Today")}>
-          <Wordmark />
-        </a>
-        <div className="navlabel">YOUR JOURNAL</div>
-        <nav>
-          {[
-            ["Outlook", CalendarDays],
-            ["Your story", BookOpen],
-            ["Appointment brief", FileText],
-          ].map(([label, Icon]) => (
-            <button
-              className={
-                view === label ||
-                (label === "Your story" && view === "Insights")
-                  ? "active"
-                  : ""
-              }
-              key={String(label)}
-              onClick={() => {
-                setView(String(label));
-                setEvidence(null);
-                setSelected("");
-              }}
-            >
-              {typeof Icon !== "string" && <Icon size={20} />}
-              <span>{label === "Your story" ? "Journal" : String(label)}</span>
-              {view === label && <span className="dot" />}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <p className="sidebar-note">
-            Your entries stay on this device.
-            <br />Review them when you need them.
-          </p>
-          <button onClick={() => setSettings(true)}>
-            <Settings size={16} /> Privacy & settings
-          </button>
-          <span>
-            <LockKeyhole size={13} /> Kept on this device
-          </span>
-        </div>
-      </aside>
-      <main>
-        <header>
-          <span className="header-location">
-            {preferences.name
-              ? `${preferences.name}’s journal`
-              : "Your journal"}{" "}
-            <span>/</span> {view === "Your story" ? "Journal" : view}
-          </span>
-          {(speech.speaking || speech.preparing) && (
-            <button className="stop-reply" onClick={speech.stop}>
-              <VolumeX size={14} /> Stop speaking
-            </button>
-          )}
-          <button className="demo-link" onClick={() => tryDemo()}>
-            Try demo <ArrowUpRight size={14} />
-          </button>
-          <button
-            className="header-settings"
-            aria-label="Privacy settings"
-            onClick={() => setSettings(true)}
-          >
-            <Settings size={18} />
-          </button>
-        </header>
+    <div className={`shell persistent-nav-shell${openingMode ? " opening-mode" : ""}`}>
+      <main key={view} className={openingMode ? undefined : "page-content-transition"}>
         {demo && (
           <div className="demo-banner">
             <span className="demo-chip">Fictional demo history</span>{" "}
             <span>Fictional entries for exploring elya.</span>
-            <select
-              aria-label="Demo persona"
-              value={persona}
-              onChange={(e) => {
-                setEvidence(null);
-                setSelected("");
-                setQuestions([]);
-                setStatement("");
-                setReviewed(false);
-                tryDemo(e.target.value as PersonaId);
-              }}
-            >
-              {forecastPeople.map((p) => (
-                <option value={p.id} key={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={async () => {
-                forecastRequest.current++;
-                setForecastLoading(false); setForecastError(""); setForecastDemo(null); setCheckin(false);
-                setDemoMode(false);
-                setNotice(
-                  "Back to your personal journal. Demo entries are kept separately.",
-                );
-              }}
-            >
-              Exit demo
-            </button>
           </div>
         )}
+        {(speech.speaking || speech.preparing) && <button className="stop-reply" onClick={speech.stop}><VolumeX size={14}/>Stop speaking</button>}
         {notice && (
           <div role="status" className="notice">
             {notice}
@@ -682,15 +600,9 @@ export default function Home() {
         {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
         {view === "Outlook" ? (
           <>
-          {!demo && <div className="persona-chooser"><label htmlFor="forecast-persona">Explore a fictional outlook</label>
-            <select id="forecast-persona" value={demo ? persona : ""} disabled={forecastLoading} onChange={e=>{if(e.target.value)void tryDemo(e.target.value as PersonaId);}}>
-              <option value="" disabled>Choose a fictional person</option><option value="maya">Maya · Cyclical symptoms</option><option value="alex">Alex · Symptoms beyond period days</option><option value="jules">Jules · Fewer recent symptoms</option>
-            </select>
-            <p>No wearable or API account needed. Personal records stay separate.</p>
-          </div>}
-          <ForecastOutlook result={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} error={forecastError}
+          <ForecastOutlook result={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} error={settings ? "" : forecastError}
             onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)}
-            onCheckin={()=>{setCheckin(true); window.scrollTo(0,0);}} onWrite={()=>open()} onRecord={()=>voice()} />
+            onCheckin={()=>{setView("Your story");setCheckin(true); window.scrollTo(0,0);}} onWrite={()=>open()} onRecord={()=>voice()} />
           </>
         ) : view === "Today" ? (
           <>
@@ -701,33 +613,6 @@ export default function Home() {
                   <h1>Your life with endometriosis deserves to be understood.</h1>
                   <p>Bring Oura data and your symptom notes together to prepare for care.</p>
                 </div>
-                <button
-                  className="opening-menu-trigger"
-                  aria-expanded={openingMenu}
-                  aria-controls="opening-menu"
-                  onClick={() => setOpeningMenu((open) => !open)}
-                >
-                  Menu
-                </button>
-                {openingMenu && (
-                  <div className="opening-menu" id="opening-menu">
-                    <button onClick={() => { setOpeningMenu(false); setView("Outlook"); }}>
-                      Outlook
-                    </button>
-                    <button onClick={() => { setOpeningMenu(false); setView("Your story"); }}>
-                      Your story
-                    </button>
-                    <button onClick={() => { setOpeningMenu(false); setView("Appointment brief"); }}>
-                      Appointment brief
-                    </button>
-                    <button onClick={() => { setOpeningMenu(false); setSettings(true); }}>
-                      Privacy & settings
-                    </button>
-                    <button onClick={() => { setOpeningMenu(false); void tryDemo(); }}>
-                      Try demo
-                    </button>
-                  </div>
-                )}
                 <button
                   className="opening-start"
                   aria-label="Write an entry"
@@ -1699,6 +1584,17 @@ export default function Home() {
             {demo && <span className="demo-chip">Fictional demo history</span>}
             <p className="brand-boundary">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
             <section className="settings-section">
+              <h3>Demo history</h3>
+              <label htmlFor="forecast-persona">Explore a fictional outlook</label>
+              <select id="forecast-persona" aria-label="Demo persona" value={demo ? persona : ""} disabled={forecastLoading} onChange={e=>{if(e.target.value)void tryDemo(e.target.value as PersonaId);}}>
+                <option value="" disabled>Choose a fictional person</option>
+                {forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <p>No wearable or API account needed. Personal records stay separate.</p>
+              {demo ? <Button onClick={exitDemo}>Exit demo</Button> : <Button disabled={forecastLoading} onClick={()=>void tryDemo()}>{forecastLoading ? "Loading demo…" : "Try demo"}</Button>}
+              {forecastError && <p role="alert">{forecastError}</p>}
+            </section>
+            <section className="settings-section">
               <h3>Your preferences</h3>
               <PersonalPreferences
                 value={preferences}
@@ -1730,6 +1626,7 @@ export default function Home() {
             </details>
             <details className="settings-section">
               <summary>Wearable data</summary>
+              <WearableConnections onImported={async record=>{await saveWearables(record);setNotice("Wearable measurements imported on this device.");}} />
               <p>
                 Explore sleep and activity using a local daily CSV import or
                 fictional demo. No device is connected automatically. Imports

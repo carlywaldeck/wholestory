@@ -4,10 +4,12 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, cleanup, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import { navigate } from "./test-navigation";
 import { clearEntries, loadEntries } from "../lib/storage";
 import { savePreferences, defaultPreferences } from "../lib/preferences";
 import { handleForecast } from "../lib/server-forecast";
 beforeEach(async () => {
+  window.history.replaceState(null, "", "/");
   localStorage.clear();
   vi.stubGlobal("fetch",vi.fn((url:string)=>handleForecast(new Request(new URL(url,"http://localhost").href))));
   await clearEntries();
@@ -56,7 +58,7 @@ it("completes a manual entry with attributed fields and skips the optional quest
     "My lower abdomen ached",
   );
   expect(screen.getByText("Your entry is saved on this device.")).toBeTruthy();
-  await user.click(screen.getByRole("button", { name: "Journal" }));
+  await navigate(user, "Journal");
   expect(screen.getByText("My lower abdomen ached this morning.")).toBeTruthy();
 });
 it("keeps demo and personal records separate and gates report export behind review", async () => {
@@ -65,9 +67,10 @@ it("keeps demo and personal records separate and gates report export behind revi
   await waitFor(() =>
     expect(screen.queryByText("Opening your journal…")).toBeNull(),
   );
+  await navigate(user, "Settings");
   await user.click(screen.getByRole("button", { name: "Try demo" }));
-  await screen.findByRole("button", { name: "Exit demo" });
-  await user.click(screen.getByRole("button", { name: "Appointment brief" }));
+  await screen.findByText("Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.");
+  await navigate(user, "Appointment Brief");
   const download = screen.getByRole("button", { name: "Download PDF" });
   expect((download as HTMLButtonElement).disabled).toBe(true);
   await user.click(
@@ -76,7 +79,9 @@ it("keeps demo and personal records separate and gates report export behind revi
     ),
   );
   expect((download as HTMLButtonElement).disabled).toBe(false);
+  await navigate(user, "Settings");
   await user.click(screen.getByRole("button", { name: "Exit demo" }));
+  await user.click(screen.getByRole("button", { name: "Close settings" }));
   expect(
     screen.getByRole("heading", { name: "Add an entry to build your brief." }),
   ).toBeTruthy();
@@ -104,7 +109,7 @@ it("groups only interventions and treatment responses under what was tried", asy
   ] });
   const user=userEvent.setup(); render(<Home />);
   await waitFor(()=>expect(screen.queryByText("Opening your journal…")).toBeNull());
-  await user.click(screen.getByRole("button",{name:/^Appointment brief$/}));
+  await navigate(user, "Appointment Brief");
   const section=screen.getByRole("heading",{name:"What I tried and what I noticed"}).parentElement!;
   expect(within(section).getByText(/A heat pad helped/)).toBeTruthy();
   expect(within(section).queryByText(/not on my period/)).toBeNull();
