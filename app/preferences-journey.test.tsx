@@ -21,10 +21,10 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
-it("opens Outlook directly and keeps personalization in Settings", async () => {
+it("opens the fabric home and keeps personalization in Settings", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Tomorrow, a little more context." });
+  await screen.findByRole("heading", { name: "Your life with endometriosis deserves to be understood." });
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
   expect(screen.queryByRole("dialog")).toBeNull();
   await user.click(screen.getByRole("button", { name: "Write an entry" }));
@@ -41,7 +41,7 @@ it("opens Outlook directly and keeps personalization in Settings", async () => {
 it("saves a name and entry preference, then restores them without onboarding", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Tomorrow, a little more context." });
+  await screen.findByRole("heading", { name: "Your life with endometriosis deserves to be understood." });
   await user.click(screen.getByRole("button", { name: "Privacy settings" }));
   await user.type(
     screen.getByRole("textbox", { name: /What should we call you/ }),

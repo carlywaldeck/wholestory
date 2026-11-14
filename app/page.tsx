@@ -136,7 +136,7 @@ export default function Home() {
   const [voiceTarget, setVoiceTarget] = useState<"entry" | "answer">("entry");
   const [allEntries, setEntries] = useState<Entry[]>([]),
     [demoMode, setDemoMode] = useState(false),
-    [view, setView] = useState("Outlook"),
+    [view, setView] = useState("Today"),
     [ready, setReady] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -558,11 +558,11 @@ export default function Home() {
       setError("The PDF could not be generated. Please try again.");
     }
   }
-  const openingMode = view === "Today" && entries.length === 0 && !demo;
+  const openingMode = view === "Today";
   return (
     <div className={`shell${openingMode ? " opening-mode" : ""}`}>
       <aside>
-        <a className="brand" href="#" onClick={() => setView("Outlook")}>
+        <a className="brand" href="#" onClick={() => setView("Today")}>
           <Wordmark />
         </a>
         <div className="navlabel">YOUR JOURNAL</div>
@@ -711,6 +711,9 @@ export default function Home() {
                 </button>
                 {openingMenu && (
                   <div className="opening-menu" id="opening-menu">
+                    <button onClick={() => { setOpeningMenu(false); setView("Outlook"); }}>
+                      Outlook
+                    </button>
                     <button onClick={() => { setOpeningMenu(false); setView("Your story"); }}>
                       Your story
                     </button>

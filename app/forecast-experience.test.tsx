@@ -18,6 +18,8 @@ afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
 it("uses one matching forecast history, saves an explicit demo check-in, and isolates personal records",async()=>{
   await putEntry({id:"private",date:"2026-11-01",text:"Personal private words.",facts:[],symptomFree:false,demo:false});
   const user=userEvent.setup(); render(<Home/>);
+  await user.click(screen.getByRole("button",{name:"Menu"}));
+  await user.click(screen.getAllByRole("button",{name:"Outlook"}).at(-1)!);
   expect(screen.getByRole("heading",{name:"Tomorrow, a little more context."})).toBeTruthy();
   await user.selectOptions(screen.getByLabelText("Explore a fictional outlook"),"maya");
   await screen.findByRole("button",{name:"Exit demo"});
@@ -47,6 +49,8 @@ it("uses one matching forecast history, saves an explicit demo check-in, and iso
 });
 it("keeps unanswered personal symptoms null and never calls the server for personal estimates",async()=>{
   const user=userEvent.setup(); render(<Home/>);
+  await user.click(screen.getByRole("button",{name:"Menu"}));
+  await user.click(screen.getAllByRole("button",{name:"Outlook"}).at(-1)!);
   await user.click(screen.getByRole("button",{name:"Check in today"}));
   await user.click(within(screen.getByRole("group",{name:"Bloating"})).getByRole("radio",{name:/None reported/}));
   await user.click(screen.getByRole("button",{name:"Save check-in"}));
@@ -60,6 +64,8 @@ it("keeps unanswered personal symptoms null and never calls the server for perso
 it("reports a demo fetch error without loading an old demo history",async()=>{
   vi.stubGlobal("fetch",vi.fn().mockResolvedValue(new Response("unavailable",{status:503})));
   const user=userEvent.setup();render(<Home/>);
+  await user.click(screen.getByRole("button",{name:"Menu"}));
+  await user.click(screen.getAllByRole("button",{name:"Outlook"}).at(-1)!);
   await user.selectOptions(screen.getByLabelText("Explore a fictional outlook"),"alex");
   await waitFor(()=>expect(screen.getByRole("alert").textContent).toContain("could not be loaded"));
   expect(screen.queryByRole("button",{name:"Exit demo"})).toBeNull();
