@@ -68,3 +68,9 @@ Counts reflect explicit reviewed structured fields, not a scan of all free text.
 3. Extract follow-up answers into reviewed, attributed fields without another question.
 4. Better report range controls, custom questions, and patient-editable narrative sections.
 5. Production abuse controls, consent audit UX, encrypted backups, and a documented privacy policy.
+
+## Verification in this build
+
+16 automated tests cover distinct-day symptom/impact counts, missing versus symptom-free days, exact source validation, empty data, atomic import, editing/deletion, consent and AI fallback, PDF pagination, the manual UI journey, demo isolation, and report review gating. TypeScript and optimized Next/Sites builds pass. The production localhost preview was checked on desktop and a 390px mobile viewport. A fictional manual entry saved with its exact quote; a demo insight opened its four source entries; a reviewed brief downloaded successfully. The development watcher failed in this sandbox, so the production server was used for visual QA. The private hosted URL requires an owner sign-in. Real microphone recognition remains untested. No live OpenAI call was made without a configured key.
+
+Private preview: https://wholestory-journal.ingeniouscondor8.chatgpt.site

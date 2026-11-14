@@ -1,4 +1,5 @@
-import { ButtonHTMLAttributes } from 'react';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-export function Button({className,...props}:ButtonHTMLAttributes<HTMLButtonElement>){return <button className={twMerge(clsx('button',className))} {...props}/>;}
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cn } from '../../lib/utils';
+export type ButtonProps=React.ComponentProps<'button'>&{asChild?:boolean};
+export function Button({className,asChild=false,...props}:ButtonProps){const Comp=asChild?Slot:'button';return <Comp data-slot="button" className={cn('button',className)} {...props}/>;}

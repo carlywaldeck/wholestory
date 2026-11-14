@@ -2,7 +2,7 @@ import { z } from 'zod';
 export const categories = ['Pelvic pain','Bloating','Fatigue','Bowel discomfort','Urinary symptoms'] as const;
 export const factSchema = z.object({kind:z.enum([...categories,'Location','Severity','Timing','Menstrual context','Daily-life impact','Intervention','What helped','Uncertainty']),value:z.string().min(1).max(500),quote:z.string().min(1).max(2000)}).strict();
 export const extractionSchema=z.object({facts:z.array(factSchema).max(30),symptomFree:z.boolean(),followUp:z.string().max(200).nullable()}).strict();
-export const entrySchema=z.object({id:z.string(),date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),text:z.string().min(1).max(10000),facts:z.array(factSchema),symptomFree:z.boolean(),demo:z.boolean()}).strict();
+export const entrySchema=z.object({id:z.string().min(1).max(100),date:z.iso.date(),text:z.string().min(1).max(10000),facts:z.array(factSchema).max(30),symptomFree:z.boolean(),demo:z.boolean()}).strict();
 export type Fact=z.infer<typeof factSchema>; export type Entry=z.infer<typeof entrySchema>;
 export function validateEvidence(text:string,facts:Fact[]){return facts.every(f=>text.includes(f.quote));}
 export function validateEntry(input:unknown){const e=entrySchema.parse(input);if(!validateEvidence(e.text,e.facts))throw Error('Every quote must appear exactly in your entry.');if(e.symptomFree&&e.facts.some(f=>categories.includes(f.kind as typeof categories[number])))throw Error('A symptom-free entry cannot also contain symptoms.');return e;}

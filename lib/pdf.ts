@@ -3,7 +3,7 @@ import {Entry,report} from './model';
 export async function createBrief(entries:Entry[],statement:string,questions:string[],appendix:boolean,brand:string){
  const {jsPDF}=await import('jspdf');const p=new jsPDF();const r=report(entries);let y=19;
  const ref=(id:string)=>entries.findIndex(e=>e.id===id)+1;
- const line=(text:string,size=10,space=2)=>{p.setFontSize(size);const lines=p.splitTextToSize(text,174);p.text(lines,18,y);y+=lines.length*(size*.42)+space;};
+ const line=(text:string,size=10,space=2)=>{p.setFontSize(size);const lines=p.splitTextToSize(text,174);for(const row of lines){if(y>274){p.addPage();y=20;}p.text(row,18,y);y+=size*.42;}y+=space;};
  line(`${brand} | Appointment brief`,19,4);if(entries.some(e=>e.demo))line('SYNTHETIC DEMO DATA',9);
  line(`${r.range} | ${r.logged} logged days`,10);line('Patient-reported documentation. Unlogged days are unknown.',9,4);
  p.setFont('helvetica','bold');line('Symptoms & everyday impact',12);p.setFont('helvetica','normal');
@@ -14,7 +14,7 @@ export async function createBrief(entries:Entry[],statement:string,questions:str
  if(questions.length){p.setFont('helvetica','bold');line('Questions for my clinician',11);p.setFont('helvetica','normal');questions.forEach(q=>line(`- ${q}`,9));}
  p.setFont('helvetica','bold');line('Source key: numbered journal entries',10);p.setFont('helvetica','normal');
  // Three columns keep a month of source references compact and independently traceable.
- p.setFontSize(8);entries.forEach((e,i)=>{p.text(`[${i+1}] ${e.date}`,18+(i%3)*59,y+Math.floor(i/3)*4);});y+=Math.ceil(entries.length/3)*4+5;
+ p.setFontSize(8);entries.forEach((e,i)=>{if(i%3===0&&y>268){p.addPage();y=20;}p.text(`[${i+1}] ${e.date}`,18+(i%3)*59,y);if(i%3===2||i===entries.length-1)y+=4;});y+=5;
  if(y>268){ // Never silently truncate a larger-than-MVP dataset.
  p.addPage();y=20;
  }
