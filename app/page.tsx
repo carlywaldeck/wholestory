@@ -58,6 +58,7 @@ import { HeroBackground } from "../components/hero-background";
 import { DataLegend, SymptomOutlook } from "../components/brand-states";
 import { ForecastOutlook, type ForecastResult } from "../components/forecast-outlook";
 import { QuickCheckin } from "../components/quick-checkin";
+import { Wordmark } from "../components/wordmark";
 import { symptomRisk, type RiskInput } from "../lib/symptom-risk";
 import { shiftDate } from "../lib/forecast-time";
 import { checkinRecord, checkinSymptoms, loadConfirmedDays, saveConfirmedDay, forgetConfirmedDay, clearConfirmedDays, type Answers } from "../lib/experience-checkins";
@@ -68,7 +69,7 @@ import {
   clearPreferences,
   type Preferences,
 } from "../lib/preferences";
-const BRAND = "Elya";
+const BRAND = "elya";
 const forecastPeople = [{id:"maya",name:"Maya"},{id:"alex",name:"Alex"},{id:"jules",name:"Jules"}] as const;
 type ForecastDemo = {
   demo: { persona: PersonaId; label: string; disclosure: string };
@@ -562,10 +563,7 @@ export default function Home() {
     <div className={`shell${openingMode ? " opening-mode" : ""}`}>
       <aside>
         <a className="brand" href="#" onClick={() => setView("Outlook")}>
-          <span className="brand-mark" aria-hidden="true">
-            e.
-          </span>
-          {BRAND}
+          <Wordmark />
         </a>
         <div className="navlabel">YOUR JOURNAL</div>
         <nav>
@@ -634,7 +632,7 @@ export default function Home() {
         {demo && (
           <div className="demo-banner">
             <span className="demo-chip">Fictional demo history</span>{" "}
-            <span>Fictional entries for exploring Elya.</span>
+            <span>Fictional entries for exploring elya.</span>
             <select
               aria-label="Demo persona"
               value={persona}
@@ -1028,7 +1026,7 @@ export default function Home() {
                     <YAxis
                       type="category"
                       dataKey="kind"
-                      tick={{ fontSize: 10 }}
+                      tick={{ fontSize: "var(--type-label)" }}
                       width={135}
                     />
                     <Tooltip />
@@ -1101,7 +1099,7 @@ export default function Home() {
             ) : (
               <section className="report">
                 <div className="section-kicker">
-                  <BookOpen /> {BRAND} / PATIENT-REPORTED SUMMARY
+                  <BookOpen /> <Wordmark size="sm" /> / PATIENT-REPORTED SUMMARY
                 </div>
                 {demo && <b className="demo-chip">Fictional demo history</b>}
                 <DataLegend />
@@ -1329,7 +1327,7 @@ export default function Home() {
         <SafetySection />
         <footer>
           <span>
-            <span className="footer-wordmark">Elya</span>{" "}
+            <Wordmark size="sm" />{" "}
             <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
@@ -1345,13 +1343,10 @@ export default function Home() {
             aria-labelledby="welcome-title"
           >
             <div className="brand welcome-brand">
-              <span className="brand-mark" aria-hidden="true">
-                e.
-              </span>
-              Elya
+              <Wordmark size="lg" />
             </div>
             <div className="eyebrow">SET UP YOUR JOURNAL</div>
-            <h2 id="welcome-title">Set up Elya.</h2>
+            <h2 id="welcome-title">Set up elya.</h2>
             <p>
               Choose a name and a default way to add entries. You can change
               these later in Settings. Your journal stays in this browser.

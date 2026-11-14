@@ -62,16 +62,16 @@ export function CycleInsights({
               <CartesianGrid stroke="var(--line)" />
               <XAxis
                 dataKey="day"
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: "var(--type-label)" }}
                 label={{
                   value: "Reported cycle day",
                   position: "insideBottom",
                   offset: -5,
-                  fontSize: 10,
+                  fontSize: "var(--type-label)",
                 }}
                 height={38}
               />
-              <YAxis domain={[0, 10]} tick={{ fontSize: 10 }} width={25} />
+              <YAxis domain={[0, 10]} tick={{ fontSize: "var(--type-label)" }} width={25} />
               <Tooltip />
               {c.starts.map((start, i) => (
                 <Line
@@ -112,8 +112,8 @@ export function CycleInsights({
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={scored}>
               <CartesianGrid stroke="var(--line)" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-              <YAxis width={25} domain={[0, 10]} tick={{ fontSize: 10 }} />
+              <XAxis dataKey="date" tick={{ fontSize: "var(--type-label)" }} />
+              <YAxis width={25} domain={[0, 10]} tick={{ fontSize: "var(--type-label)" }} />
               <Tooltip />
               <Line
                 type="linear"

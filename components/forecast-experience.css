@@ -2,31 +2,31 @@
 .persona-chooser { margin: 28px 0 0; padding: 22px; border: 1px solid var(--line); border-radius: 22px; background: var(--white); }
 .persona-chooser label { display: block; font-weight: 600; margin-bottom: 10px; }
 .persona-chooser select { width: min(100%, 440px); min-height: 44px; padding: 8px 12px; border: 1px solid var(--ink-soft); border-radius: 12px; }
-.persona-chooser p, .demo-disclosure { font-size: 12px; line-height: 1.7; margin: 12px 0; color: var(--ink-soft); }
+.persona-chooser p, .demo-disclosure { font-size: var(--type-label); line-height: 1.7; margin: 12px 0; color: var(--ink-soft); }
 .forecast-outlook .page-title { padding-bottom: 12px; }
 .forecast-outlook .page-title h1 { max-width: 760px; }
 .forecast-list { padding: 0; margin: 20px 0 28px; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .forecast-list > li { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 26px; }
 .forecast-symptom { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.forecast-symptom h2 { font-family: inherit; font-size: 21px; font-weight: 600; line-height: 1.3; margin: 0; }
-.forecast-list p { font-size: 13px; line-height: 1.75; margin: 14px 0 0; color: var(--ink-soft); }
+.forecast-symptom h2 { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--type-h3); font-weight: 600; line-height: var(--leading-display); margin: 0; }
+.forecast-list p { font-size: var(--type-label); line-height: 1.75; margin: 14px 0 0; color: var(--ink-soft); }
 .forecast-list details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
-.forecast-list summary { color: var(--rose-deep); cursor: pointer; font-size: 12px; }
+.forecast-list summary { color: var(--rose-deep); cursor: pointer; font-size: var(--type-label); }
 .forecast-list .forecast-estimate { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; }
-.forecast-estimate strong { font-size: 40px; color: var(--ink); font-weight: 600; letter-spacing: -1px; }
-.forecast-estimate span { border-radius: 999px; padding: 3px 9px; background: var(--rose-soft); color: var(--ink); font-size: 11px; }
+.forecast-estimate strong { font-size: var(--type-h1); color: var(--ink); font-weight: 600; letter-spacing: -1px; }
+.forecast-estimate span { border-radius: 999px; padding: 3px 9px; background: var(--rose-soft); color: var(--ink); font-size: var(--type-label); }
 .outlook-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin: 26px 0; }
 .quick-checkin { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 28px; margin-top: 24px; scroll-margin-top: 100px; }
 .quick-checkin fieldset { border: 0; border-bottom: 1px solid var(--line); margin: 20px 0; padding: 0 0 20px; }
 .quick-checkin legend { font-weight: 600; padding: 0 0 10px; }
 .checkin-options { display: flex; gap: 10px; flex-wrap: wrap; }
-.checkin-options label { display: flex; align-items: center; gap: 7px; padding: 10px 14px; min-height: 44px; border: 1px solid var(--ink-soft); border-radius: 999px; font-size: 12px; color: var(--ink); cursor: pointer; }
+.checkin-options label { display: flex; align-items: center; gap: 7px; padding: 10px 14px; min-height: 44px; border: 1px solid var(--ink-soft); border-radius: 999px; font-size: var(--type-label); color: var(--ink); cursor: pointer; }
 .checkin-options label.chosen { background: var(--rose-soft); border-color: var(--rose-deep); }
 .checkin-options input { width: auto; margin: 0; }
-.checkin-note { display: block; font-size: 13px; }
+.checkin-note { display: block; font-size: var(--type-label); }
 .checkin-note textarea { display: block; width: 100%; margin: 12px 0 20px; min-height: 100px; }
-.quick-checkin .muted { margin-top: 16px; font-size: 12px; }
-.journal-symptoms { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0; font-size: 11px; color: var(--ink); }
+.quick-checkin .muted { margin-top: 16px; font-size: var(--type-label); }
+.journal-symptoms { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0; font-size: var(--type-label); color: var(--ink); }
 .journal-symptoms .unknown-label { border-bottom: 1px dashed var(--ink-soft); color: var(--ink-soft); }
 @media (max-width: 700px) {
  .forecast-list { grid-template-columns: 1fr; gap: 14px; }
@@ -34,7 +34,7 @@
  .outlook-actions { gap: 18px; }
  .outlook-actions .primary { width: 100%; justify-content: center; }
  .quick-checkin .section-heading { align-items: start; }
- .quick-checkin .section-heading h2 { font-size: 23px; }
+ .quick-checkin .section-heading h2 { font-size: var(--type-h3); }
  .checkin-options { gap: 7px; }
- .checkin-options label { padding: 9px 10px; font-size: 11px; }
+ .checkin-options label { padding: 9px 10px; font-size: var(--type-label); }
 }

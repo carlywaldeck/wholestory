@@ -1,7 +1,7 @@
 {
   "name": "elya",
   "version": "1.0.0",
-  "description": "Elya: an evidence-first symptom journal with chosen spoken replies and clinician briefs",
+  "description": "elya: an evidence-first symptom journal with chosen spoken replies and clinician briefs",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",

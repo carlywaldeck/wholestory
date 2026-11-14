@@ -1,0 +1,96 @@
+:root {
+  --type-display: clamp(40px, 6vw, 72px);
+  --type-h1: 36px;
+  --type-h2: 28px;
+  --type-h3: 22px;
+  --type-body: 16px;
+  --type-small: 14px;
+  --type-label: 12px;
+  --type-button: 14px;
+  --leading-display: 1.15;
+  --leading-body: 1.55;
+  --leading-small: 1.5;
+}
+body {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--type-body);
+  font-weight: 400;
+  line-height: var(--leading-body);
+  font-feature-settings: "tnum";
+}
+button, input, textarea, select, nav, label, summary, .recharts-wrapper, .data-legend,
+.tags, .outlook-state, .demo-chip, .evidence-chip, footer {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-style: normal;
+}
+h1, h2, h3, .page-title h1, .intro h1, .opening-copy h1, .forecast-symptom h2,
+.section-heading h2, .quick-checkin .section-heading h2, .cycle-card h2 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: -.02em;
+  line-height: var(--leading-display);
+  text-transform: none;
+}
+h1, .page-title h1 { font-size: var(--type-h1); }
+h2, .section-heading h2, .cycle-card h2 { font-size: var(--type-h2); }
+h3, .forecast-symptom h2, .quick-checkin .section-heading h2 { font-size: var(--type-h3); }
+.settings-section > h3, h3.settings-subheading, .safety-section h3 {
+  font-family: var(--font-display), system-ui, sans-serif; font-size: var(--type-h3); font-weight: 600;
+  line-height: var(--leading-display); letter-spacing: -.02em;
+}
+.forecast-outlook .page-title h1 { font-size: var(--type-display); }
+/* The approved hero retains its existing size/breakpoint rules and geometry.
+   Only the requested family, semibold weight and tracking are applied. */
+.intro h1, .opening-copy h1 { line-height: 1.1; }
+p:not(.opening-copy p) { max-inline-size: 65ch; }
+p, .entry-content p, .capture-copy p, .page-title p, .report p, .comparison-reading {
+  font-size: var(--type-body); line-height: var(--leading-body); font-weight: 400;
+}
+.muted, small, .demo-disclosure, .forecast-list p, .journal-symptoms, .quick-checkin .muted {
+  font-size: var(--type-small);
+  line-height: var(--leading-small);
+  font-weight: 400;
+}
+button, .button, .mic, .type-link, nav button, .demo-link, .opening-start, .opening-menu-trigger {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: var(--type-button);
+}
+input, textarea, select { font-size: var(--type-body); font-weight: 400; line-height: var(--leading-body); }
+.eyebrow, .section-kicker, .tags, .data-legend, .outlook-state, .demo-chip, .evidence-chip,
+.checkin-options label, .journey-progress strong, .journey-progress small, .forecast-estimate span {
+  font-size: var(--type-label); font-weight: 500; line-height: var(--leading-small);
+}
+.forecast-estimate strong, .stats strong, .wearable-comparison strong, .entry-date {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; font-weight: 600;
+}
+.forecast-estimate strong { font-size: var(--type-h1); }
+.report .muted, .entry-content .muted { font-size: var(--type-small); line-height: var(--leading-small); }
+.section-heading h2 > span {
+  font-family: var(--font-body), system-ui, sans-serif; font-size: var(--type-label); font-weight: 500;
+}
+.recharts-wrapper, .forecast-date, time, input[type="date"], .calendar {
+  font-feature-settings: "tnum"; font-variant-numeric: tabular-nums;
+}
+.recharts-text { font-family: var(--font-body), system-ui, sans-serif; font-size: var(--type-label); }
+.calendar button.unknown-day > span { font-size: var(--type-label); overflow-wrap: anywhere; line-height: var(--leading-small); }
+footer p, .report .brand-boundary, .brand-boundary { font-size: var(--type-label); line-height: var(--leading-small); font-weight: 400; }
+.wordmark {
+  display: inline-block;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: -.04em;
+  line-height: 1;
+  color: var(--ink);
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+.wordmark--sm { font-size: var(--type-h3); }
+.wordmark--md { font-size: var(--type-h2); }
+.wordmark--lg { font-size: var(--type-h1); }
+.wordmark--inverse { color: var(--white); }
+em, i { font-style: normal; }
+b, strong { font-weight: 600; }

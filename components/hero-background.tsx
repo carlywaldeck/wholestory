@@ -142,6 +142,6 @@ export function HeroBackground() {
   return <div className="hero-background" aria-hidden="true" style={{
     background: "linear-gradient(125deg, var(--white), var(--pearl) 60%, var(--pearl-deep))",
   }}><canvas ref={ref} style={{ width: "100%", height: "100%", display: "block", opacity: 0, filter: "blur(2px)", transform: "scale(1.015)" }} />
-    {process.env.NODE_ENV === "development" && <span style={{ position: "absolute", top: 12, right: 12, padding: "3px 8px", background: "var(--pearl)", color: "var(--ink)", fontSize: 11 }}>{path}</span>}
+    {process.env.NODE_ENV === "development" && <span style={{ position: "absolute", top: 12, right: 12, padding: "3px 8px", background: "var(--pearl)", color: "var(--ink)", fontSize: "var(--type-label)" }}>{path}</span>}
   </div>;
 }

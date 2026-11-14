@@ -1,12 +1,34 @@
 # elya
 
-Quiet, human, direct. Use the existing system sans-serif family, semibold headlines,
+Quiet, human, direct. Use Rethink Sans 600 for headings and the lowercase elya wordmark,
+and Inter 400/500/600 for all other interface text. Use semibold headlines,
 pill actions, 22px panels, thin borders, and restrained shadows. No script flourishes,
 traffic lights, decorative AI imagery, or symptom-specific color hues.
 
 ## Tokens
 
 Defined once in app/globals.css.
+
+Typography is defined in components/typography.css. Both fonts are built with
+next/font/google into same-origin self-hosted assets; no runtime Google font requests.
+Use --font-display and --font-body with system-ui fallbacks. Wordmark is a reusable
+component with sm/md/lg sizes, weight 600, tracking -0.04em and line-height 1.
+Headlines use -0.02em and line-height 1.15. Display is clamp(40px,6vw,72px);
+H1/H2/H3 are 36/28/22px, body 16px at 1.55, small 14px at 1.5, labels and the
+disclaimer 12px, buttons 14px at weight 500. Numbers use Inter tabular numerals.
+The approved fabric hero keeps its prior size/breakpoint values to preserve geometry;
+only its requested font family, semibold weight and tracking change. Its animation
+and wording are unchanged. The PDF renderer retains built-in Helvetica: next/font
+does not embed fonts in jsPDF; its on-screen brief uses the new typography.
+
+Typography browser audit: Home, Journal, Appointment brief and Settings headings
+resolved to Rethink Sans 600; wordmarks resolved to lowercase elya at weight 600
+with -0.04em tracking. Body resolved to Inter. Network inspection found only the
+two same-origin woff2 assets (Rethink Sans variable 400–800 and Inter 400/500/600);
+the generated metric-adjusted fallback faces use local system fonts. Initial-load
+CLS measured 0 in the desktop Chromium run. Later route changes and viewport
+resizing are not a font-load CLS measurement. At 390px the document width remained
+390px. The hero shader/config source matched the pre-pass source exactly.
 
 | Token | Value | Use |
 | --- | --- | --- |
