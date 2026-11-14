@@ -6,7 +6,10 @@ import userEvent from "@testing-library/user-event";
 import Home from "./page";
 import { clearEntries, loadEntries } from "../lib/storage";
 import { savePreferences, defaultPreferences } from "../lib/preferences";
+import { handleForecast } from "../lib/server-forecast";
 beforeEach(async () => {
+  localStorage.clear();
+  vi.stubGlobal("fetch",vi.fn((url:string)=>handleForecast(new Request(new URL(url,"http://localhost").href))));
   await clearEntries();
   await savePreferences({ ...defaultPreferences, setupComplete: true });
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
@@ -53,7 +56,7 @@ it("completes a manual entry with attributed fields and skips the optional quest
     "My lower abdomen ached",
   );
   expect(screen.getByText("Your entry is saved on this device.")).toBeTruthy();
-  await user.click(screen.getByRole("button", { name: "Your story" }));
+  await user.click(screen.getByRole("button", { name: "Journal" }));
   expect(screen.getByText("My lower abdomen ached this morning.")).toBeTruthy();
 });
 it("keeps demo and personal records separate and gates report export behind review", async () => {

@@ -35,8 +35,10 @@ and icon on the same palette.
 - Usual pattern: pearl-deep, ink label, half-filled dot.
 - Still learning: transparent, dashed line outline, ink-soft label, hollow dot.
 
-The current Home outlook abstains: no model estimate is wired into the UI.
-Do not turn missing evidence into a usual-pattern or elevated estimate.
+Outlook displays the existing forecast backend's estimates and abstentions.
+New personal histories begin in Still learning. Do not turn missing evidence
+into a lower-likelihood or elevated estimate. The backend's lower estimate is
+not described as a calibrated personal usual baseline.
 
 - Observation: solid ink mark or line.
 - Estimate: rose mark on rose-soft, explicit “Estimate” label.

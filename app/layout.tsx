@@ -1,6 +1,7 @@
 import "./globals.css";
+import "../components/forecast-experience.css";
 export const metadata = {
-  title: "elya — Symptom outlook & journal",
+  title: "Elya — Symptom outlook & journal",
   description: "Experimental cycle-aware symptom outlooks, a private journal, and clinician-ready summaries.",
 };
 export default function Layout({ children }: { children: React.ReactNode }) {

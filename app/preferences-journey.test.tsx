@@ -21,14 +21,12 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
-it("offers a skippable first visit and keeps voice personalization in Settings", async () => {
+it("opens Outlook directly and keeps personalization in Settings", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Set up elya." });
+  await screen.findByRole("heading", { name: "Tomorrow, a little more context." });
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
-  await user.click(screen.getByRole("button", { name: "Set up later" }));
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  expect((await loadPreferences()).setupComplete).toBe(true);
+  expect(screen.queryByRole("dialog")).toBeNull();
   await user.click(screen.getByRole("button", { name: "Write an entry" }));
   expect(screen.queryByText("Find your voice.")).toBeNull();
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
@@ -43,15 +41,17 @@ it("offers a skippable first visit and keeps voice personalization in Settings",
 it("saves a name and entry preference, then restores them without onboarding", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Set up elya." });
+  await screen.findByRole("heading", { name: "Tomorrow, a little more context." });
+  await user.click(screen.getByRole("button", { name: "Privacy settings" }));
   await user.type(
     screen.getByRole("textbox", { name: /What should we call you/ }),
     "Sam",
   );
   await user.click(screen.getByRole("radio", { name: /Talk it through/ }));
   await user.click(
-    screen.getByRole("button", { name: "Make yourself at home" }),
+    screen.getByRole("button", { name: "Save preferences" }),
   );
+  await user.click(screen.getByRole("button", { name: "Close settings" }));
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   expect((await loadPreferences()).name).toBe("Sam");
   expect((await loadPreferences()).inputMode).toBe("voice");

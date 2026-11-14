@@ -39,9 +39,10 @@ import {
   manualExtraction,
   report,
   validateEntry,
+  isPresentFact,
 } from "../lib/model";
 import * as storage from "../lib/storage";
-import { personas, personaEntries, PersonaId } from "../lib/demo";
+import type { ForecastPersona as PersonaId } from "../lib/forecast-demo";
 import { StructuredDetails } from "../components/structured-details";
 import { WearableExplorer } from "../components/wearable-explorer";
 import { clearWearables } from "../lib/wearables";
@@ -55,6 +56,11 @@ import { PersonalPreferences } from "../components/personal-preferences";
 import { JourneyProgress } from "../components/journey-progress";
 import { HeroBackground } from "../components/hero-background";
 import { DataLegend, SymptomOutlook } from "../components/brand-states";
+import { ForecastOutlook, type ForecastResult } from "../components/forecast-outlook";
+import { QuickCheckin } from "../components/quick-checkin";
+import { symptomRisk, type RiskInput } from "../lib/symptom-risk";
+import { shiftDate } from "../lib/forecast-time";
+import { checkinRecord, checkinSymptoms, loadConfirmedDays, saveConfirmedDay, forgetConfirmedDay, clearConfirmedDays, type Answers } from "../lib/experience-checkins";
 import {
   defaultPreferences,
   loadPreferences,
@@ -62,7 +68,15 @@ import {
   clearPreferences,
   type Preferences,
 } from "../lib/preferences";
-const BRAND = "elya";
+const BRAND = "Elya";
+const forecastPeople = [{id:"maya",name:"Maya"},{id:"alex",name:"Alex"},{id:"jules",name:"Jules"}] as const;
+type ForecastDemo = {
+  demo: { persona: PersonaId; label: string; disclosure: string };
+  forecast: ForecastResult;
+  demoInput: RiskInput;
+  demoPhysiology: { date: string; sleepHours: number | null; steps: number | null }[];
+  demoJournalEntries: Entry[];
+};
 const today = () => {
   const d = new Date();
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
@@ -94,7 +108,7 @@ export default function Home() {
       .then((p) => {
         if (active) {
           setPreferences(p);
-          setShowWelcome(!p.setupComplete);
+          setShowWelcome(false);
         }
       })
       .catch(() => {});
@@ -108,12 +122,20 @@ export default function Home() {
     setShowWelcome(false);
   }
   const [persona, setPersona] = useState<PersonaId>("maya");
+  const [forecastDemo, setForecastDemo] = useState<ForecastDemo | null>(null);
+  const [personalForecast, setPersonalForecast] = useState<ForecastResult | null>(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [forecastError, setForecastError] = useState("");
+  const [checkin, setCheckin] = useState(false);
+  const [checkinVersion, setCheckinVersion] = useState(0);
+  const [journalLimit, setJournalLimit] = useState(14);
+  const forecastRequest = useRef(0);
   const [customQuestion, setCustomQuestion] = useState("");
   const [entryMode, setEntryMode] = useState<"write" | "voice">("write");
   const [voiceTarget, setVoiceTarget] = useState<"entry" | "answer">("entry");
   const [allEntries, setEntries] = useState<Entry[]>([]),
     [demoMode, setDemoMode] = useState(false),
-    [view, setView] = useState("Today"),
+    [view, setView] = useState("Outlook"),
     [ready, setReady] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -224,6 +246,16 @@ export default function Home() {
     setWearableNote("");
   }, [allEntries, demoMode, persona]);
   useEffect(() => {
+    if (demoMode) return;
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setPersonalForecast(symptomRisk({ kind: "real", targetDate: shiftDate(today(), 1), asOf: new Date().toISOString(), timeZone, days: loadConfirmedDays() }, { evaluate: false }));
+      setForecastError("");
+    } catch {
+      setForecastError("Your saved check-ins could not be read. Your journal is still available.");
+    }
+  }, [demoMode, checkinVersion]);
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, [view]);
   useEffect(() => {
@@ -232,9 +264,7 @@ export default function Home() {
         .getElementById("supporting-entries")
         ?.scrollIntoView({ block: "start" });
   }, [evidence, view]);
-  const entries = allEntries.filter((e) =>
-    demoMode ? e.demo && e.persona === persona : !e.demo,
-  );
+  const entries = demoMode ? (forecastDemo?.demoJournalEntries ?? []).slice().sort((a,b)=>b.date.localeCompare(a.date)) : allEntries.filter(e=>!e.demo);
   const demo = demoMode;
   const data = insights(entries);
   const brief = report(entries);
@@ -293,8 +323,7 @@ export default function Home() {
       const combined =
         text +
         (answer.trim() ? `\nFollow-up: ${question}\n${answer.trim()}` : "");
-      await storage.putEntry(
-        validateEntry({
+      const updatedEntry = validateEntry({
           id: id || crypto.randomUUID(),
           date,
           text: combined,
@@ -302,12 +331,22 @@ export default function Home() {
           symptomFree: free,
           demo,
           ...(demo ? { persona } : {}),
-        }),
-      );
+        });
+      const sourceDate = entries.find(e=>e.id===id)?.date;
+      if (demo) {
+        setForecastDemo(current => {
+          if (!current) return current;
+          const input = {...current.demoInput, days: current.demoInput.days.filter(d=>d.date!==updatedEntry.date && d.date!==sourceDate)};
+          return { ...current, demoInput: input, forecast: symptomRisk(input,{evaluate:false}), demoJournalEntries: [updatedEntry, ...current.demoJournalEntries.filter(e=>e.id!==updatedEntry.id)] };
+        });
+      } else {
+        await storage.putEntry(updatedEntry);
+        if(id.startsWith("checkin-personal-")) { forgetConfirmedDay(sourceDate ?? date); setCheckinVersion(n=>n+1); }
+      }
       setEditor(false);
       await refresh();
       setView("Your story");
-      setNotice("Your entry is saved on this device.");
+      setNotice(demo ? "Your fictional entry is saved for this demo session." : "Your entry is saved on this device.");
       speech.speak(
         "Your entry is saved on this device. Thank you for making a little space for yourself today.",
       );
@@ -460,17 +499,47 @@ export default function Home() {
   }
 
   async function tryDemo(chosen: PersonaId = persona) {
+    const request = ++forecastRequest.current;
+    setForecastLoading(true);
+    setForecastError("");
+    setCheckin(false);
+    setView("Outlook");
     try {
-      await storage.replaceDemoEntries(personaEntries(chosen));
+      const response = await fetch(`/api/forecast?persona=${chosen}&targetDate=${shiftDate(today(), 1)}`);
+      if (!response.ok) throw Error("The fictional outlook could not be loaded. Please try again.");
+      const payload = await response.json() as ForecastDemo;
+      if (payload.demo?.persona !== chosen || !payload.forecast?.symptoms || !Array.isArray(payload.demoJournalEntries)) throw Error("The demo response was incomplete. Please try again.");
+      const matched = payload.demoJournalEntries.map(validateEntry);
+      if (matched.some(e=>!e.demo || e.persona!==chosen || !e.id.startsWith("forecast-demo-"))) throw Error("The demo history did not match the selected person.");
+      if (request !== forecastRequest.current) return;
+      setForecastDemo({ ...payload, demoJournalEntries: matched });
       setPersona(chosen);
-      await refresh();
+      setJournalLimit(14);
       setDemoMode(true);
+      setQuestions([]); setStatement(""); setEvidence(null); setSelected(""); setReviewed(false); setWearableNote("");
       setNotice(
-        "Synthetic demo history loaded. Entries added in demo mode are also synthetic; your personal journal stays separate.",
+        "Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.",
       );
     } catch (e) {
-      setError((e as Error).message);
+      if (request === forecastRequest.current) setForecastError((e as Error).message);
+    } finally {
+      if (request === forecastRequest.current) setForecastLoading(false);
     }
+  }
+  async function saveCheckin(answers: Answers, note: string) {
+    const { day, entry } = checkinRecord(today(), answers, note, demo ? persona : undefined);
+    if (demo && forecastDemo) {
+      const input: RiskInput = { ...forecastDemo.demoInput, asOf: new Date().toISOString(), days: [...forecastDemo.demoInput.days.filter(d=>d.date!==day.date),day] };
+      const result = symptomRisk(input, {evaluate:false});
+      setForecastDemo({ ...forecastDemo, demoInput: input, forecast: result, demoJournalEntries: [entry,...forecastDemo.demoJournalEntries.filter(e=>e.date!==entry.date)] });
+    } else {
+      await storage.putEntry(entry);
+      saveConfirmedDay(day);
+      await refresh();
+      setCheckinVersion(n=>n+1);
+    }
+    setCheckin(false); setReviewed(false); setView("Your story");
+    setNotice(demo ? "Fictional check-in saved. Review it in your journal." : "Check-in saved on this device. Review it in your journal.");
   }
   async function pdf() {
     if (!reviewed) return;
@@ -492,7 +561,7 @@ export default function Home() {
   return (
     <div className={`shell${openingMode ? " opening-mode" : ""}`}>
       <aside>
-        <a className="brand" href="#" onClick={() => setView("Today")}>
+        <a className="brand" href="#" onClick={() => setView("Outlook")}>
           <span className="brand-mark" aria-hidden="true">
             e.
           </span>
@@ -501,7 +570,7 @@ export default function Home() {
         <div className="navlabel">YOUR JOURNAL</div>
         <nav>
           {[
-            ["Today", CalendarDays],
+            ["Outlook", CalendarDays],
             ["Your story", BookOpen],
             ["Appointment brief", FileText],
           ].map(([label, Icon]) => (
@@ -520,7 +589,7 @@ export default function Home() {
               }}
             >
               {typeof Icon !== "string" && <Icon size={20} />}
-              <span>{String(label)}</span>
+              <span>{label === "Your story" ? "Journal" : String(label)}</span>
               {view === label && <span className="dot" />}
             </button>
           ))}
@@ -544,7 +613,7 @@ export default function Home() {
             {preferences.name
               ? `${preferences.name}’s journal`
               : "Your journal"}{" "}
-            <span>/</span> {view}
+            <span>/</span> {view === "Your story" ? "Journal" : view}
           </span>
           {(speech.speaking || speech.preparing) && (
             <button className="stop-reply" onClick={speech.stop}>
@@ -565,7 +634,7 @@ export default function Home() {
         {demo && (
           <div className="demo-banner">
             <span className="demo-chip">Fictional demo history</span>{" "}
-            <span>Fictional entries for exploring elya.</span>
+            <span>Fictional entries for exploring Elya.</span>
             <select
               aria-label="Demo persona"
               value={persona}
@@ -578,14 +647,16 @@ export default function Home() {
                 tryDemo(e.target.value as PersonaId);
               }}
             >
-              {personas.map((p) => (
+              {forecastPeople.map((p) => (
                 <option value={p.id} key={p.id}>
-                  {p.name} · {p.description}
+                  {p.name}
                 </option>
               ))}
             </select>
             <button
               onClick={async () => {
+                forecastRequest.current++;
+                setForecastLoading(false); setForecastError(""); setForecastDemo(null); setCheckin(false);
                 setDemoMode(false);
                 setNotice(
                   "Back to your personal journal. Demo entries are kept separately.",
@@ -609,7 +680,21 @@ export default function Home() {
             {error}
           </p>
         )}
-        {view === "Today" ? (
+        {demo && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
+        {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
+        {view === "Outlook" ? (
+          <>
+          {!demo && <div className="persona-chooser"><label htmlFor="forecast-persona">Explore a fictional outlook</label>
+            <select id="forecast-persona" value={demo ? persona : ""} disabled={forecastLoading} onChange={e=>{if(e.target.value)void tryDemo(e.target.value as PersonaId);}}>
+              <option value="" disabled>Choose a fictional person</option><option value="maya">Maya · Cyclical symptoms</option><option value="alex">Alex · Symptoms beyond period days</option><option value="jules">Jules · Fewer recent symptoms</option>
+            </select>
+            <p>No wearable or API account needed. Personal records stay separate.</p>
+          </div>}
+          <ForecastOutlook result={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} error={forecastError}
+            onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)}
+            onCheckin={()=>{setCheckin(true); window.scrollTo(0,0);}} onWrite={()=>open()} onRecord={()=>voice()} />
+          </>
+        ) : view === "Today" ? (
           <>
             {openingMode ? (
               <section className="opening-screen" aria-label="Start your story">
@@ -787,7 +872,7 @@ export default function Home() {
           <>
             <section className="page-title">
               <div className="eyebrow">YOUR JOURNAL</div>
-              <h1>Your story</h1>
+              <h1>Journal</h1>
               <p>Edit entries and review the details you want to bring to care.</p>
             </section>
             <JourneyProgress
@@ -799,6 +884,7 @@ export default function Home() {
               }}
             />
             <div className="toolbar">
+              <Button className="primary" onClick={()=>setCheckin(true)}>Check in today</Button>
               <select
                 aria-label="Filter symptoms"
                 value={filter}
@@ -815,7 +901,7 @@ export default function Home() {
               <Button onClick={() => setCalendar(!calendar)}>
                 <CalendarDays size={17} /> Calendar
               </Button>
-              <Button className="primary" onClick={() => open()}>
+              <Button onClick={() => open()}>
                 <Plus size={17} /> Add entry
               </Button>
             </div>
@@ -861,7 +947,9 @@ export default function Home() {
                 Clear date filter: {selected} ×
               </button>
             )}
-            {visible.map((e) => entryCard(e))}
+            <DataLegend />
+            {visible.slice(0,journalLimit).map((e) => entryCard(e))}
+            {visible.length > journalLimit && <Button onClick={()=>setJournalLimit(n=>n+14)}>Show more entries ({visible.length-journalLimit} remaining)</Button>}
             {!visible.length && (
               <div className="empty">No entries here yet.</div>
             )}
@@ -881,7 +969,11 @@ export default function Home() {
                 Compare imported daily measurements with logged daily-life impact.
               </p>
             </section>
-            <WearableExplorer
+            {demo && forecastDemo ? <section className="wearable-explorer"><h2>Fictional wearable context</h2>
+              <span className="demo-chip">Fictional demo history</span>
+              <p>These readings come from the same fictional history as the outlook. They are not used in symptom forecasts.</p>
+              <details><summary>See matching context</summary><table><thead><tr><th>Date</th><th>Sleep hours</th><th>Steps</th></tr></thead><tbody>{forecastDemo.demoPhysiology.slice(-7).map(d=><tr key={d.date}><td>{d.date}</td><td>{d.sleepHours ?? "Unknown"}</td><td>{d.steps ?? "Unknown"}</td></tr>)}</tbody></table></details>
+            </section> : <WearableExplorer
               entries={entries}
               demo={demo}
               onDemo={() => tryDemo()}
@@ -891,7 +983,7 @@ export default function Home() {
                 setReviewed(false);
                 if (text) setView("Appointment brief");
               }}
-            />
+            />}
             <details className="existing-patterns">
               <summary>Explore symptoms & cycle patterns</summary>
               <div className="stats">
@@ -1237,7 +1329,7 @@ export default function Home() {
         <SafetySection />
         <footer>
           <span>
-            <span className="footer-wordmark">elya</span>{" "}
+            <span className="footer-wordmark">Elya</span>{" "}
             <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
@@ -1256,10 +1348,10 @@ export default function Home() {
               <span className="brand-mark" aria-hidden="true">
                 e.
               </span>
-              elya
+              Elya
             </div>
             <div className="eyebrow">SET UP YOUR JOURNAL</div>
-            <h2 id="welcome-title">Set up elya.</h2>
+            <h2 id="welcome-title">Set up Elya.</h2>
             <p>
               Choose a name and a default way to add entries. You can change
               these later in Settings. Your journal stays in this browser.
@@ -1293,6 +1385,7 @@ export default function Home() {
             <h2 id="entry-title">
               {review ? "Review your entry." : "Today, in your words."}
             </h2>
+            {id.startsWith("checkin-") || id.startsWith("forecast-demo-") ? <p className="muted">Editing this entry removes that day’s old forecast answers. Confirm them again with a check-in; writing alone does not update symptom labels.</p> : null}
             {demo && <span className="demo-chip">Fictional demo history</span>}
             {!review && (
               <div className="entry-tabs">
@@ -1604,6 +1697,7 @@ export default function Home() {
             <ShieldCheck />
             <div className="eyebrow">YOUR SPACE</div>
             <h2 id="privacy-title">Settings</h2>
+            <Button onClick={()=>{setSettings(false);setView("Today");}}>View the fabric welcome screen</Button>
             {demo && <span className="demo-chip">Fictional demo history</span>}
             <p className="brand-boundary">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
             <section className="settings-section">
@@ -1715,6 +1809,7 @@ export default function Home() {
                 ) {
                   await storage.clearEntries();
                   await clearPreferences();
+                  clearConfirmedDays(); setCheckinVersion(n=>n+1);
                   await clearWearables();
                   setPreferences(defaultPreferences);
                   speech.resetPreferences();
@@ -1781,7 +1876,7 @@ export default function Home() {
               [
                 ...new Set(
                   e.facts
-                    .filter((f) =>
+                    .filter((f) => isPresentFact(f) &&
                       categories.includes(
                         f.kind as (typeof categories)[number],
                       ),
@@ -1793,6 +1888,11 @@ export default function Home() {
             {e.demo && <small>SYNTHETIC</small>}
           </div>
           <p>{e.text}</p>
+          <div className="journal-symptoms">{checkinSymptoms.map(s=>{
+            const fact=e.facts.find(f=>f.kind===s.kind);
+            const state=!fact?"Unknown":isPresentFact(fact)?"Present":"None reported";
+            return <span key={s.key} className={!fact?"unknown-label":""}><b>{s.label}:</b> {state}</span>;
+          })}</div>
           {e.facts.some((f) => f.kind === "Daily-life impact") && (
             <div className="impact">
               Daily-life impact ·{" "}
@@ -1813,8 +1913,12 @@ export default function Home() {
           aria-label={`Delete entry ${e.date}`}
           onClick={async () => {
             if (confirm("Delete this entry?")) {
-              await storage.deleteEntry(e.id);
-              await refresh();
+              if (demo) setForecastDemo(current=>{
+                if(!current)return current;
+                const input={...current.demoInput,days:current.demoInput.days.filter(d=>d.date!==e.date)};
+                return {...current,demoInput:input,forecast:symptomRisk(input,{evaluate:false}),demoJournalEntries:current.demoJournalEntries.filter(row=>row.id!==e.id)};
+              });
+              else { await storage.deleteEntry(e.id); if(e.id.startsWith("checkin-personal-")) {forgetConfirmedDay(e.date);setCheckinVersion(n=>n+1);} await refresh(); }
               setReviewed(false);
             }
           }}
