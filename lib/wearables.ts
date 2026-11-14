@@ -218,7 +218,7 @@ export function checkInCalendar(value: CheckIn) {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//WholeStory//Check-in//EN",
+    "PRODID:-//Elya//Check-in//EN",
     "BEGIN:VEVENT",
     `UID:wholestory-${value.date}-${value.time.replace(":", "")}@local`,
     `DTSTAMP:${stamp(new Date())}`,

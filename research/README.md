@@ -79,3 +79,7 @@ python3 research/probe_free_apis.py --start 2026-11-01 --end 2026-11-07 --output
 ```
 
 Oura sandbox records are sample data, not real validation data. Do not join them to MPIS or other participants' symptom outcomes.
+
+## Cycle-aware backend (0.2.0)
+
+The separate experimental forecast API and local-time/cycle candidate are documented in `../docs/FORECAST-BACKEND-HANDOFF.md`. They are not validated by the MPIS results. MPIS now reports participant-cluster uncertainty and new-onset versus continuation opportunities; continuing an existing symptom is not advance warning of a new episode. See `../docs/CYCLE-AND-PHYSIOLOGY.md` for physiological evidence and limitations.

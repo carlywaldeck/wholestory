@@ -1,6 +1,6 @@
-# WholeStory
+# Elya
 
-WholeStory turns scattered symptoms into a clear, evidence-linked story for a healthcare appointment. It combines natural voice/text logging, optional structured forms, explicit cycle context, and concise clinician briefs. No account is required inside the app; the current private Sites host has an owner sign-in gate.
+Elya turns scattered symptoms into a clear, evidence-linked story for a healthcare appointment. It combines natural voice/text logging, optional structured forms, explicit cycle context, and concise clinician briefs. No account is required inside the app; the current Sites host uses the existing shared access configuration.
 
 **“These patterns may be worth discussing with a healthcare professional. This tool does not diagnose endometriosis or replace medical care.”**
 
@@ -31,7 +31,7 @@ npm start
 
 ## Natural AI voice previews
 
-The device/system voices have been removed. WholeStory now offers official OpenAI sample recordings for **Coral**, **Sage**, and **Alloy**. Select a preview, adjust pace, and choose **Use this voice**. The public demo samples need no API key and send no journal text. Live delivery can differ from the samples.
+The device/system voices have been removed. Elya now offers official OpenAI sample recordings for **Coral**, **Sage**, and **Alloy**. Select a preview, adjust pace, and choose **Use this voice**. The public demo samples need no API key and send no journal text. Live delivery can differ from the samples.
 
 For live natural replies, configure server-side `OPENAI_API_KEY` and optional `OPENAI_VOICE_MODEL` (default `gpt-audio-1.5`). The interface separately asks permission to send the app's reply text to OpenAI for speech. This consent is independent of journal extraction. No live speech is enabled until a voice is selected, the service is configured, and consent is granted. Each session starts muted. The server requests a verbatim reading and checks the provider-returned transcript against the intended reply before returning audio; changed words or counts are rejected. This check is a guard on the provider transcript, not independent transcription of the audio waveform.
 
@@ -97,7 +97,7 @@ Next priorities: patient/clinical and accessibility review, encrypted backups, c
 
 ## Focused product experience
 
-WholeStory centers on three steps: capture a moment, review your story, and prepare an appointment brief. The pink journal interface keeps pattern exploration inside Your story, with optional AI organization tucked into the entry flow. First-visit setup is skippable; name and preferred entry method are saved on this device and editable in Settings. Voice selection and pace also live in Settings.
+Elya centers on three steps: capture a moment, review your story, and prepare an appointment brief. The pink journal interface keeps pattern exploration inside Your story, with optional AI organization tucked into the entry flow. First-visit setup is skippable; name and preferred entry method are saved on this device and editable in Settings. Voice selection and pace also live in Settings.
 
 The appointment brief starts with the user’s own priority, then links every reported observation to source entries. Counts describe logged experiences; missing days remain unknown. Synthetic personas are demonstrations, not evidence of real adoption.
 

@@ -1,4 +1,15 @@
 import { z } from "zod";
+import {
+  forecastSchedule,
+  localDate,
+  shiftDate,
+  validTimeZone,
+} from "./forecast-time";
+import {
+  cycleEstimate,
+  cycleInputSchema,
+  type ForecastCycle,
+} from "./forecast-cycle";
 
 export const riskSymptoms = [
   "pelvicPain",
@@ -30,14 +41,18 @@ export const riskInputSchema = z
     targetDate: z.iso.date(),
     asOf: z.iso.datetime({ offset: true }),
     days: z.array(riskDaySchema).max(730),
+    timeZone: z
+      .string()
+      .min(1)
+      .max(80)
+      .refine(validTimeZone, "Use a valid IANA time zone.")
+      .default("UTC"),
+    cycle: cycleInputSchema.optional(),
   })
   .strict();
-export type RiskInput = z.infer<typeof riskInputSchema>;
+export type RiskInput = z.input<typeof riskInputSchema>;
 type Day = z.infer<typeof riskDaySchema>;
-const shift = (date: string, n: number) =>
-  new Date(Date.parse(date + "T00:00:00Z") + n * 86400000)
-    .toISOString()
-    .slice(0, 10);
+const shift = shiftDate;
 const value = (d: Day | undefined, s: RiskSymptom): boolean | null =>
   (d?.symptoms[s] as boolean | null) ?? null;
 const guard = {
@@ -47,18 +62,24 @@ const guard = {
   similarPairs: 5,
 };
 
-function pairsFor(days: Day[], symptom: RiskSymptom) {
+function pairsFor(
+  days: Day[],
+  symptom: RiskSymptom,
+  schedule: ReturnType<typeof forecastSchedule>,
+) {
   const byDate = new Map(days.map((d) => [d.date, d]));
   return days.flatMap((d) => {
     const prior = byDate.get(shift(d.date, -1));
     const x = value(prior, symptom),
       y = value(d, symptom);
-    // At this historical midnight, was the preceding day's report available?
+    // Replay the same local issuance clock; later reports cannot become historical inputs.
+    const origin = schedule.origin(d.date);
     if (
       x === null ||
       y === null ||
       !prior ||
-      Date.parse(prior.availableAt) > Date.parse(d.date + "T00:00:00Z")
+      origin === null ||
+      Date.parse(prior.availableAt) > origin
     )
       return [];
     return [{ x, y: Number(y), date: d.date, availableAt: d.availableAt }];
@@ -86,33 +107,63 @@ function enough(pairs: Pair[]) {
     pairs.length - positive >= guard.negativePairs
   );
 }
-function backtest(pairs: Pair[]) {
+function historyFloor(target: string, cutoff: number, cycle?: ForecastCycle) {
+  const rolling = shift(target, -180);
+  return cycle &&
+    Date.parse(cycle.availableAt) <= cutoff &&
+    cycle.regimeSince > rolling
+    ? cycle.regimeSince
+    : rolling;
+}
+function backtest(
+  pairs: Pair[],
+  days: Day[],
+  symptom: RiskSymptom,
+  cycle: ForecastCycle | undefined,
+  schedule: ReturnType<typeof forecastSchedule>,
+) {
+  const history = days.map((d) => ({
+    date: d.date,
+    availableAt: d.availableAt,
+    value: value(d, symptom),
+  }));
   const predictions = pairs.flatMap((row) => {
-    const cutoff = Date.parse(row.date + "T00:00:00Z");
+    const cutoff = schedule.origin(row.date);
+    if (cutoff === null) return [];
     const train = pairs.filter(
-      (r) => r.date < row.date && Date.parse(r.availableAt) <= cutoff,
+      (r) =>
+        r.date < row.date &&
+        shift(r.date, -1) >= historyFloor(row.date, cutoff, cycle) &&
+        Date.parse(r.availableAt) <= cutoff,
     );
     if (!enough(train)) return [];
     const e = estimate(train, row.x);
     if (e.similar < guard.similarPairs) return [];
+    const c = cycleEstimate(cycle, history, row.date, cutoff);
     return [
       {
         actual: row.y,
-        risk: e.probability,
+        previous: Number(row.x),
+        cycle: c.probability,
+        history: e.probability,
+        risk:
+          c.probability === null
+            ? e.probability
+            : (e.probability + c.probability) / 2,
         baseline: e.base,
         persistence: Number(row.x),
       },
     ];
   });
   const n = predictions.length;
-  const score = (key: "risk" | "baseline" | "persistence") => {
-    const tp = predictions.filter(
-      (r) => r[key] >= 0.5 && r.actual === 1,
-    ).length;
-    const fp = predictions.filter(
-      (r) => r[key] >= 0.5 && r.actual === 0,
-    ).length;
-    const fn = predictions.filter((r) => r[key] < 0.5 && r.actual === 1).length;
+  const score = (
+    key: "risk" | "history" | "baseline" | "persistence",
+    rows = predictions,
+  ) => {
+    const n = rows.length;
+    const tp = rows.filter((r) => r[key] >= 0.5 && r.actual === 1).length;
+    const fp = rows.filter((r) => r[key] >= 0.5 && r.actual === 0).length;
+    const fn = rows.filter((r) => r[key] < 0.5 && r.actual === 1).length;
     const tn = n - tp - fp - fn;
     return {
       truePositives: tp,
@@ -122,18 +173,40 @@ function backtest(pairs: Pair[]) {
       accuracy: n ? (tp + tn) / n : null,
       alertPrecision: tp + fp ? tp / (tp + fp) : null,
       symptomRecall: tp + fn ? tp / (tp + fn) : null,
+      balancedAccuracy:
+        tp + fn && tn + fp ? (tp / (tp + fn) + tn / (tn + fp)) / 2 : null,
+      falseAlertsPer30EvaluatedDays: n ? (fp / n) * 30 : null,
+      symptomDays: tp + fn,
+      symptomAbsentDays: tn + fp,
       brier: n
-        ? predictions.reduce((s, r) => s + (r[key] - r.actual) ** 2, 0) / n
+        ? rows.reduce((s, r) => s + (r[key] - r.actual) ** 2, 0) / n
         : null,
     };
   };
   return {
     evaluatedDays: n,
-    method:
-      "Expanding-window chronological testing; fixed 0.5 threshold; UTC research boundaries.",
+    eligiblePairs: pairs.length,
+    evaluatedWithCycleContext: predictions.filter((p) => p.cycle !== null)
+      .length,
+    method: `Expanding-window chronological testing; trailing 180-day training; fixed 0.5 threshold; same ${schedule.issueClock} issuance clock in ${schedule.timeZone}. Ambiguous/nonexistent historical clocks excluded.`,
     risk: score("risk"),
+    historyOnly: score("history"),
     historicalRate: score("baseline"),
     previousReport: score("persistence"),
+    onsetOpportunities: {
+      evaluatedDays: predictions.filter((p) => p.previous === 0).length,
+      risk: score(
+        "risk",
+        predictions.filter((p) => p.previous === 0),
+      ),
+    },
+    continuationOpportunities: {
+      evaluatedDays: predictions.filter((p) => p.previous === 1).length,
+      risk: score(
+        "risk",
+        predictions.filter((p) => p.previous === 1),
+      ),
+    },
   };
 }
 
@@ -141,22 +214,41 @@ function backtest(pairs: Pair[]) {
  * One person's labels only. Caller must keep people and real/synthetic sources separate.
  * Probabilities are experimental estimates, not clinically calibrated forecasts.
  */
-export function symptomRisk(input: unknown) {
+export function symptomRisk(
+  input: unknown,
+  options: { evaluate?: boolean } = {},
+) {
   const parsed = riskInputSchema.parse(input);
   const cutoff = Date.parse(parsed.asOf);
-  const boundary = Date.parse(parsed.targetDate + "T00:00:00Z");
-  if (cutoff > boundary || cutoff < boundary - 86400000)
-    throw Error(
-      "asOf must be within the preceding UTC day or its closing midnight. Only next-day estimates are supported.",
-    );
+  const schedule = forecastSchedule(
+    parsed.targetDate,
+    parsed.asOf,
+    parsed.timeZone,
+  );
   const seen = new Set<string>();
   for (const d of parsed.days) {
     if (seen.has(d.date)) throw Error("Use one confirmed check-in per date.");
-    if (Date.parse(d.availableAt) < Date.parse(d.date + "T00:00:00Z"))
+    if (localDate(d.availableAt, parsed.timeZone) < d.date)
       throw Error(
-        "A reported outcome cannot be available before its UTC symptom day begins.",
+        "A reported outcome cannot be available before its local symptom day begins.",
       );
     seen.add(d.date);
+  }
+  if (parsed.cycle) {
+    if (
+      localDate(parsed.cycle.availableAt, parsed.timeZone) <
+      parsed.cycle.regimeSince
+    )
+      throw Error(
+        "A current hormone regime cannot be reported before its start date.",
+      );
+    const starts = new Set<string>();
+    for (const s of parsed.cycle.periodStarts) {
+      if (starts.has(s.date)) throw Error("Duplicate period-start date.");
+      if (localDate(s.availableAt, parsed.timeZone) < s.date)
+        throw Error("A period start cannot be reported before its local date.");
+      starts.add(s.date);
+    }
   }
   const days = parsed.days
     .filter(
@@ -171,10 +263,18 @@ export function symptomRisk(input: unknown) {
     status: "experimental-personal-pattern" as const,
     clinicalValidation: false,
     wearableBenefitEstablished: false,
-    timing: "UTC research day; local-time scheduling needs integration review.",
+    modelVersion: "0.2.0",
+    model: "fixed-equal-cycle-and-transition-mixture-when-supported",
+    timeZone: parsed.timeZone,
+    timing: `Calendar-day alignment and replay at ${schedule.issueClock} in ${parsed.timeZone}.`,
     supportRules: guard,
     symptoms: riskSymptoms.map((symptom) => {
-      const pairs = pairsFor(days, symptom),
+      const allPairs = pairsFor(days, symptom, schedule);
+      const pairs = allPairs.filter(
+          (p) =>
+            shift(p.date, -1) >=
+            historyFloor(parsed.targetDate, cutoff, parsed.cycle),
+        ),
         prior = value(previous, symptom);
       const positive = pairs.reduce((sum, r) => sum + r.y, 0);
       const fit = prior === null ? null : estimate(pairs, prior);
@@ -186,7 +286,21 @@ export function symptomRisk(input: unknown) {
             : fit!.similar < guard.similarPairs
               ? "insufficient-similar-days"
               : null;
-      const probability = reason ? null : fit!.probability;
+      const cycle = cycleEstimate(
+        parsed.cycle,
+        days.map((d) => ({
+          date: d.date,
+          availableAt: d.availableAt,
+          value: value(d, symptom),
+        })),
+        parsed.targetDate,
+        cutoff,
+      );
+      const probability = reason
+        ? null
+        : cycle.probability === null
+          ? fit!.probability
+          : (fit!.probability + cycle.probability) / 2;
       return {
         symptom,
         state: reason
@@ -194,6 +308,25 @@ export function symptomRisk(input: unknown) {
           : ("experimental-estimate" as const),
         reason,
         probability, // Null means unavailable, not low risk.
+        historyProbability: reason ? null : fit!.probability,
+        cycle,
+        factors:
+          probability === null
+            ? []
+            : [
+                {
+                  source: "confirmed-symptom-history",
+                  similarPriorDays: fit!.similar,
+                },
+                ...(cycle.probability === null
+                  ? []
+                  : [
+                      {
+                        source: "experimental-calendar-position",
+                        matchedCycles: cycle.matchedCycles,
+                      },
+                    ]),
+              ],
         outlook:
           probability === null
             ? "unavailable"
@@ -204,14 +337,29 @@ export function symptomRisk(input: unknown) {
         symptomDays: positive,
         symptomAbsentDays: pairs.length - positive,
         similarPriorDays: fit?.similar ?? 0,
-        validation: backtest(pairs),
+        validation: {
+          dataKind: parsed.kind,
+          clinicalValidation: false,
+          evaluationStatus:
+            options.evaluate === false
+              ? "not-run"
+              : "exploratory-retrospective",
+          ...backtest(
+            options.evaluate === false ? [] : allPairs,
+            options.evaluate === false ? [] : days,
+            symptom,
+            parsed.cycle,
+            schedule,
+          ),
+        },
       };
     }),
     limitations: [
       "Engineering support rules do not establish accuracy or clinical validity.",
       "A lower estimate does not rule out symptoms. Estimates describe reported symptom presence, not severity or urgency.",
       "No treatment recommendation, diagnosis or prediction of endometriosis is made.",
-      "Backtests are exploratory, use UTC day boundaries and have no confidence intervals; prospective evaluation is required.",
+      "Backtests are exploratory, replay local issuance time and have no confidence intervals; prospective evaluation is required.",
+      "Calendar position uses observed past cycle lengths, not hormone-confirmed phases; unknown or hormonal regimes and uncertain timing fall back to symptom history.",
       "Wearable measurements are not used by this version; paired data must show added value before they are included.",
     ],
   };

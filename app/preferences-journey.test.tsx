@@ -24,7 +24,7 @@ afterEach(() => {
 it("offers a skippable first visit and keeps voice personalization in Settings", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Set up WholeStory." });
+  await screen.findByRole("heading", { name: "Set up Elya." });
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
   await user.click(screen.getByRole("button", { name: "Set up later" }));
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -38,12 +38,12 @@ it("offers a skippable first visit and keeps voice personalization in Settings",
   await waitFor(() =>
     expect(screen.queryByText("Opening your journal…")).toBeNull(),
   );
-  expect(screen.queryByRole("heading", { name: "Set up WholeStory." })).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Set up Elya." })).toBeNull();
 });
 it("saves a name and entry preference, then restores them without onboarding", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Set up WholeStory." });
+  await screen.findByRole("heading", { name: "Set up Elya." });
   await user.type(
     screen.getByRole("textbox", { name: /What should we call you/ }),
     "Sam",
@@ -69,5 +69,5 @@ it("saves a name and entry preference, then restores them without onboarding", a
   app.unmount();
   render(<Home />);
   await screen.findByText(/Sam’s journal/);
-  expect(screen.queryByRole("heading", { name: "Set up WholeStory." })).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Set up Elya." })).toBeNull();
 });
