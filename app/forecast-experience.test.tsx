@@ -29,9 +29,8 @@ it("uses matching backend history and isolates a demo check-in from personal rec
  await user.click(screen.getByRole("button",{name:"Save changes"}));await screen.findByRole("heading",{name:"Today’s summary"});
  expect(screen.queryByText("Personal private words.")).toBeNull();expect((await loadEntries()).map(e=>e.id)).toEqual(["private"]);
  await navigate(user,"Appointment Brief");
- expect((screen.getByLabelText("Recorded symptoms and daily life",{exact:false}) as HTMLTextAreaElement).value).toContain("Pelvic pain");
- expect((screen.getByRole("button",{name:"Print / Save as PDF"}) as HTMLButtonElement).disabled).toBe(true);
- await user.click(screen.getByRole("checkbox"));expect((screen.getByRole("button",{name:"Print / Save as PDF"}) as HTMLButtonElement).disabled).toBe(false);
+ expect(document.querySelector(".monthly-report-body")?.textContent).toContain("Pelvic pain");
+ expect(screen.getByRole("button",{name:"Print"})).toBeTruthy();expect(document.querySelector("textarea")).toBeNull();
 });
 it("keeps personal absence false and unanswered null without transmitting records",async()=>{
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Check in today"}));

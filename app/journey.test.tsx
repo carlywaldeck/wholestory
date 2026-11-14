@@ -38,11 +38,11 @@ it("saves a confirmed entry, reviews it on the calendar, and edits without dupli
  await user.click(screen.getByRole("button",{name:"Save changes"}));await screen.findByRole("heading",{name:"Today’s summary"});
  const saved=await loadEntries();expect(saved).toHaveLength(1);expect(saved[0].text).toContain("I missed a walk.");expect(saved[0].facts[0].quote).toBe("I reported pelvic pain / cramps.");
 });
-it("requires review before exporting the selected fictional brief",async()=>{
+it("exports the selected fictional month as a read-only brief",async()=>{
  const user=userEvent.setup();render(<Home/>);await user.selectOptions(screen.getByLabelText("Fictional history"),"maya");
  await screen.findByText("Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.");
- await navigate(user,"Appointment Brief");const print=screen.getByRole("button",{name:"Print / Save as PDF"}) as HTMLButtonElement;
- expect(print.disabled).toBe(true);await user.click(screen.getByRole("checkbox"));expect(print.disabled).toBe(false);
+ await navigate(user,"Appointment Brief");const print=screen.getByRole("button",{name:"Print"}) as HTMLButtonElement;
+ expect(print.disabled).toBe(false);expect(document.querySelector("textarea")).toBeNull();
  expect(await loadEntries()).toHaveLength(0);
 });
 it("reloading a fictional history replaces stale demo dates and preserves personal records", async () => {
@@ -63,6 +63,6 @@ it("keeps menstrual context out of the quoted treatment outcome section",async()
  const {putEntry}=await import("../lib/storage");
  await putEntry({id:"treatment-grouping",date:"2026-11-13",text:"I am not on my period. A heat pad helped.",symptomFree:false,demo:false,facts:[{kind:"Menstrual context",value:"Outside period",quote:"I am not on my period."},{kind:"What helped",value:"Heat pad",quote:"A heat pad helped."}]});
  const user=userEvent.setup();render(<Home/>);await navigate(user,"Appointment Brief");
- const summary=(screen.getByLabelText("Recorded symptoms and daily life",{exact:false}) as HTMLTextAreaElement).value;
+ const summary=screen.getByRole("heading",{name:"What helped or did not help"}).parentElement!.textContent!;
  expect(summary).toContain("A heat pad helped.");expect(summary).not.toContain("not on my period");
 });
