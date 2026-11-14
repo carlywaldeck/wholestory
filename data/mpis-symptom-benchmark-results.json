@@ -1,0 +1,1248 @@
+{
+  "source": "MPIS Study Data",
+  "dataKind": "real-self-reported-menstrual-symptoms",
+  "rawRows": 2160,
+  "observedRows": 304,
+  "excluded": {
+    "imputed_rows": 1856
+  },
+  "participantsWithObservedRows": 19,
+  "consecutiveObservedPairs": 178,
+  "participantsWithPairs": 16,
+  "severePainTargets": 5,
+  "painSeverity": {
+    "training_mean": {
+      "n": 178,
+      "mae": 1.2657659374966337,
+      "rmse": 1.8113235657040818
+    },
+    "previous_pain": {
+      "n": 178,
+      "mae": 0.6235955056179775,
+      "rmse": 1.5917625027523858
+    },
+    "prior_7day_mean": {
+      "n": 178,
+      "mae": 0.9319689673622258,
+      "rmse": 1.762199482241037
+    },
+    "ridge": {
+      "n": 178,
+      "mae": 0.8244399645430704,
+      "rmse": 1.45369972251824
+    }
+  },
+  "symptoms": [
+    {
+      "symptom": "any_pain",
+      "targetMeaning": "Any reported menstrual pain next day",
+      "eligibleTargets": 178,
+      "eligiblePositiveTargets": 40,
+      "excludedForTrainingSupport": 0,
+      "evaluatedTargets": 178,
+      "positiveTargets": 40,
+      "negativeTargets": 138,
+      "participantsWithTarget": 16,
+      "supportStatus": "exploratory-only",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 178,
+          "positiveDays": 40,
+          "threshold": 0.5,
+          "auroc": 0.20217391304347826,
+          "averagePrecision": 0.14721419591617904,
+          "brier": 0.18050536590788815,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 178,
+              "meanEstimate": 0.2343746771473984,
+              "observedRate": 0.2247191011235955
+            }
+          ],
+          "missedSymptomDays": 40
+        },
+        "previous_report": {
+          "evaluatedDays": 178,
+          "positiveDays": 40,
+          "threshold": 0.5,
+          "auroc": 0.8460144927536232,
+          "averagePrecision": 0.6482850384387937,
+          "brier": 0.10112359550561797,
+          "sensitivity": 0.75,
+          "specificity": 0.9420289855072463,
+          "precision": 0.7894736842105263,
+          "falseAlertsPer30EvaluatedDays": 1.348314606741573,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 140,
+              "meanEstimate": 0.0,
+              "observedRate": 0.07142857142857142
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 38,
+              "meanEstimate": 1.0,
+              "observedRate": 0.7894736842105263
+            }
+          ],
+          "missedSymptomDays": 10
+        },
+        "logistic": {
+          "evaluatedDays": 178,
+          "positiveDays": 40,
+          "threshold": 0.5,
+          "auroc": 0.7793478260869565,
+          "averagePrecision": 0.7215930092880102,
+          "brier": 0.09067421803753077,
+          "sensitivity": 0.725,
+          "specificity": 0.9492753623188406,
+          "precision": 0.8055555555555556,
+          "falseAlertsPer30EvaluatedDays": 1.1797752808988764,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 139,
+              "meanEstimate": 0.09194582762261548,
+              "observedRate": 0.07194244604316546
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 1,
+              "meanEstimate": 0.33743151461656623,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 7,
+              "meanEstimate": 0.5431478770092727,
+              "observedRate": 0.8571428571428571
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 21,
+              "meanEstimate": 0.7154711286666565,
+              "observedRate": 0.6666666666666666
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 10,
+              "meanEstimate": 0.8651467807851211,
+              "observedRate": 1
+            }
+          ],
+          "missedSymptomDays": 11
+        }
+      }
+    },
+    {
+      "symptom": "cramps",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 32,
+      "excludedForTrainingSupport": 0,
+      "evaluatedTargets": 41,
+      "positiveTargets": 32,
+      "negativeTargets": 9,
+      "participantsWithTarget": 14,
+      "supportStatus": "insufficient-for-stable-estimation",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 41,
+          "positiveDays": 32,
+          "threshold": 0.5,
+          "auroc": 0.22395833333333334,
+          "averagePrecision": 0.6905653075410455,
+          "brier": 0.17967116741206463,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "precision": 0.7804878048780488,
+          "falseAlertsPer30EvaluatedDays": 6.585365853658536,
+          "calibration": [
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 41,
+              "meanEstimate": 0.7687428517775613,
+              "observedRate": 0.7804878048780488
+            }
+          ],
+          "missedSymptomDays": 0
+        },
+        "previous_report": {
+          "evaluatedDays": 41,
+          "positiveDays": 32,
+          "threshold": 0.5,
+          "auroc": 0.515625,
+          "averagePrecision": 0.7758690346967269,
+          "brier": 0.2326708219421332,
+          "sensitivity": 0.90625,
+          "specificity": 0.3333333333333333,
+          "precision": 0.8285714285714286,
+          "falseAlertsPer30EvaluatedDays": 4.390243902439025,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 6,
+              "meanEstimate": 0.0,
+              "observedRate": 0.5
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 10,
+              "meanEstimate": 0.7681500738934854,
+              "observedRate": 1
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 25,
+              "meanEstimate": 1.0,
+              "observedRate": 0.76
+            }
+          ],
+          "missedSymptomDays": 3
+        },
+        "logistic": {
+          "evaluatedDays": 41,
+          "positiveDays": 32,
+          "threshold": 0.5,
+          "auroc": 0.5104166666666666,
+          "averagePrecision": 0.8516559978384138,
+          "brier": 0.24294916477445272,
+          "sensitivity": 0.78125,
+          "specificity": 0.1111111111111111,
+          "precision": 0.7575757575757576,
+          "falseAlertsPer30EvaluatedDays": 5.853658536585366,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 1,
+              "meanEstimate": 0.11337720517209889,
+              "observedRate": 1
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 4,
+              "meanEstimate": 0.29906457385545404,
+              "observedRate": 0.75
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 5,
+              "meanEstimate": 0.4972419176912231,
+              "observedRate": 1
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 11,
+              "meanEstimate": 0.7230019642599217,
+              "observedRate": 0.7272727272727273
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 20,
+              "meanEstimate": 0.9009528820485098,
+              "observedRate": 0.75
+            }
+          ],
+          "missedSymptomDays": 7
+        }
+      }
+    },
+    {
+      "symptom": "bloating",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 20,
+      "excludedForTrainingSupport": 0,
+      "evaluatedTargets": 41,
+      "positiveTargets": 20,
+      "negativeTargets": 21,
+      "participantsWithTarget": 14,
+      "supportStatus": "exploratory-only",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 41,
+          "positiveDays": 20,
+          "threshold": 0.5,
+          "auroc": 0.11547619047619048,
+          "averagePrecision": 0.34465342922659997,
+          "brier": 0.2899413036075461,
+          "sensitivity": 0.15,
+          "specificity": 0.19047619047619047,
+          "precision": 0.15,
+          "falseAlertsPer30EvaluatedDays": 12.439024390243903,
+          "calibration": [
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 41,
+              "meanEstimate": 0.493598457058214,
+              "observedRate": 0.4878048780487805
+            }
+          ],
+          "missedSymptomDays": 17
+        },
+        "previous_report": {
+          "evaluatedDays": 41,
+          "positiveDays": 20,
+          "threshold": 0.5,
+          "auroc": 0.694047619047619,
+          "averagePrecision": 0.642729183361084,
+          "brier": 0.28221544206422366,
+          "sensitivity": 0.7,
+          "specificity": 0.5714285714285714,
+          "precision": 0.6086956521739131,
+          "falseAlertsPer30EvaluatedDays": 6.585365853658536,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 14,
+              "meanEstimate": 0.0,
+              "observedRate": 0.2857142857142857
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 10,
+              "meanEstimate": 0.4987403947458316,
+              "observedRate": 0.4
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 17,
+              "meanEstimate": 1.0,
+              "observedRate": 0.7058823529411765
+            }
+          ],
+          "missedSymptomDays": 6
+        },
+        "logistic": {
+          "evaluatedDays": 41,
+          "positiveDays": 20,
+          "threshold": 0.5,
+          "auroc": 0.4380952380952381,
+          "averagePrecision": 0.580720203983398,
+          "brier": 0.2988088765762115,
+          "sensitivity": 0.4,
+          "specificity": 0.5714285714285714,
+          "precision": 0.47058823529411764,
+          "falseAlertsPer30EvaluatedDays": 6.585365853658536,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 4,
+              "meanEstimate": 0.18971445028143155,
+              "observedRate": 0.75
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 15,
+              "meanEstimate": 0.3186803229712409,
+              "observedRate": 0.6
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 11,
+              "meanEstimate": 0.5110579469024813,
+              "observedRate": 0.09090909090909091
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 7,
+              "meanEstimate": 0.7193669832113698,
+              "observedRate": 0.5714285714285714
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 4,
+              "meanEstimate": 0.8933091702205485,
+              "observedRate": 0.75
+            }
+          ],
+          "missedSymptomDays": 12
+        }
+      }
+    },
+    {
+      "symptom": "fatigue_or_concentration",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 22,
+      "excludedForTrainingSupport": 0,
+      "evaluatedTargets": 41,
+      "positiveTargets": 22,
+      "negativeTargets": 19,
+      "participantsWithTarget": 14,
+      "supportStatus": "insufficient-for-stable-estimation",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 41,
+          "positiveDays": 22,
+          "threshold": 0.5,
+          "auroc": 0.14473684210526316,
+          "averagePrecision": 0.3968534509361657,
+          "brier": 0.27380858980968587,
+          "sensitivity": 0.7727272727272727,
+          "specificity": 0.0,
+          "precision": 0.4722222222222222,
+          "falseAlertsPer30EvaluatedDays": 13.902439024390244,
+          "calibration": [
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 41,
+              "meanEstimate": 0.5305132358985015,
+              "observedRate": 0.5365853658536586
+            }
+          ],
+          "missedSymptomDays": 5
+        },
+        "previous_report": {
+          "evaluatedDays": 41,
+          "positiveDays": 22,
+          "threshold": 0.5,
+          "auroc": 0.6495215311004785,
+          "averagePrecision": 0.6412302359503025,
+          "brier": 0.3075931980631848,
+          "sensitivity": 0.7272727272727273,
+          "specificity": 0.5263157894736842,
+          "precision": 0.64,
+          "falseAlertsPer30EvaluatedDays": 6.585365853658536,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 15,
+              "meanEstimate": 0.0,
+              "observedRate": 0.3333333333333333
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 10,
+              "meanEstimate": 0.5242122073476374,
+              "observedRate": 0.6
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 16,
+              "meanEstimate": 1.0,
+              "observedRate": 0.6875
+            }
+          ],
+          "missedSymptomDays": 6
+        },
+        "logistic": {
+          "evaluatedDays": 41,
+          "positiveDays": 22,
+          "threshold": 0.5,
+          "auroc": 0.5909090909090909,
+          "averagePrecision": 0.6651756703382383,
+          "brier": 0.24905108203779225,
+          "sensitivity": 0.5,
+          "specificity": 0.5789473684210527,
+          "precision": 0.5789473684210527,
+          "falseAlertsPer30EvaluatedDays": 5.853658536585366,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 2,
+              "meanEstimate": 0.12016947269890488,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 11,
+              "meanEstimate": 0.30188975141405233,
+              "observedRate": 0.5454545454545454
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 17,
+              "meanEstimate": 0.48930469344402866,
+              "observedRate": 0.5882352941176471
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 8,
+              "meanEstimate": 0.69308755899887,
+              "observedRate": 0.375
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 3,
+              "meanEstimate": 0.8856899065435213,
+              "observedRate": 1
+            }
+          ],
+          "missedSymptomDays": 11
+        }
+      }
+    },
+    {
+      "symptom": "headache",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 15,
+      "excludedForTrainingSupport": 0,
+      "evaluatedTargets": 41,
+      "positiveTargets": 15,
+      "negativeTargets": 26,
+      "participantsWithTarget": 14,
+      "supportStatus": "insufficient-for-stable-estimation",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 41,
+          "positiveDays": 15,
+          "threshold": 0.5,
+          "auroc": 0.11538461538461539,
+          "averagePrecision": 0.2603340818611232,
+          "brier": 0.25875044485751536,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 29,
+              "meanEstimate": 0.3440660369799251,
+              "observedRate": 0.5172413793103449
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 12,
+              "meanEstimate": 0.41621621621621624,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 15
+        },
+        "previous_report": {
+          "evaluatedDays": 41,
+          "positiveDays": 15,
+          "threshold": 0.5,
+          "auroc": 0.7166666666666667,
+          "averagePrecision": 0.5905274827867896,
+          "brier": 0.2257805362469859,
+          "sensitivity": 0.5333333333333333,
+          "specificity": 0.8846153846153846,
+          "precision": 0.7272727272727273,
+          "falseAlertsPer30EvaluatedDays": 2.1951219512195124,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 20,
+              "meanEstimate": 0.0,
+              "observedRate": 0.2
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 7,
+              "meanEstimate": 0.3594842301490558,
+              "observedRate": 0.42857142857142855
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 3,
+              "meanEstimate": 0.4,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 11,
+              "meanEstimate": 1.0,
+              "observedRate": 0.7272727272727273
+            }
+          ],
+          "missedSymptomDays": 7
+        },
+        "logistic": {
+          "evaluatedDays": 41,
+          "positiveDays": 15,
+          "threshold": 0.5,
+          "auroc": 0.5897435897435898,
+          "averagePrecision": 0.5176835432438882,
+          "brier": 0.2204147465466315,
+          "sensitivity": 0.26666666666666666,
+          "specificity": 0.9230769230769231,
+          "precision": 0.6666666666666666,
+          "falseAlertsPer30EvaluatedDays": 1.4634146341463414,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 7,
+              "meanEstimate": 0.11663652675192465,
+              "observedRate": 0.2857142857142857
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 22,
+              "meanEstimate": 0.32811202527144123,
+              "observedRate": 0.36363636363636365
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 8,
+              "meanEstimate": 0.45629466444511463,
+              "observedRate": 0.25
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 3,
+              "meanEstimate": 0.7633748506694796,
+              "observedRate": 0.6666666666666666
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 1,
+              "meanEstimate": 0.8001432522864975,
+              "observedRate": 1
+            }
+          ],
+          "missedSymptomDays": 11
+        }
+      }
+    },
+    {
+      "symptom": "lower_back_pain",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 16,
+      "excludedForTrainingSupport": 0,
+      "evaluatedTargets": 41,
+      "positiveTargets": 16,
+      "negativeTargets": 25,
+      "participantsWithTarget": 14,
+      "supportStatus": "insufficient-for-stable-estimation",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 41,
+          "positiveDays": 16,
+          "threshold": 0.5,
+          "auroc": 0.14375,
+          "averagePrecision": 0.28885381851991093,
+          "brier": 0.2686756211747385,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 17,
+              "meanEstimate": 0.3442995211476673,
+              "observedRate": 0.8235294117647058
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 24,
+              "meanEstimate": 0.42512226435289563,
+              "observedRate": 0.08333333333333333
+            }
+          ],
+          "missedSymptomDays": 16
+        },
+        "previous_report": {
+          "evaluatedDays": 41,
+          "positiveDays": 16,
+          "threshold": 0.5,
+          "auroc": 0.87125,
+          "averagePrecision": 0.7720747744454255,
+          "brier": 0.1484973232450563,
+          "sensitivity": 0.8125,
+          "specificity": 0.88,
+          "precision": 0.8125,
+          "falseAlertsPer30EvaluatedDays": 2.1951219512195124,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 15,
+              "meanEstimate": 0.0,
+              "observedRate": 0.06666666666666667
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 1,
+              "meanEstimate": 0.3684210526315789,
+              "observedRate": 1
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 9,
+              "meanEstimate": 0.41774783083965294,
+              "observedRate": 0.1111111111111111
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 16,
+              "meanEstimate": 1.0,
+              "observedRate": 0.8125
+            }
+          ],
+          "missedSymptomDays": 3
+        },
+        "logistic": {
+          "evaluatedDays": 41,
+          "positiveDays": 16,
+          "threshold": 0.5,
+          "auroc": 0.7925,
+          "averagePrecision": 0.7651947946972617,
+          "brier": 0.1738841830461817,
+          "sensitivity": 0.4375,
+          "specificity": 0.96,
+          "precision": 0.875,
+          "falseAlertsPer30EvaluatedDays": 0.7317073170731707,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 13,
+              "meanEstimate": 0.11183523134997436,
+              "observedRate": 0.15384615384615385
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 13,
+              "meanEstimate": 0.28354003144923356,
+              "observedRate": 0.3076923076923077
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 7,
+              "meanEstimate": 0.451559034382717,
+              "observedRate": 0.42857142857142855
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 4,
+              "meanEstimate": 0.7171884409765822,
+              "observedRate": 0.75
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 4,
+              "meanEstimate": 0.842069073972653,
+              "observedRate": 1
+            }
+          ],
+          "missedSymptomDays": 9
+        }
+      }
+    },
+    {
+      "symptom": "bowel_pain",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 3,
+      "excludedForTrainingSupport": 7,
+      "evaluatedTargets": 34,
+      "positiveTargets": 0,
+      "negativeTargets": 34,
+      "participantsWithTarget": 14,
+      "supportStatus": "insufficient-for-stable-estimation",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 34,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.01118215537030766,
+          "sensitivity": null,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 34,
+              "meanEstimate": 0.10541655785136247,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 0
+        },
+        "previous_report": {
+          "evaluatedDays": 34,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.03206141184492422,
+          "sensitivity": null,
+          "specificity": 0.9705882352941176,
+          "precision": 0.0,
+          "falseAlertsPer30EvaluatedDays": 0.8823529411764706,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 33,
+              "meanEstimate": 0.027226766538100827,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 1,
+              "meanEstimate": 1.0,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 0
+        },
+        "logistic": {
+          "evaluatedDays": 34,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.023668703726064118,
+          "sensitivity": null,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 29,
+              "meanEstimate": 0.06113547655911462,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 3,
+              "meanEstimate": 0.28504452580654516,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 2,
+              "meanEstimate": 0.44974989591539594,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 0
+        }
+      }
+    },
+    {
+      "symptom": "nausea_vomiting_or_diarrhea",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 4,
+      "excludedForTrainingSupport": 4,
+      "evaluatedTargets": 37,
+      "positiveTargets": 2,
+      "negativeTargets": 35,
+      "participantsWithTarget": 14,
+      "supportStatus": "insufficient-for-stable-estimation",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 37,
+          "positiveDays": 2,
+          "threshold": 0.5,
+          "auroc": 0.007142857142857143,
+          "averagePrecision": 0.04091591591591592,
+          "brier": 0.06062721585999879,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 37,
+              "meanEstimate": 0.12963757730039152,
+              "observedRate": 0.05405405405405406
+            }
+          ],
+          "missedSymptomDays": 2
+        },
+        "previous_report": {
+          "evaluatedDays": 37,
+          "positiveDays": 2,
+          "threshold": 0.5,
+          "auroc": 0.7785714285714286,
+          "averagePrecision": 0.15555555555555556,
+          "brier": 0.047477498086026575,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 37,
+              "meanEstimate": 0.031948460958126444,
+              "observedRate": 0.05405405405405406
+            }
+          ],
+          "missedSymptomDays": 2
+        },
+        "logistic": {
+          "evaluatedDays": 37,
+          "positiveDays": 2,
+          "threshold": 0.5,
+          "auroc": 0.7,
+          "averagePrecision": 0.12142857142857143,
+          "brier": 0.057386441794658245,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 29,
+              "meanEstimate": 0.06855434261706587,
+              "observedRate": 0.06896551724137931
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 8,
+              "meanEstimate": 0.2318209738025867,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 2
+        }
+      }
+    },
+    {
+      "symptom": "urination_pain",
+      "targetMeaning": "Selected checklist symptom next day, conditional on an answered checklist",
+      "eligibleTargets": 41,
+      "eligiblePositiveTargets": 3,
+      "excludedForTrainingSupport": 3,
+      "evaluatedTargets": 38,
+      "positiveTargets": 0,
+      "negativeTargets": 38,
+      "participantsWithTarget": 14,
+      "supportStatus": "insufficient-for-stable-estimation",
+      "models": {
+        "historical_rate": {
+          "evaluatedDays": 38,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.011224332890940564,
+          "sensitivity": null,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 38,
+              "meanEstimate": 0.10566422792583982,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 0
+        },
+        "previous_report": {
+          "evaluatedDays": 38,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.028978114082563042,
+          "sensitivity": null,
+          "specificity": 0.9736842105263158,
+          "precision": 0.0,
+          "falseAlertsPer30EvaluatedDays": 0.7894736842105263,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 37,
+              "meanEstimate": 0.02712828253113687,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 1,
+              "meanEstimate": 1.0,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 0
+        },
+        "logistic": {
+          "evaluatedDays": 38,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.023427007508332223,
+          "sensitivity": null,
+          "specificity": 0.9736842105263158,
+          "precision": 0.0,
+          "falseAlertsPer30EvaluatedDays": 0.7894736842105263,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 33,
+              "meanEstimate": 0.054761730127174,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 4,
+              "meanEstimate": 0.28448647832987484,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 1,
+              "meanEstimate": 0.6314648737151524,
+              "observedRate": 0
+            }
+          ],
+          "missedSymptomDays": 0
+        }
+      }
+    }
+  ],
+  "method": "Leave-one-participant-out. Features from observed preceding calendar dates only; no current/future outcomes, imputed rows, inferred phases or LLM labels. Dates were changed by the source authors.",
+  "status": "exploratory-menstrual-symptom-research",
+  "clinicalValidation": false,
+  "appForecastEnabled": false,
+  "limitations": [
+    "Not a confirmed-endometriosis cohort; no wearable measurements are included.",
+    "Only 304 of 2160 released rows are directly observed; imputed rows are excluded entirely.",
+    "Checklists are available on a selected subset of observed days. Unanswered checklists are unknown; unselected entries within an answered checklist are coded not selected, not clinically confirmed absent.",
+    "The intervention trial and selective reporting limit applicability to natural symptom forecasting.",
+    "Only five severe-pain targets in paired observations; severe-flare performance cannot be established.",
+    "Participant-held-out evaluation is not prospective clinical validation. Source date shifting and unknown arrival times limit real-time interpretation.",
+    "Hyperparameters fixed for an exploratory run; there are no confidence intervals or independent replication."
+  ],
+  "provenance": {
+    "api": "https://zenodo.org/api/records/21538147",
+    "url": "https://zenodo.org/records/21538147",
+    "doi": "10.5281/zenodo.21538147",
+    "license": "CC BY 4.0",
+    "file": "cleaned_studyu_data.csv",
+    "sha256": "1ac6341e664c8dba620da047e8e0618fa267ca7c852d6717c10456c02ec28bdd",
+    "checksum": "md5:d0a004317071a09e332ddc5a0b5fc20f"
+  },
+  "generatedAt": "2026-11-14T19:21:38.546031+00:00"
+}
