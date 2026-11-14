@@ -31,3 +31,7 @@ Oura OAuth setup and the existing callback navigation follow-up remain documente
 - No automatic claims about treatment effectiveness or diagnostic delay.
 
 Research details, primary sources, and data access limits: ENDOMETRIOSIS-RESEARCH.md.
+
+## November 14: personal symptom-risk module
+
+A separate local-first `symptomRisk(input)` function is now available in `lib/symptom-risk.ts`. See `SYMPTOM-RISK-APIS.md` for its exact boolean/null check-in and availability-time contract, UTC research timing, eight distinct outcomes, support checks and chronological backtest outputs. It is experimental, not clinically validated, and not mounted in your UI. No existing journal fields should be inferred as negative labels. No page, global stylesheet, Settings or clinician report edits are included. The reusable Oura sandbox probe succeeds without an account, but its sample records cannot establish accuracy.

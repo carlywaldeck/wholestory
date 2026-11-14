@@ -58,6 +58,26 @@
       "access": "Anonymous API file listing verified; dataset license absent from node metadata",
       "localPatientFilesAccessed": false,
       "cannotEstablish": "Longitudinal symptom forecasting"
+    },
+    {
+      "id": "mpis-observed-multisymptom",
+      "url": "https://zenodo.org/records/21538147",
+      "api": "https://zenodo.org/api/records/21538147",
+      "doi": "10.5281/zenodo.21538147",
+      "attribution": "Valeria Tisch, Stefan Konigorski and Hannah Neumayer, MPIS Study Data",
+      "access": "Open CC BY 4.0, no account or API key; checksum-verified download",
+      "localPatientFilesAccessed": true,
+      "contains": "Real self-reported menstrual symptoms; intervention trial; changed dates; most rows imputed",
+      "actualEvaluation": {
+        "observedRows": 304,
+        "imputedRowsExcluded": 1856,
+        "participantsWithPairs": 16,
+        "pairedTargets": 178,
+        "answeredChecklistTargets": 41
+      },
+      "clinicalValidation": false,
+      "endometriosisPopulation": false,
+      "cannotEstablish": "Clinically calibrated multi-symptom risk, wearable benefit or endometriosis-specific forecasting"
     }
   ]
 }

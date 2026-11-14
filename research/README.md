@@ -68,3 +68,14 @@ KI EndoLIST is the closest identified symptom dataset, but requires a PhysioNet 
 EndoTECH is more directly relevant to wearable/symptom pairing, but individual data require a research request and ethical approval. Do not promise access during the hackathon. PMData remains useful for engineering verification, not clinical accuracy.
 
 Sources and precise claim limits: `dataset-registry.json` and `../docs/ENDOMETRIOSIS-RESEARCH.md`.
+
+## Multi-symptom risk and current free APIs
+
+The observed-only MPIS benchmark, personal local estimator and verified Oura sandbox are documented in `../docs/SYMPTOM-RISK-APIS.md`. MPIS access is free without PhysioNet registration; it is not an endometriosis cohort. `mpis_symptom_benchmark.py` evaluates separate recorded outcomes and a transition-probability comparator with explicit alert counts. `../lib/symptom-risk.ts` implements an experimental personal model; its prospective accuracy has not been established and it is not mounted in the app.
+
+```sh
+python3 research/mpis_symptom_benchmark.py --cache ../work/mpis-benchmark --output ../work/mpis-symptom-benchmark.json
+python3 research/probe_free_apis.py --start 2026-11-01 --end 2026-11-07 --output ../work/free-api-checks.json
+```
+
+Oura sandbox records are sample data, not real validation data. Do not join them to MPIS or other participants' symptom outcomes.

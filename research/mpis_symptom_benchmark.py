@@ -86,11 +86,13 @@ def regression_metrics(pairs):
 
 def symptom_metrics(pairs):
  result=binary_metrics(pairs)
+ n=len(pairs);tp=sum(y==1 and p>=.5 for y,p in pairs);fp=sum(y==0 and p>=.5 for y,p in pairs);fn=sum(y==1 and p<.5 for y,p in pairs);tn=n-tp-fp-fn
+ result.update({'truePositives':tp,'falsePositives':fp,'falseNegatives':fn,'trueNegatives':tn,'accuracy':(tp+tn)/n if n else None,'majorityClassAccuracy':max(sum(y for y,_ in pairs),n-sum(y for y,_ in pairs))/n if n else None})
  result['missedSymptomDays']=result.pop('missedImpactOrHighPainDays', None)
  return result
 
 def benchmark(raw):
- observed,excluded=observed_rows(raw);rows=lagged_rows(observed);participants=sorted(set(r['participant'] for r in rows));pain=collections.defaultdict(list);tasks={key:{'historical_rate':[],'previous_report':[],'logistic':[]} for key in ['any_pain',*SYMPTOMS]}
+ observed,excluded=observed_rows(raw);rows=lagged_rows(observed);participants=sorted(set(r['participant'] for r in rows));pain=collections.defaultdict(list);tasks={key:{'historical_rate':[],'previous_report':[],'transition_probability':[],'logistic':[]} for key in ['any_pain',*SYMPTOMS]}
  for held in participants:
   train=[dict(r,y=r['pain']) for r in rows if r['participant']!=held];test=[r for r in rows if r['participant']==held]
   if len(train)>=30:
@@ -105,7 +107,9 @@ def benchmark(raw):
    prevalence=(positives+1)/(len(tr)+2)
    for r in te:
     old=int(r['x'][0]>0) if target=='any_pain' else r['x'][3+list(SYMPTOMS).index(target)]
-    predictions={'historical_rate':prevalence,'previous_report':prevalence if old is None else float(old),'logistic':logistic_predict(tr,r['x'],list(range(len(r['x']))))}
+    conditional=[t for t in tr if (int(t['x'][0]>0) if target=='any_pain' else t['x'][3+list(SYMPTOMS).index(target)])==old] if old is not None else []
+    transition=(sum(t['y'] for t in conditional)+4*prevalence)/(len(conditional)+4)
+    predictions={'transition_probability':transition,'historical_rate':prevalence,'previous_report':prevalence if old is None else float(old),'logistic':logistic_predict(tr,r['x'],list(range(len(r['x']))))}
     for name,pred in predictions.items():tasks[target][name].append((label(r),pred))
  outcome=[]
  for target,models in tasks.items():

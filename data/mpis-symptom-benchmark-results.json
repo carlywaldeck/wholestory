@@ -67,6 +67,12 @@
               "observedRate": 0.2247191011235955
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 40,
+          "trueNegatives": 138,
+          "accuracy": 0.7752808988764045,
+          "majorityClassAccuracy": 0.7752808988764045,
           "missedSymptomDays": 40
         },
         "previous_report": {
@@ -100,6 +106,51 @@
               "observedRate": 0.7894736842105263
             }
           ],
+          "truePositives": 30,
+          "falsePositives": 8,
+          "falseNegatives": 10,
+          "trueNegatives": 130,
+          "accuracy": 0.898876404494382,
+          "majorityClassAccuracy": 0.7752808988764045,
+          "missedSymptomDays": 10
+        },
+        "transition_probability": {
+          "evaluatedDays": 178,
+          "positiveDays": 40,
+          "threshold": 0.5,
+          "auroc": 0.7781702898550724,
+          "averagePrecision": 0.5632683528292237,
+          "brier": 0.09114607123173661,
+          "sensitivity": 0.75,
+          "specificity": 0.9420289855072463,
+          "precision": 0.7894736842105263,
+          "falseAlertsPer30EvaluatedDays": 1.348314606741573,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 140,
+              "meanEstimate": 0.07970564507025875,
+              "observedRate": 0.07142857142857142
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 38,
+              "meanEstimate": 0.7200660795351331,
+              "observedRate": 0.7894736842105263
+            }
+          ],
+          "truePositives": 30,
+          "falsePositives": 8,
+          "falseNegatives": 10,
+          "trueNegatives": 130,
+          "accuracy": 0.898876404494382,
+          "majorityClassAccuracy": 0.7752808988764045,
           "missedSymptomDays": 10
         },
         "logistic": {
@@ -160,6 +211,12 @@
               "observedRate": 1
             }
           ],
+          "truePositives": 29,
+          "falsePositives": 7,
+          "falseNegatives": 11,
+          "trueNegatives": 131,
+          "accuracy": 0.898876404494382,
+          "majorityClassAccuracy": 0.7752808988764045,
           "missedSymptomDays": 11
         }
       }
@@ -198,6 +255,12 @@
               "observedRate": 0.7804878048780488
             }
           ],
+          "truePositives": 32,
+          "falsePositives": 9,
+          "falseNegatives": 0,
+          "trueNegatives": 0,
+          "accuracy": 0.7804878048780488,
+          "majorityClassAccuracy": 0.7804878048780488,
           "missedSymptomDays": 0
         },
         "previous_report": {
@@ -240,7 +303,52 @@
               "observedRate": 0.76
             }
           ],
+          "truePositives": 29,
+          "falsePositives": 6,
+          "falseNegatives": 3,
+          "trueNegatives": 3,
+          "accuracy": 0.7804878048780488,
+          "majorityClassAccuracy": 0.7804878048780488,
           "missedSymptomDays": 3
+        },
+        "transition_probability": {
+          "evaluatedDays": 41,
+          "positiveDays": 32,
+          "threshold": 0.5,
+          "auroc": 0.4027777777777778,
+          "averagePrecision": 0.7228461106063738,
+          "brier": 0.1795995341371496,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "precision": 0.7804878048780488,
+          "falseAlertsPer30EvaluatedDays": 6.585365853658536,
+          "calibration": [
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 4,
+              "meanEstimate": 0.5885046326222796,
+              "observedRate": 0.75
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 37,
+              "meanEstimate": 0.753155385874445,
+              "observedRate": 0.7837837837837838
+            }
+          ],
+          "truePositives": 32,
+          "falsePositives": 9,
+          "falseNegatives": 0,
+          "trueNegatives": 0,
+          "accuracy": 0.7804878048780488,
+          "majorityClassAccuracy": 0.7804878048780488,
+          "missedSymptomDays": 0
         },
         "logistic": {
           "evaluatedDays": 41,
@@ -300,6 +408,12 @@
               "observedRate": 0.75
             }
           ],
+          "truePositives": 25,
+          "falsePositives": 8,
+          "falseNegatives": 7,
+          "trueNegatives": 1,
+          "accuracy": 0.6341463414634146,
+          "majorityClassAccuracy": 0.7804878048780488,
           "missedSymptomDays": 7
         }
       }
@@ -338,6 +452,12 @@
               "observedRate": 0.4878048780487805
             }
           ],
+          "truePositives": 3,
+          "falsePositives": 17,
+          "falseNegatives": 17,
+          "trueNegatives": 4,
+          "accuracy": 0.17073170731707318,
+          "majorityClassAccuracy": 0.5121951219512195,
           "missedSymptomDays": 17
         },
         "previous_report": {
@@ -380,6 +500,60 @@
               "observedRate": 0.7058823529411765
             }
           ],
+          "truePositives": 14,
+          "falsePositives": 9,
+          "falseNegatives": 6,
+          "trueNegatives": 12,
+          "accuracy": 0.6341463414634146,
+          "majorityClassAccuracy": 0.5121951219512195,
+          "missedSymptomDays": 6
+        },
+        "transition_probability": {
+          "evaluatedDays": 41,
+          "positiveDays": 20,
+          "threshold": 0.5,
+          "auroc": 0.5678571428571428,
+          "averagePrecision": 0.5419839183439396,
+          "brier": 0.2689531771688102,
+          "sensitivity": 0.7,
+          "specificity": 0.5714285714285714,
+          "precision": 0.6086956521739131,
+          "falseAlertsPer30EvaluatedDays": 6.585365853658536,
+          "calibration": [
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 7,
+              "meanEstimate": 0.331432819992814,
+              "observedRate": 0.42857142857142855
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 26,
+              "meanEstimate": 0.5092582816323661,
+              "observedRate": 0.5384615384615384
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 8,
+              "meanEstimate": 0.6793506380037944,
+              "observedRate": 0.375
+            }
+          ],
+          "truePositives": 14,
+          "falsePositives": 9,
+          "falseNegatives": 6,
+          "trueNegatives": 12,
+          "accuracy": 0.6341463414634146,
+          "majorityClassAccuracy": 0.5121951219512195,
           "missedSymptomDays": 6
         },
         "logistic": {
@@ -440,6 +614,12 @@
               "observedRate": 0.75
             }
           ],
+          "truePositives": 8,
+          "falsePositives": 9,
+          "falseNegatives": 12,
+          "trueNegatives": 12,
+          "accuracy": 0.4878048780487805,
+          "majorityClassAccuracy": 0.5121951219512195,
           "missedSymptomDays": 12
         }
       }
@@ -478,6 +658,12 @@
               "observedRate": 0.5365853658536586
             }
           ],
+          "truePositives": 17,
+          "falsePositives": 19,
+          "falseNegatives": 5,
+          "trueNegatives": 0,
+          "accuracy": 0.4146341463414634,
+          "majorityClassAccuracy": 0.5365853658536586,
           "missedSymptomDays": 5
         },
         "previous_report": {
@@ -520,6 +706,60 @@
               "observedRate": 0.6875
             }
           ],
+          "truePositives": 16,
+          "falsePositives": 9,
+          "falseNegatives": 6,
+          "trueNegatives": 10,
+          "accuracy": 0.6341463414634146,
+          "majorityClassAccuracy": 0.5365853658536586,
+          "missedSymptomDays": 6
+        },
+        "transition_probability": {
+          "evaluatedDays": 41,
+          "positiveDays": 22,
+          "threshold": 0.5,
+          "auroc": 0.5550239234449761,
+          "averagePrecision": 0.5697270473735017,
+          "brier": 0.258292847436598,
+          "sensitivity": 0.7272727272727273,
+          "specificity": 0.5263157894736842,
+          "precision": 0.64,
+          "falseAlertsPer30EvaluatedDays": 6.585365853658536,
+          "calibration": [
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 6,
+              "meanEstimate": 0.3333510398461379,
+              "observedRate": 0.6666666666666666
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 23,
+              "meanEstimate": 0.4980367785983715,
+              "observedRate": 0.4782608695652174
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 12,
+              "meanEstimate": 0.6388253398202051,
+              "observedRate": 0.5833333333333334
+            }
+          ],
+          "truePositives": 16,
+          "falsePositives": 9,
+          "falseNegatives": 6,
+          "trueNegatives": 10,
+          "accuracy": 0.6341463414634146,
+          "majorityClassAccuracy": 0.5365853658536586,
           "missedSymptomDays": 6
         },
         "logistic": {
@@ -580,6 +820,12 @@
               "observedRate": 1
             }
           ],
+          "truePositives": 11,
+          "falsePositives": 8,
+          "falseNegatives": 11,
+          "trueNegatives": 11,
+          "accuracy": 0.5365853658536586,
+          "majorityClassAccuracy": 0.5365853658536586,
           "missedSymptomDays": 11
         }
       }
@@ -627,6 +873,12 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 15,
+          "trueNegatives": 26,
+          "accuracy": 0.6341463414634146,
+          "majorityClassAccuracy": 0.6341463414634146,
           "missedSymptomDays": 15
         },
         "previous_report": {
@@ -678,7 +930,70 @@
               "observedRate": 0.7272727272727273
             }
           ],
+          "truePositives": 8,
+          "falsePositives": 3,
+          "falseNegatives": 7,
+          "trueNegatives": 23,
+          "accuracy": 0.7560975609756098,
+          "majorityClassAccuracy": 0.6341463414634146,
           "missedSymptomDays": 7
+        },
+        "transition_probability": {
+          "evaluatedDays": 41,
+          "positiveDays": 15,
+          "threshold": 0.5,
+          "auroc": 0.6282051282051282,
+          "averagePrecision": 0.5299611831960997,
+          "brier": 0.2208029558109076,
+          "sensitivity": 0.26666666666666666,
+          "specificity": 0.8846153846153846,
+          "precision": 0.5714285714285714,
+          "falseAlertsPer30EvaluatedDays": 2.1951219512195124,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 7,
+              "meanEstimate": 0.1785734602638693,
+              "observedRate": 0.5714285714285714
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 20,
+              "meanEstimate": 0.30823715955521436,
+              "observedRate": 0.15
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 11,
+              "meanEstimate": 0.49007890505216706,
+              "observedRate": 0.6363636363636364
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 3,
+              "meanEstimate": 0.6544691936219535,
+              "observedRate": 0.3333333333333333
+            }
+          ],
+          "truePositives": 4,
+          "falsePositives": 3,
+          "falseNegatives": 11,
+          "trueNegatives": 23,
+          "accuracy": 0.6585365853658537,
+          "majorityClassAccuracy": 0.6341463414634146,
+          "missedSymptomDays": 11
         },
         "logistic": {
           "evaluatedDays": 41,
@@ -738,6 +1053,12 @@
               "observedRate": 1
             }
           ],
+          "truePositives": 4,
+          "falsePositives": 2,
+          "falseNegatives": 11,
+          "trueNegatives": 24,
+          "accuracy": 0.6829268292682927,
+          "majorityClassAccuracy": 0.6341463414634146,
           "missedSymptomDays": 11
         }
       }
@@ -785,6 +1106,12 @@
               "observedRate": 0.08333333333333333
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 16,
+          "trueNegatives": 25,
+          "accuracy": 0.6097560975609756,
+          "majorityClassAccuracy": 0.6097560975609756,
           "missedSymptomDays": 16
         },
         "previous_report": {
@@ -836,6 +1163,78 @@
               "observedRate": 0.8125
             }
           ],
+          "truePositives": 13,
+          "falsePositives": 3,
+          "falseNegatives": 3,
+          "trueNegatives": 22,
+          "accuracy": 0.8536585365853658,
+          "majorityClassAccuracy": 0.6097560975609756,
+          "missedSymptomDays": 3
+        },
+        "transition_probability": {
+          "evaluatedDays": 41,
+          "positiveDays": 16,
+          "threshold": 0.5,
+          "auroc": 0.81625,
+          "averagePrecision": 0.6696812837897398,
+          "brier": 0.1601537569488378,
+          "sensitivity": 0.8125,
+          "specificity": 0.88,
+          "precision": 0.8125,
+          "falseAlertsPer30EvaluatedDays": 2.1951219512195124,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 15,
+              "meanEstimate": 0.14339703507288898,
+              "observedRate": 0.06666666666666667
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 1,
+              "meanEstimate": 0.3684210526315789,
+              "observedRate": 1
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "count": 9,
+              "meanEstimate": 0.41774783083965294,
+              "observedRate": 0.1111111111111111
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "count": 14,
+              "meanEstimate": 0.6620353336259853,
+              "observedRate": 0.9285714285714286
+            },
+            {
+              "range": [
+                0.8,
+                1.0
+              ],
+              "count": 2,
+              "meanEstimate": 0.8202614379084968,
+              "observedRate": 0
+            }
+          ],
+          "truePositives": 13,
+          "falsePositives": 3,
+          "falseNegatives": 3,
+          "trueNegatives": 22,
+          "accuracy": 0.8536585365853658,
+          "majorityClassAccuracy": 0.6097560975609756,
           "missedSymptomDays": 3
         },
         "logistic": {
@@ -896,6 +1295,12 @@
               "observedRate": 1
             }
           ],
+          "truePositives": 7,
+          "falsePositives": 1,
+          "falseNegatives": 9,
+          "trueNegatives": 24,
+          "accuracy": 0.7560975609756098,
+          "majorityClassAccuracy": 0.6097560975609756,
           "missedSymptomDays": 9
         }
       }
@@ -934,6 +1339,12 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "trueNegatives": 34,
+          "accuracy": 1.0,
+          "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         },
         "previous_report": {
@@ -967,6 +1378,42 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "trueNegatives": 33,
+          "accuracy": 0.9705882352941176,
+          "majorityClassAccuracy": 1.0,
+          "missedSymptomDays": 0
+        },
+        "transition_probability": {
+          "evaluatedDays": 34,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.01566148173346813,
+          "sensitivity": null,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 34,
+              "meanEstimate": 0.12304110512990298,
+              "observedRate": 0
+            }
+          ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "trueNegatives": 34,
+          "accuracy": 1.0,
+          "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         },
         "logistic": {
@@ -1009,6 +1456,12 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "trueNegatives": 34,
+          "accuracy": 1.0,
+          "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         }
       }
@@ -1047,6 +1500,12 @@
               "observedRate": 0.05405405405405406
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 2,
+          "trueNegatives": 35,
+          "accuracy": 0.9459459459459459,
+          "majorityClassAccuracy": 0.9459459459459459,
           "missedSymptomDays": 2
         },
         "previous_report": {
@@ -1071,6 +1530,42 @@
               "observedRate": 0.05405405405405406
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 2,
+          "trueNegatives": 35,
+          "accuracy": 0.9459459459459459,
+          "majorityClassAccuracy": 0.9459459459459459,
+          "missedSymptomDays": 2
+        },
+        "transition_probability": {
+          "evaluatedDays": 37,
+          "positiveDays": 2,
+          "threshold": 0.5,
+          "auroc": 0.7785714285714286,
+          "averagePrecision": 0.15555555555555556,
+          "brier": 0.04957150177887916,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 37,
+              "meanEstimate": 0.07078518067509447,
+              "observedRate": 0.05405405405405406
+            }
+          ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 2,
+          "trueNegatives": 35,
+          "accuracy": 0.9459459459459459,
+          "majorityClassAccuracy": 0.9459459459459459,
           "missedSymptomDays": 2
         },
         "logistic": {
@@ -1104,6 +1599,12 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 2,
+          "trueNegatives": 35,
+          "accuracy": 0.9459459459459459,
+          "majorityClassAccuracy": 0.9459459459459459,
           "missedSymptomDays": 2
         }
       }
@@ -1142,6 +1643,12 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "trueNegatives": 38,
+          "accuracy": 1.0,
+          "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         },
         "previous_report": {
@@ -1175,6 +1682,51 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "trueNegatives": 37,
+          "accuracy": 0.9736842105263158,
+          "majorityClassAccuracy": 1.0,
+          "missedSymptomDays": 0
+        },
+        "transition_probability": {
+          "evaluatedDays": 38,
+          "positiveDays": 0,
+          "threshold": 0.5,
+          "auroc": null,
+          "averagePrecision": null,
+          "brier": 0.008895454846793499,
+          "sensitivity": null,
+          "specificity": 1.0,
+          "precision": null,
+          "falseAlertsPer30EvaluatedDays": 0.0,
+          "calibration": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "count": 37,
+              "meanEstimate": 0.06649065225384172,
+              "observedRate": 0
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "count": 1,
+              "meanEstimate": 0.3968253968253968,
+              "observedRate": 0
+            }
+          ],
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "trueNegatives": 38,
+          "accuracy": 1.0,
+          "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         },
         "logistic": {
@@ -1217,6 +1769,12 @@
               "observedRate": 0
             }
           ],
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "trueNegatives": 37,
+          "accuracy": 0.9736842105263158,
+          "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         }
       }
@@ -1244,5 +1802,5 @@
     "sha256": "1ac6341e664c8dba620da047e8e0618fa267ca7c852d6717c10456c02ec28bdd",
     "checksum": "md5:d0a004317071a09e332ddc5a0b5fc20f"
   },
-  "generatedAt": "2026-11-14T19:21:38.546031+00:00"
+  "generatedAt": "2026-11-14T19:29:31.250857+00:00"
 }

@@ -26,4 +26,9 @@ class MPIS(unittest.TestCase):
   r=m.benchmark([row('2026-01-01'),row('2026-01-02')]);self.assertEqual(r['painSeverity'],{});self.assertFalse(r['clinicalValidation']);self.assertFalse(r['appForecastEnabled']);self.assertEqual(r['symptoms'][0]['evaluatedTargets'],0)
  def test_duplicate_observed_days_fail(self):
   with self.assertRaises(ValueError):m.observed_rows([row('2026-01-01'),row('2026-01-01')])
+ def test_risk_alert_counts_match_outcomes_and_empty_is_unknown(self):
+  r=m.symptom_metrics([(1,.8),(0,.7),(1,.2),(0,.1)])
+  for key in ['truePositives','falsePositives','falseNegatives','trueNegatives']:self.assertEqual(r[key],1)
+  self.assertEqual(r['accuracy'],.5);self.assertEqual(r['missedSymptomDays'],1)
+  self.assertIsNone(m.symptom_metrics([])['accuracy'])
 if __name__=='__main__':unittest.main()
