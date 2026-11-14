@@ -61,7 +61,7 @@ import {
   clearPreferences,
   type Preferences,
 } from "../lib/preferences";
-const BRAND = "WholeStory";
+const BRAND = "Elya";
 const today = () => {
   const d = new Date();
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
@@ -493,7 +493,7 @@ export default function Home() {
       <aside>
         <a className="brand" href="#" onClick={() => setView("Today")}>
           <span className="brand-mark" aria-hidden="true">
-            w.
+            e.
           </span>
           {BRAND}
         </a>
@@ -564,7 +564,7 @@ export default function Home() {
         {demo && (
           <div className="demo-banner">
             SYNTHETIC DEMO DATA{" "}
-            <span>Fictional entries for exploring WholeStory.</span>
+            <span>Fictional entries for exploring Elya.</span>
             <select
               aria-label="Demo persona"
               value={persona}
@@ -1234,7 +1234,7 @@ export default function Home() {
         <SafetySection />
         <footer>
           <span>
-            <span className="footer-wordmark">WholeStory</span>{" "}
+            <span className="footer-wordmark">Elya</span>{" "}
             <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
@@ -1250,12 +1250,12 @@ export default function Home() {
           >
             <div className="brand welcome-brand">
               <span className="brand-mark" aria-hidden="true">
-                w.
+                e.
               </span>
-              WholeStory
+              Elya
             </div>
             <div className="eyebrow">SET UP YOUR JOURNAL</div>
-            <h2 id="welcome-title">Set up WholeStory.</h2>
+            <h2 id="welcome-title">Set up Elya.</h2>
             <p>
               Choose a name and a default way to add entries. You can change
               these later in Settings. Your journal stays in this browser.
@@ -1669,7 +1669,7 @@ export default function Home() {
                   );
                   const a = document.createElement("a");
                   a.href = u;
-                  a.download = "wholestory-journal.json";
+                  a.download = "elya-journal.json";
                   a.click();
                   URL.revokeObjectURL(u);
                 }}

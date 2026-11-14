@@ -76,7 +76,7 @@ it("keeps access tokens encrypted and imports paginated data without exposing to
   const date = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
   const api = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const u = new URL(String(input));
-    expect(new Headers(init?.headers).get("User-Agent")).toBe("WholeStory/1.0");
+    expect(new Headers(init?.headers).get("User-Agent")).toBe("Elya/1.0");
     if (u.pathname.endsWith("sleep"))
       return Response.json({
         data: [
@@ -107,6 +107,52 @@ it("keeps access tokens encrypted and imports paginated data without exposing to
   expect(data.days).toEqual([{ date, sleepHours: 7, steps: 6000 }]);
   expect(JSON.stringify(data)).not.toContain("private-test-token");
   expect(api).toHaveBeenCalledTimes(3);
+  const physiologyAPI = vi.fn(async (input: RequestInfo | URL) => {
+    const path = new URL(String(input)).pathname;
+    if (path.endsWith("daily_readiness"))
+      return Response.json({
+        data: [{ id: "r", day: date, temperature_deviation: 0.15 }],
+        next_token: null,
+      });
+    if (path.endsWith("sleep"))
+      return Response.json({
+        data: [
+          {
+            id: "s",
+            day: date,
+            bedtime_end: date + "T07:00:00Z",
+            total_sleep_duration: 25200,
+            type: "long_sleep",
+            average_heart_rate: 60,
+            average_hrv: 45,
+            average_breath: 14,
+          },
+        ],
+        next_token: null,
+      });
+    return Response.json({
+      data: [{ id: "a", day: date, steps: 6000 }],
+      next_token: null,
+    });
+  });
+  const physiological = await handleOura(
+    post("physiology?timeZone=America%2FLos_Angeles", auth),
+    env,
+    physiologyAPI as typeof fetch,
+  );
+  const physiologicalData = await physiological.json();
+  expect(physiological.status).toBe(200);
+  expect(physiologicalData.days[0]).toMatchObject({
+    kind: "real",
+    hrvRmssdMs: 45,
+    nightHeartRateBpm: 60,
+    temperatureDeviationC: 0.15,
+  });
+  expect(physiologicalData.days[0].availableAt).toBe(
+    physiologicalData.provenance.importedAt,
+  );
+  expect(JSON.stringify(physiologicalData)).not.toContain("private-test-token");
+  expect(physiologyAPI).toHaveBeenCalledTimes(3);
   const disconnected = await handleOura(post("disconnect", auth), env);
   expect(disconnected.headers.get("Set-Cookie")).toContain("Max-Age=0");
 });

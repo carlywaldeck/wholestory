@@ -1,7 +1,7 @@
 import "./globals.css";
 export const metadata = {
-  title: "WholeStory — Private symptom journal",
-  description: "A private symptom journal with evidence-linked insights.",
+  title: "Elya — Symptom outlook & journal",
+  description: "Experimental cycle-aware symptom outlooks, a private journal, and clinician-ready summaries.",
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

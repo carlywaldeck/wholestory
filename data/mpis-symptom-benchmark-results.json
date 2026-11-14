@@ -219,6 +219,106 @@
           "majorityClassAccuracy": 0.7752808988764045,
           "missedSymptomDays": 11
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 16,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.09114607123173661,
+            "lower": 0.06608009946231508,
+            "upper": 0.13086991298787903,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": -0.009977524273881372,
+            "lower": -0.02373686684249842,
+            "upper": 0.004355330329819006,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": 0.7894736842105263,
+            "lower": 0.6428571428571429,
+            "upper": 0.9,
+            "definedReplicates": 2000
+          },
+          "symptomRecall": {
+            "estimate": 0.75,
+            "lower": 0.5238095238095238,
+            "upper": 0.8837432915921287,
+            "definedReplicates": 2000
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 1.348314606741573,
+            "lower": 0.5997058823529412,
+            "upper": 2.142857142857143,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 140,
+        "positiveDays": 10,
+        "threshold": 0.5,
+        "auroc": 0.2703846153846154,
+        "averagePrecision": 0.04957861330170432,
+        "brier": 0.06731142253201308,
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "count": 140,
+            "meanEstimate": 0.07970564507025875,
+            "observedRate": 0.07142857142857142
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 10,
+        "trueNegatives": 130,
+        "accuracy": 0.9285714285714286,
+        "majorityClassAccuracy": 0.9285714285714286,
+        "missedSymptomDays": 10
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 38,
+        "positiveDays": 30,
+        "threshold": 0.5,
+        "auroc": 0.18333333333333332,
+        "averagePrecision": 0.6628490417964101,
+        "brier": 0.17895793486229694,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "precision": 0.7894736842105263,
+        "falseAlertsPer30EvaluatedDays": 6.315789473684211,
+        "calibration": [
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "count": 38,
+            "meanEstimate": 0.7200660795351331,
+            "observedRate": 0.7894736842105263
+          }
+        ],
+        "truePositives": 30,
+        "falsePositives": 8,
+        "falseNegatives": 0,
+        "trueNegatives": 0,
+        "accuracy": 0.7894736842105263,
+        "majorityClassAccuracy": 0.7894736842105263,
+        "missedSymptomDays": 0
       }
     },
     {
@@ -416,6 +516,115 @@
           "majorityClassAccuracy": 0.7804878048780488,
           "missedSymptomDays": 7
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 14,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.17959953413714957,
+            "lower": 0.11817299100820884,
+            "upper": 0.23317335991777516,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": -0.05307128780498362,
+            "lower": -0.1437251803976574,
+            "upper": 0.05448074920939858,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": 0.7804878048780488,
+            "lower": 0.6666666666666666,
+            "upper": 0.90625,
+            "definedReplicates": 2000
+          },
+          "symptomRecall": {
+            "estimate": 1.0,
+            "lower": 1.0,
+            "upper": 1.0,
+            "definedReplicates": 2000
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 6.585365853658536,
+            "lower": 2.8125,
+            "upper": 10.0,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 6,
+        "positiveDays": 3,
+        "threshold": 0.5,
+        "auroc": 0.1111111111111111,
+        "averagePrecision": 0.43333333333333335,
+        "brier": 0.30089824515184854,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "precision": 0.5,
+        "falseAlertsPer30EvaluatedDays": 15.0,
+        "calibration": [
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "count": 4,
+            "meanEstimate": 0.5885046326222796,
+            "observedRate": 0.75
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "count": 2,
+            "meanEstimate": 0.683375104427736,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 3,
+        "falsePositives": 3,
+        "falseNegatives": 0,
+        "trueNegatives": 0,
+        "accuracy": 0.5,
+        "majorityClassAccuracy": 0.5,
+        "missedSymptomDays": 0
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 25,
+        "positiveDays": 19,
+        "threshold": 0.5,
+        "auroc": 0.16666666666666666,
+        "averagePrecision": 0.6522936538774896,
+        "brier": 0.20074750916338321,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "precision": 0.76,
+        "falseAlertsPer30EvaluatedDays": 7.2,
+        "calibration": [
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "count": 25,
+            "meanEstimate": 0.7527399331825654,
+            "observedRate": 0.76
+          }
+        ],
+        "truePositives": 19,
+        "falsePositives": 6,
+        "falseNegatives": 0,
+        "trueNegatives": 0,
+        "accuracy": 0.76,
+        "majorityClassAccuracy": 0.76,
+        "missedSymptomDays": 0
       }
     },
     {
@@ -622,6 +831,124 @@
           "majorityClassAccuracy": 0.5121951219512195,
           "missedSymptomDays": 12
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 14,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.2689531771688102,
+            "lower": 0.235984812056609,
+            "upper": 0.3050261979072321,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": -0.013262264895413484,
+            "lower": -0.126913756720772,
+            "upper": 0.08301920143424157,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": 0.6086956521739131,
+            "lower": 0.2631578947368421,
+            "upper": 0.8421463815789471,
+            "definedReplicates": 2000
+          },
+          "symptomRecall": {
+            "estimate": 0.7,
+            "lower": 0.36363636363636365,
+            "upper": 0.875,
+            "definedReplicates": 2000
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 6.585365853658536,
+            "lower": 3.0,
+            "upper": 11.111904761904757,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 14,
+        "positiveDays": 4,
+        "threshold": 0.5,
+        "auroc": 0.175,
+        "averagePrecision": 0.20650183150183152,
+        "brier": 0.26776759708368136,
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "count": 7,
+            "meanEstimate": 0.331432819992814,
+            "observedRate": 0.42857142857142855
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "count": 7,
+            "meanEstimate": 0.4866310160427808,
+            "observedRate": 0.14285714285714285
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 4,
+        "trueNegatives": 10,
+        "accuracy": 0.7142857142857143,
+        "majorityClassAccuracy": 0.7142857142857143,
+        "missedSymptomDays": 4
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 17,
+        "positiveDays": 12,
+        "threshold": 0.5,
+        "auroc": 0.016666666666666666,
+        "averagePrecision": 0.5681738604532722,
+        "brier": 0.27691181059508874,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "precision": 0.7058823529411765,
+        "falseAlertsPer30EvaluatedDays": 8.823529411764707,
+        "calibration": [
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "count": 9,
+            "meanEstimate": 0.5385438069648596,
+            "observedRate": 1
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "count": 8,
+            "meanEstimate": 0.6793506380037944,
+            "observedRate": 0.375
+          }
+        ],
+        "truePositives": 12,
+        "falsePositives": 5,
+        "falseNegatives": 0,
+        "trueNegatives": 0,
+        "accuracy": 0.7058823529411765,
+        "majorityClassAccuracy": 0.7058823529411765,
+        "missedSymptomDays": 0
       }
     },
     {
@@ -828,6 +1155,124 @@
           "majorityClassAccuracy": 0.5365853658536586,
           "missedSymptomDays": 11
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 14,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.258292847436598,
+            "lower": 0.23335070934119198,
+            "upper": 0.2852526913566627,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": -0.04930035062658676,
+            "lower": -0.13007334198920373,
+            "upper": 0.04616308916188261,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": 0.64,
+            "lower": 0.4,
+            "upper": 0.8076923076923077,
+            "definedReplicates": 2000
+          },
+          "symptomRecall": {
+            "estimate": 0.7272727272727273,
+            "lower": 0.5454545454545454,
+            "upper": 0.8888888888888888,
+            "definedReplicates": 2000
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 6.585365853658536,
+            "lower": 3.8277925531914896,
+            "upper": 10.344827586206897,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 15,
+        "positiveDays": 5,
+        "threshold": 0.5,
+        "auroc": 0.23,
+        "averagePrecision": 0.25969696969696965,
+        "brier": 0.25847093383588354,
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "count": 6,
+            "meanEstimate": 0.3333510398461379,
+            "observedRate": 0.6666666666666666
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "count": 9,
+            "meanEstimate": 0.44322662486220593,
+            "observedRate": 0.1111111111111111
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 5,
+        "trueNegatives": 10,
+        "accuracy": 0.6666666666666666,
+        "majorityClassAccuracy": 0.6666666666666666,
+        "missedSymptomDays": 5
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 16,
+        "positiveDays": 11,
+        "threshold": 0.5,
+        "auroc": 0.1,
+        "averagePrecision": 0.5582251082251083,
+        "brier": 0.25635135104823054,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "precision": 0.6875,
+        "falseAlertsPer30EvaluatedDays": 9.375,
+        "calibration": [
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "count": 4,
+            "meanEstimate": 0.555921052631579,
+            "observedRate": 1
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "count": 12,
+            "meanEstimate": 0.6388253398202051,
+            "observedRate": 0.5833333333333334
+          }
+        ],
+        "truePositives": 11,
+        "falsePositives": 5,
+        "falseNegatives": 0,
+        "trueNegatives": 0,
+        "accuracy": 0.6875,
+        "majorityClassAccuracy": 0.6875,
+        "missedSymptomDays": 0
       }
     },
     {
@@ -1061,6 +1506,124 @@
           "majorityClassAccuracy": 0.6341463414634146,
           "missedSymptomDays": 11
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 14,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.2208029558109076,
+            "lower": 0.14837234443838715,
+            "upper": 0.2862688503839727,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": -0.004977580436078316,
+            "lower": -0.09551180620975289,
+            "upper": 0.08868145283195583,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": 0.5714285714285714,
+            "lower": 0.0,
+            "upper": 0.75,
+            "definedReplicates": 1937
+          },
+          "symptomRecall": {
+            "estimate": 0.26666666666666666,
+            "lower": 0.0,
+            "upper": 0.5,
+            "definedReplicates": 1999
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 2.1951219512195124,
+            "lower": 0.0,
+            "upper": 4.166666666666667,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 20,
+        "positiveDays": 4,
+        "threshold": 0.5,
+        "auroc": 0.1015625,
+        "averagePrecision": 0.14791666666666667,
+        "brier": 0.1910462920500107,
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "count": 7,
+            "meanEstimate": 0.1785734602638693,
+            "observedRate": 0.5714285714285714
+          },
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "count": 13,
+            "meanEstimate": 0.28064258308160744,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 4,
+        "trueNegatives": 16,
+        "accuracy": 0.8,
+        "majorityClassAccuracy": 0.8,
+        "missedSymptomDays": 4
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 11,
+        "positiveDays": 8,
+        "threshold": 0.5,
+        "auroc": 0.125,
+        "averagePrecision": 0.6195887445887446,
+        "brier": 0.27045394192005223,
+        "sensitivity": 0.5,
+        "specificity": 0.0,
+        "precision": 0.5714285714285714,
+        "falseAlertsPer30EvaluatedDays": 8.181818181818182,
+        "calibration": [
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "count": 8,
+            "meanEstimate": 0.5238584944467297,
+            "observedRate": 0.875
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "count": 3,
+            "meanEstimate": 0.6544691936219535,
+            "observedRate": 0.3333333333333333
+          }
+        ],
+        "truePositives": 4,
+        "falsePositives": 3,
+        "falseNegatives": 4,
+        "trueNegatives": 0,
+        "accuracy": 0.36363636363636365,
+        "majorityClassAccuracy": 0.7272727272727273,
+        "missedSymptomDays": 4
       }
     },
     {
@@ -1303,6 +1866,115 @@
           "majorityClassAccuracy": 0.6097560975609756,
           "missedSymptomDays": 9
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 14,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.1601537569488378,
+            "lower": 0.09959609564131884,
+            "upper": 0.21051073949485571,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": 0.011656433703781515,
+            "lower": -0.040816084979372384,
+            "upper": 0.07359056832488152,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": 0.8125,
+            "lower": 0.42058823529411765,
+            "upper": 1.0,
+            "definedReplicates": 1999
+          },
+          "symptomRecall": {
+            "estimate": 0.8125,
+            "lower": 0.42058823529411765,
+            "upper": 1.0,
+            "definedReplicates": 1999
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 2.1951219512195124,
+            "lower": 0.0,
+            "upper": 4.285714285714286,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 15,
+        "positiveDays": 1,
+        "threshold": 0.5,
+        "auroc": 0.25,
+        "averagePrecision": 0.07142857142857142,
+        "brier": 0.06922991279765892,
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "count": 15,
+            "meanEstimate": 0.14339703507288898,
+            "observedRate": 0.06666666666666667
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 1,
+        "trueNegatives": 14,
+        "accuracy": 0.9333333333333333,
+        "majorityClassAccuracy": 0.9333333333333333,
+        "missedSymptomDays": 1
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 16,
+        "positiveDays": 13,
+        "threshold": 0.5,
+        "auroc": 0.02564102564102564,
+        "averagePrecision": 0.6857267732267733,
+        "brier": 0.21496656811813486,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "precision": 0.8125,
+        "falseAlertsPer30EvaluatedDays": 5.625,
+        "calibration": [
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "count": 14,
+            "meanEstimate": 0.6620353336259853,
+            "observedRate": 0.9285714285714286
+          },
+          {
+            "range": [
+              0.8,
+              1.0
+            ],
+            "count": 2,
+            "meanEstimate": 0.8202614379084968,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 13,
+        "falsePositives": 3,
+        "falseNegatives": 0,
+        "trueNegatives": 0,
+        "accuracy": 0.8125,
+        "majorityClassAccuracy": 0.8125,
+        "missedSymptomDays": 0
       }
     },
     {
@@ -1464,6 +2136,106 @@
           "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 12,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.01566148173346813,
+            "lower": 0.010920506009791591,
+            "upper": 0.01847468192971092,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": -0.016399930111456084,
+            "lower": -0.11408275525730106,
+            "upper": 0.016079033645662877,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": null,
+            "lower": null,
+            "upper": null,
+            "definedReplicates": 0
+          },
+          "symptomRecall": {
+            "estimate": null,
+            "lower": null,
+            "upper": null,
+            "definedReplicates": 0
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 0.0,
+            "lower": 0.0,
+            "upper": 0.0,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 24,
+        "positiveDays": 0,
+        "threshold": 0.5,
+        "auroc": null,
+        "averagePrecision": null,
+        "brier": 0.018310026970885098,
+        "sensitivity": null,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "count": 24,
+            "meanEstimate": 0.13460385458132879,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0,
+        "trueNegatives": 24,
+        "accuracy": 1.0,
+        "majorityClassAccuracy": 1.0,
+        "missedSymptomDays": 0
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 1,
+        "positiveDays": 0,
+        "threshold": 0.5,
+        "auroc": null,
+        "averagePrecision": null,
+        "brier": 0.0029617289092507748,
+        "sensitivity": null,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "count": 1,
+            "meanEstimate": 0.05442176870748299,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0,
+        "trueNegatives": 1,
+        "accuracy": 1.0,
+        "majorityClassAccuracy": 1.0,
+        "missedSymptomDays": 0
       }
     },
     {
@@ -1607,6 +2379,86 @@
           "majorityClassAccuracy": 0.9459459459459459,
           "missedSymptomDays": 2
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 13,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.04957150177887916,
+            "lower": 0.005108887434009242,
+            "upper": 0.14831251900129153,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": 0.0020940036928525866,
+            "lower": 0.0011006713738725311,
+            "upper": 0.0026815361258485065,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": null,
+            "lower": null,
+            "upper": null,
+            "definedReplicates": 0
+          },
+          "symptomRecall": {
+            "estimate": 0.0,
+            "lower": 0.0,
+            "upper": 0.0,
+            "definedReplicates": 1795
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 0.0,
+            "lower": 0.0,
+            "upper": 0.0,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 27,
+        "positiveDays": 0,
+        "threshold": 0.5,
+        "auroc": null,
+        "averagePrecision": null,
+        "brier": 0.002869560616131323,
+        "sensitivity": null,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "count": 27,
+            "meanEstimate": 0.05322068998251174,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0,
+        "trueNegatives": 27,
+        "accuracy": 1.0,
+        "majorityClassAccuracy": 1.0,
+        "missedSymptomDays": 0
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0,
+        "trueNegatives": 0,
+        "accuracy": null,
+        "majorityClassAccuracy": null,
+        "missedSymptomDays": null
       }
     },
     {
@@ -1777,6 +2629,106 @@
           "majorityClassAccuracy": 1.0,
           "missedSymptomDays": 0
         }
+      },
+      "transitionVsPreviousReportUncertainty": {
+        "participants": 12,
+        "replicates": 2000,
+        "seed": 14112026,
+        "confidenceLevel": 0.95,
+        "method": "Percentile participant-cluster bootstrap; complete people sampled with replacement; fixed alert threshold 0.5.",
+        "comparison": "Model Brier minus baseline Brier; negative favors model. Unadjusted exploratory intervals across multiple outcomes.",
+        "intervals": {
+          "brier": {
+            "estimate": 0.008895454846793499,
+            "lower": 0.004113156461068287,
+            "upper": 0.021192769910609824,
+            "definedReplicates": 2000
+          },
+          "brierDifferenceVsBaseline": {
+            "estimate": -0.020082659235769545,
+            "lower": -0.08835417541508735,
+            "upper": 0.002599841772332279,
+            "definedReplicates": 2000
+          },
+          "alertPrecision": {
+            "estimate": null,
+            "lower": null,
+            "upper": null,
+            "definedReplicates": 0
+          },
+          "symptomRecall": {
+            "estimate": null,
+            "lower": null,
+            "upper": null,
+            "definedReplicates": 0
+          },
+          "falseAlertsPer30EvaluatedDays": {
+            "estimate": 0.0,
+            "lower": 0.0,
+            "upper": 0.0,
+            "definedReplicates": 2000
+          }
+        }
+      },
+      "onsetOpportunitiesAfterReportedAbsence": {
+        "evaluatedDays": 27,
+        "positiveDays": 0,
+        "threshold": 0.5,
+        "auroc": null,
+        "averagePrecision": null,
+        "brier": 0.002940316795374951,
+        "sensitivity": null,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "count": 27,
+            "meanEstimate": 0.053941025175558495,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0,
+        "trueNegatives": 27,
+        "accuracy": 1.0,
+        "majorityClassAccuracy": 1.0,
+        "missedSymptomDays": 0
+      },
+      "continuationOpportunitiesAfterReportedPresence": {
+        "evaluatedDays": 1,
+        "positiveDays": 0,
+        "threshold": 0.5,
+        "auroc": null,
+        "averagePrecision": null,
+        "brier": 0.15747039556563364,
+        "sensitivity": null,
+        "specificity": 1.0,
+        "precision": null,
+        "falseAlertsPer30EvaluatedDays": 0.0,
+        "calibration": [
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "count": 1,
+            "meanEstimate": 0.3968253968253968,
+            "observedRate": 0
+          }
+        ],
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0,
+        "trueNegatives": 1,
+        "accuracy": 1.0,
+        "majorityClassAccuracy": 1.0,
+        "missedSymptomDays": 0
       }
     }
   ],
@@ -1791,7 +2743,7 @@
     "The intervention trial and selective reporting limit applicability to natural symptom forecasting.",
     "Only five severe-pain targets in paired observations; severe-flare performance cannot be established.",
     "Participant-held-out evaluation is not prospective clinical validation. Source date shifting and unknown arrival times limit real-time interpretation.",
-    "Hyperparameters fixed for an exploratory run; there are no confidence intervals or independent replication."
+    "Hyperparameters fixed for an exploratory run; participant-cluster bootstrap intervals are unadjusted exploratory estimates, not independent replication."
   ],
   "provenance": {
     "api": "https://zenodo.org/api/records/21538147",
@@ -1802,5 +2754,5 @@
     "sha256": "1ac6341e664c8dba620da047e8e0618fa267ca7c852d6717c10456c02ec28bdd",
     "checksum": "md5:d0a004317071a09e332ddc5a0b5fc20f"
   },
-  "generatedAt": "2026-11-14T19:29:31.250857+00:00"
+  "generatedAt": "2026-11-14T20:31:25.808638+00:00"
 }
