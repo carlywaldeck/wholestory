@@ -1,0 +1,321 @@
+{
+  "source": "PMData \u00b7 participant p01 \u00b7 Fitbit Versa 2",
+  "url": "https://datasets.simula.no/pmdata/",
+  "license": "CC BY-NC 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc/4.0/",
+  "citation": "Thambawita et al. (2020), PMData: A Sports Logging Dataset, doi:10.1145/3339825.3394926",
+  "notice": "Public research wearable sample. No pelvic-pain or endometriosis labels. Not paired with fictional symptoms; not model validation data. Noncommercial demonstration only.",
+  "transformation": "First 60 calendar dates. Longest sleep episode by Fitbit dateOfSleep; minutesAsleep divided by 60. Daily steps summed only for dates with exactly 1,440 unique minute records and no duplicate timestamps; other days are missing. Original dates retained.",
+  "originalFiles": [
+    {
+      "url": "https://osf.io/download/5jyae/",
+      "sha256": "3e140bfcb86856861ca3a70c48fefaf50c3764d588e0c53afbf62ed1734846d8"
+    },
+    {
+      "url": "https://osf.io/download/gjpz5/",
+      "sha256": "24149da71e88fc8d1c058ba932f4bda8acc48821b596dbdb88fc7cd66075429b"
+    }
+  ],
+  "days": [
+    {
+      "date": "2019-11-01",
+      "sleepHours": null,
+      "steps": null
+    },
+    {
+      "date": "2019-11-02",
+      "sleepHours": 6.3,
+      "steps": 13118
+    },
+    {
+      "date": "2019-11-03",
+      "sleepHours": 6.3,
+      "steps": null
+    },
+    {
+      "date": "2019-11-04",
+      "sleepHours": 6.0167,
+      "steps": null
+    },
+    {
+      "date": "2019-11-05",
+      "sleepHours": 5.4333,
+      "steps": 16186
+    },
+    {
+      "date": "2019-11-06",
+      "sleepHours": 5.6833,
+      "steps": null
+    },
+    {
+      "date": "2019-11-07",
+      "sleepHours": 5.2,
+      "steps": null
+    },
+    {
+      "date": "2019-11-08",
+      "sleepHours": 6.0,
+      "steps": 12888
+    },
+    {
+      "date": "2019-11-09",
+      "sleepHours": 5.7333,
+      "steps": 16450
+    },
+    {
+      "date": "2019-11-10",
+      "sleepHours": 6.3667,
+      "steps": 17843
+    },
+    {
+      "date": "2019-11-11",
+      "sleepHours": 5.3,
+      "steps": null
+    },
+    {
+      "date": "2019-11-12",
+      "sleepHours": 6.3,
+      "steps": 10392
+    },
+    {
+      "date": "2019-11-13",
+      "sleepHours": 5.3333,
+      "steps": 11185
+    },
+    {
+      "date": "2019-11-14",
+      "sleepHours": 5.4167,
+      "steps": 19220
+    },
+    {
+      "date": "2019-11-15",
+      "sleepHours": 5.7,
+      "steps": 18259
+    },
+    {
+      "date": "2019-11-16",
+      "sleepHours": 5.2833,
+      "steps": 15305
+    },
+    {
+      "date": "2019-11-17",
+      "sleepHours": 5.6167,
+      "steps": 11916
+    },
+    {
+      "date": "2019-11-18",
+      "sleepHours": 5.5,
+      "steps": 8241
+    },
+    {
+      "date": "2019-11-19",
+      "sleepHours": 5.3,
+      "steps": null
+    },
+    {
+      "date": "2019-11-20",
+      "sleepHours": 6.3833,
+      "steps": 10116
+    },
+    {
+      "date": "2019-11-21",
+      "sleepHours": 5.45,
+      "steps": 19747
+    },
+    {
+      "date": "2019-11-22",
+      "sleepHours": 5.55,
+      "steps": null
+    },
+    {
+      "date": "2019-11-23",
+      "sleepHours": 5.9333,
+      "steps": null
+    },
+    {
+      "date": "2019-11-24",
+      "sleepHours": 7.0167,
+      "steps": 16517
+    },
+    {
+      "date": "2019-11-25",
+      "sleepHours": 5.5333,
+      "steps": null
+    },
+    {
+      "date": "2019-11-26",
+      "sleepHours": 5.3,
+      "steps": null
+    },
+    {
+      "date": "2019-11-27",
+      "sleepHours": 6.0833,
+      "steps": null
+    },
+    {
+      "date": "2019-11-28",
+      "sleepHours": 5.6833,
+      "steps": 17535
+    },
+    {
+      "date": "2019-11-29",
+      "sleepHours": 5.15,
+      "steps": null
+    },
+    {
+      "date": "2019-11-30",
+      "sleepHours": 6.7,
+      "steps": null
+    },
+    {
+      "date": "2019-12-01",
+      "sleepHours": 6.45,
+      "steps": null
+    },
+    {
+      "date": "2019-12-02",
+      "sleepHours": 3.1667,
+      "steps": 12224
+    },
+    {
+      "date": "2019-12-03",
+      "sleepHours": 5.75,
+      "steps": null
+    },
+    {
+      "date": "2019-12-04",
+      "sleepHours": 5.5833,
+      "steps": 11745
+    },
+    {
+      "date": "2019-12-05",
+      "sleepHours": 5.2333,
+      "steps": null
+    },
+    {
+      "date": "2019-12-06",
+      "sleepHours": 4.8333,
+      "steps": null
+    },
+    {
+      "date": "2019-12-07",
+      "sleepHours": 7.0667,
+      "steps": 14898
+    },
+    {
+      "date": "2019-12-08",
+      "sleepHours": 6.7,
+      "steps": null
+    },
+    {
+      "date": "2019-12-09",
+      "sleepHours": 5.5333,
+      "steps": 11223
+    },
+    {
+      "date": "2019-12-10",
+      "sleepHours": 5.6,
+      "steps": null
+    },
+    {
+      "date": "2019-12-11",
+      "sleepHours": 6.9333,
+      "steps": 9855
+    },
+    {
+      "date": "2019-12-12",
+      "sleepHours": 3.6667,
+      "steps": 10728
+    },
+    {
+      "date": "2019-12-13",
+      "sleepHours": 5.6167,
+      "steps": 15910
+    },
+    {
+      "date": "2019-12-14",
+      "sleepHours": 6.4333,
+      "steps": null
+    },
+    {
+      "date": "2019-12-15",
+      "sleepHours": 6.15,
+      "steps": null
+    },
+    {
+      "date": "2019-12-16",
+      "sleepHours": 6.1167,
+      "steps": 10489
+    },
+    {
+      "date": "2019-12-17",
+      "sleepHours": 5.15,
+      "steps": 12437
+    },
+    {
+      "date": "2019-12-18",
+      "sleepHours": 5.4833,
+      "steps": null
+    },
+    {
+      "date": "2019-12-19",
+      "sleepHours": 5.1667,
+      "steps": null
+    },
+    {
+      "date": "2019-12-20",
+      "sleepHours": 4.45,
+      "steps": 13110
+    },
+    {
+      "date": "2019-12-21",
+      "sleepHours": 6.4167,
+      "steps": 17760
+    },
+    {
+      "date": "2019-12-22",
+      "sleepHours": 6.7167,
+      "steps": 18170
+    },
+    {
+      "date": "2019-12-23",
+      "sleepHours": 7.1667,
+      "steps": null
+    },
+    {
+      "date": "2019-12-24",
+      "sleepHours": 6.15,
+      "steps": null
+    },
+    {
+      "date": "2019-12-25",
+      "sleepHours": 7.05,
+      "steps": 11804
+    },
+    {
+      "date": "2019-12-26",
+      "sleepHours": 6.7667,
+      "steps": 16891
+    },
+    {
+      "date": "2019-12-27",
+      "sleepHours": 6.95,
+      "steps": null
+    },
+    {
+      "date": "2019-12-28",
+      "sleepHours": 7.3167,
+      "steps": null
+    },
+    {
+      "date": "2019-12-29",
+      "sleepHours": 6.9667,
+      "steps": 13699
+    },
+    {
+      "date": "2019-12-30",
+      "sleepHours": 5.6333,
+      "steps": 10187
+    }
+  ]
+}
