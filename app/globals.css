@@ -1,13 +1,13 @@
 @import "tailwindcss";
 :root {
-  --ink: #422c35;
-  --muted: #806c75;
-  --rose: #a74367;
-  --rose-dark: #8e3455;
-  --blush: #f8e8ed;
-  --paper: #fffaf9;
-  --line: #ead9df;
-  --cream: #fff8f7;
+  --ink: #30352d;
+  --muted: #707768;
+  --rose: #50624b;
+  --rose-dark: #3f503b;
+  --blush: #e7eee0;
+  --paper: #fffdf8;
+  --line: #dddccf;
+  --cream: #f7f3eb;
   --purple: var(--rose);
 }
 * {
@@ -1929,6 +1929,107 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+/* Figma-aligned palette: warm paper, forest green, sage, and peach. */
+body,
+aside,
+main,
+.modal,
+.report,
+.chart-card,
+.calendar,
+.stats,
+.empty,
+.wearable-explorer,
+.cycle-card,
+.journey-progress {
+  background: var(--cream);
+}
+aside,
+.report,
+.chart-card,
+.calendar,
+.stats,
+.wearable-explorer,
+.cycle-card,
+.journey-progress,
+.modal {
+  border-color: var(--line);
+}
+.capture,
+.journey-progress button.current,
+.voice-panel,
+.followup,
+.preference-option.selected,
+.demo-banner,
+.notice {
+  background: var(--blush);
+  border-color: #d3ddc9;
+}
+nav button.active,
+.empty-icon,
+.tags > span,
+.entry-tabs,
+.loading {
+  background: var(--blush);
+  color: var(--rose);
+  border-color: #d3ddc9;
+}
+nav button:hover,
+.empty .button:hover:not(:disabled) {
+  background: #eef2e8;
+}
+.sidebar-note,
+.sidebar-bottom > span,
+.header-location,
+.header-location > span,
+nav button,
+.entry-content p,
+.tags > span,
+.empty p,
+.empty > span,
+.section-heading > button,
+footer > span,
+footer p {
+  color: var(--muted);
+}
+.loading {
+  border-color: #d7c5ad;
+  background: #f3e7d7;
+  color: #6d604e;
+}
+.tags .free {
+  background: #e6ebdf;
+  border-color: #d3ddc9;
+  color: #5c6b55;
+}
+.tags .cycle-tag {
+  background: #f3e7d7;
+  border-color: #e6d3bc;
+  color: #786751;
+}
+.button.primary,
+.mic,
+.journey-progress .current .journey-progress-icon {
+  background: var(--rose);
+  border-color: var(--rose);
+}
+.button.primary:hover:not(:disabled),
+.mic:hover {
+  background: var(--rose-dark);
+}
+.report {
+  border-top-color: var(--rose);
+}
+.review-check {
+  background: #f3e7d7;
+  border-left-color: #b88764;
+}
+.cycle-tag,
+.wearable-empty,
+.wearable-provenance {
+  background: #f3e7d7;
+}
+
 @media print {
   aside,
   header,
