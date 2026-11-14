@@ -1,4 +1,4 @@
-# WholeStory
+# elya
 
 Quiet, human, direct. Use the existing system sans-serif family, semibold headlines,
 pill actions, 22px panels, thin borders, and restrained shadows. No script flourishes,
