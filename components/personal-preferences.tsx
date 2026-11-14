@@ -52,7 +52,7 @@ export function PersonalPreferences({
               {
                 mode: "write",
                 title: "Write it down",
-                text: "A quiet space for your words.",
+                text: "Type an entry and review it before saving.",
                 icon: PenLine,
               },
               {

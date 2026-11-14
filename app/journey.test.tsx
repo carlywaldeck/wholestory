@@ -75,7 +75,7 @@ it("keeps demo and personal records separate and gates report export behind revi
   expect((download as HTMLButtonElement).disabled).toBe(false);
   await user.click(screen.getByRole("button", { name: "Exit demo" }));
   expect(
-    screen.getByRole("heading", { name: "Your words come first." }),
+    screen.getByRole("heading", { name: "Add an entry to build your brief." }),
   ).toBeTruthy();
 });
 
