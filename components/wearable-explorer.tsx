@@ -123,7 +123,7 @@ export function WearableExplorer({
           <h3>Start with a little more context.</h3>
           <p>
             Explore a fictional sleep and activity history, or import your own
-            daily export. You never need a wearable to use WholeStory.
+            daily export. You never need a wearable to use Elya.
           </p>
           <Button className="primary" onClick={onDemo}>
             Explore the wearable demo <ArrowRight size={16} />
@@ -144,7 +144,7 @@ export function WearableExplorer({
             <p>
               {demo
                 ? "Sleep and step values are fictional and deliberately shaped to illustrate the comparison. This is not evidence that wearables predict symptoms."
-                : "Imported measurements stay on this device. WholeStory has not verified their accuracy or completeness."}
+                : "Imported measurements stay on this device. Elya has not verified their accuracy or completeness."}
             </p>
           </div>
           <div
@@ -305,7 +305,7 @@ export function WearableExplorer({
               onClick={() =>
                 download(
                   wearableTemplate,
-                  "wholestory-wearable-template.csv",
+                  "elya-wearable-template.csv",
                   "text/csv",
                 )
               }
@@ -354,7 +354,7 @@ export function WearableExplorer({
               onClick={() =>
                 download(
                   JSON.stringify(record, null, 2),
-                  "wholestory-wearable-data.json",
+                  "elya-wearable-data.json",
                   "application/json",
                 )
               }

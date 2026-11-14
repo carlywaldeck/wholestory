@@ -63,7 +63,7 @@ export function WearableConnections({
       <summary>Connect your Oura account</summary>
       <p>
         Import the last 60 completed calendar dates of sleep and activity.
-        WholeStory requests daily-data permission only, not your name or email.
+        Elya requests daily-data permission only, not your name or email.
         Provider authorization stays in an encrypted, HttpOnly cookie; imported
         measurements stay in this browser and are not sent to AI.
       </p>

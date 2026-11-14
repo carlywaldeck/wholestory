@@ -1,7 +1,7 @@
 {
-  "name": "wholestory",
+  "name": "elya",
   "version": "1.0.0",
-  "description": "WholeStory: an evidence-first symptom journal with chosen spoken replies and clinician briefs",
+  "description": "Elya: an evidence-first symptom journal with chosen spoken replies and clinician briefs",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",

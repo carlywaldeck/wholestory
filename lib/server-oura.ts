@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { normalizeOura } from "./wearable-providers/oura";
+import { normalizeOuraPhysiology } from "./wearable-providers/oura-physiology";
+import { localDate, shiftDate, validTimeZone } from "./forecast-time";
 export type OuraEnv = {
   OURA_CLIENT_ID?: string;
   OURA_CLIENT_SECRET?: string;
@@ -129,7 +131,11 @@ export async function handleOura(
       configured: !!config,
       connected: config ? !!(await session(req, env)) : false,
     });
-  if (!["connect", "callback", "sync", "disconnect"].includes(action))
+  if (
+    !["connect", "callback", "sync", "physiology", "disconnect"].includes(
+      action,
+    )
+  )
     return json({ error: "Not found." }, 404);
   if (!config)
     return json(
@@ -205,7 +211,7 @@ export async function handleOura(
       url.searchParams.get("state") !== state.data.state
     )
       return new Response(
-        "Oura sign-in expired or could not be verified. Please start again from WholeStory.",
+        "Oura sign-in expired or could not be verified. Please start again from Elya.",
         { status: 400, headers },
       );
     if (url.searchParams.has("error")) {
@@ -223,7 +229,7 @@ export async function handleOura(
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": "WholeStory/1.0",
+          "User-Agent": "Elya/1.0",
         },
         body: new URLSearchParams({
           grant_type: "authorization_code",
@@ -277,7 +283,7 @@ export async function handleOura(
       JSON.stringify({
         connected: false,
         message:
-          "Local connection removed. To revoke WholeStory’s provider permission, remove it in your Oura account settings.",
+          "Local connection removed. To revoke Elya’s provider permission, remove it in your Oura account settings.",
       }),
       {
         headers: {
@@ -289,14 +295,25 @@ export async function handleOura(
     );
   if (!current)
     return json({ error: "Connect Oura again before importing data." }, 401);
+  if (!["sync", "physiology"].includes(action))
+    return json({ error: "Unknown Oura action." }, 404);
   try {
     const end = new Date();
     end.setUTCDate(end.getUTCDate() - 1);
     const start = new Date(end);
     start.setUTCDate(start.getUTCDate() - 59);
-    const from = start.toISOString().slice(0, 10),
+    let from = start.toISOString().slice(0, 10),
       to = end.toISOString().slice(0, 10);
-    async function collect(kind: "sleep" | "daily_activity") {
+    if (action === "physiology") {
+      const zone = url.searchParams.get("timeZone") ?? "UTC";
+      if (zone.length > 80 || !validTimeZone(zone))
+        return json({ error: "Use a valid IANA time zone." }, 422);
+      to = localDate(new Date().toISOString(), zone);
+      from = shiftDate(to, -59);
+    }
+    async function collect(
+      kind: "sleep" | "daily_activity" | "daily_readiness",
+    ) {
       let next: string | null = null;
       const rows: unknown[] = [];
       const seen = new Set<string>();
@@ -312,7 +329,7 @@ export async function handleOura(
         const response = await fetcher(target, {
           headers: {
             Authorization: "Bearer " + current!.accessToken,
-            "User-Agent": "WholeStory/1.0",
+            "User-Agent": "Elya/1.0",
           },
           signal: AbortSignal.timeout(20000),
         });
@@ -338,10 +355,37 @@ export async function handleOura(
       }
       throw Error("pagination");
     }
-    const [sleep, activity] = await Promise.all([
+    const [sleep, activity, readiness] = await Promise.all([
       collect("sleep"),
       collect("daily_activity"),
+      action === "physiology"
+        ? collect("daily_readiness")
+        : Promise.resolve([]),
     ]);
+    if (action === "physiology") {
+      const fetchedAt = new Date().toISOString();
+      return json({
+        source: "Oura · authorized physiology import",
+        kind: "real",
+        days: normalizeOuraPhysiology(
+          sleep,
+          activity,
+          readiness,
+          fetchedAt,
+          "real",
+        ).filter((d) => d.date >= from && d.date <= to),
+        provenance: {
+          importedAt: fetchedAt,
+          availability:
+            "First observed by this import; historical availability is not inferred.",
+          sleep:
+            "Long-sleep duration summed by local waking date. Heart rate, RMSSD and breathing use the longest long-sleep episode that day; naps excluded.",
+          temperature:
+            "Provider daily temperature deviation in Celsius; not core body temperature.",
+          use: "Candidate physiological context only; no symptom-prediction benefit established.",
+        },
+      });
+    }
     const days = normalizeOura(sleep, activity).filter(
       (d) => d.date >= from && d.date <= to,
     );
@@ -357,7 +401,7 @@ export async function handleOura(
           "Long-sleep episodes summed by local waking date; naps excluded.",
         activityDefinition:
           "Provider daily steps. Missing values are unknown, not zero.",
-        note: "Recent records may arrive late. WholeStory does not assess device accuracy.",
+        note: "Recent records may arrive late. Elya does not assess device accuracy.",
       },
     });
   } catch (err) {
