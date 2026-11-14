@@ -1,0 +1,379 @@
+{
+  "sourceFiles": [
+    {
+      "participant": "p01",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/cau32/",
+      "sha256": "9dc6e6c0bd33487d4621ac4cf26a4f10b150d30a4bb1179b2b52f4396b1cde2e"
+    },
+    {
+      "participant": "p01",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/5jyae/",
+      "sha256": "3e140bfcb86856861ca3a70c48fefaf50c3764d588e0c53afbf62ed1734846d8"
+    },
+    {
+      "participant": "p01",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/pckyn/",
+      "sha256": "f18937b69bc5501e2a0f9da5a063c40ec55112bcd346baa41f5974c3cb3ab86d"
+    },
+    {
+      "participant": "p02",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/vsgn8/",
+      "sha256": "0175eeb76a0ababbe55e413dec70768644c02a991afea672a6b0e979bbdafa09"
+    },
+    {
+      "participant": "p02",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/au3ej/",
+      "sha256": "fcd1f4fbe8a5d066cd3c1ecfed1cd4072cced6efe544e80f346f00ab488b9841"
+    },
+    {
+      "participant": "p02",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/srhv9/",
+      "sha256": "f477f28122db257adc773d45995f0cfc98c3cdddf5d44d881c9f367d3c424b55"
+    },
+    {
+      "participant": "p03",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/amzbf/",
+      "sha256": "e951fa6f4d4932df8dade879b5800e2bbb470b94eebfeb05dff508e3780032c4"
+    },
+    {
+      "participant": "p03",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/zf3rh/",
+      "sha256": "ac2c7d9ff40cc6e8d35b56762c66f147145a3582161b75ad00c957683da86417"
+    },
+    {
+      "participant": "p03",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/rp9gh/",
+      "sha256": "fa9c66fa7267634a15aec3f9b9b4ec0b6653862e4dc2344a01e24fa9728f2c72"
+    },
+    {
+      "participant": "p04",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/nug5e/",
+      "sha256": "6a431a635071cf9a5ebbc20eb7122847f20f8a1472fb1c96573fa5a846393db2"
+    },
+    {
+      "participant": "p04",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/8n3ht/",
+      "sha256": "0e8ee4e38fd1d3c01397210eb9470b946c1bd99c8e4f18d8cae3b8b3ed224ec3"
+    },
+    {
+      "participant": "p04",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/psju2/",
+      "sha256": "ad6c39948154c2700310040b0b1e2f9be49db257f53c7f776555882355d4ec02"
+    },
+    {
+      "participant": "p05",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/2yg3c/",
+      "sha256": "c1f6e1f492436450ee74bcac66265143d9c11d7fa4ea293a0067a2c642955420"
+    },
+    {
+      "participant": "p05",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/p5edr/",
+      "sha256": "1111bf74616bf2994164d15631e3b31cb49ae6ea612f8cfb27724ccbe5e5a8e0"
+    },
+    {
+      "participant": "p05",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/uvmte/",
+      "sha256": "36a7f39f4a6ca1ed3142973a25928398b8481b2a784c4ed7caf7e2374d5f0fb9"
+    },
+    {
+      "participant": "p06",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/hzcsq/",
+      "sha256": "a60a0f533de146b5ca0558164b772a5ad738fd4c1f7795a0135246b7e3a31e8e"
+    },
+    {
+      "participant": "p06",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/g2anj/",
+      "sha256": "d965ca077205e078250743a41f2f1236510b40636f9c853ce76fe434b5f2a2ef"
+    },
+    {
+      "participant": "p06",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/5e9a9c3c43016605ffa04e3c/",
+      "sha256": "f8e0e50f0bc5f437622ccf9b4e98a8c6bf8c5e753974e94153be7399cdac13dc"
+    },
+    {
+      "participant": "p07",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/vf2r8/",
+      "sha256": "f33a14b06ccf6393895322391df5d3c0d6ea113322c5c9a7671c46bb22993897"
+    },
+    {
+      "participant": "p07",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/6ehy5/",
+      "sha256": "f47eb7a7bbaab0dfccd3de36a8838ebfe7d1a03a21f088d2d043797c9276d32d"
+    },
+    {
+      "participant": "p07",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/5e9a9c25d6973505e8bd92b7/",
+      "sha256": "8d7d1329420b70ece5b8fffb8089b99956ed722c0938937e7c1b20508be89999"
+    },
+    {
+      "participant": "p08",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/g3sw5/",
+      "sha256": "a4474f816d00ad23ba63887619383fb5530ec7dd955e19940fa73115767bdc7b"
+    },
+    {
+      "participant": "p08",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/sjmqw/",
+      "sha256": "4d9b91c57acd63435cf9b1218025d2408852e3359dce26952e76c88c6a3e1cab"
+    },
+    {
+      "participant": "p08",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/apcj4/",
+      "sha256": "7ee1300d4060d3ee4079c6214cdc7139359112f865cb1a80467d6ec8dd6e7234"
+    },
+    {
+      "participant": "p09",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/9b5nk/",
+      "sha256": "77f4fcd0222bdb37d85b0991620851104f5d383c6aa9d2b5e2230805917baa4d"
+    },
+    {
+      "participant": "p09",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/tpagf/",
+      "sha256": "182475ce0926229b411a933f466be3cced8372ae6d9ab82fe9334e27bc6caa48"
+    },
+    {
+      "participant": "p09",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/byhx9/",
+      "sha256": "08c6482d64fb1f81900d6a20ad77b195bbbed72b6b7f67d286ffaaaca3835d5d"
+    },
+    {
+      "participant": "p10",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/swpnb/",
+      "sha256": "b4fefbdfbb8f0ec7178c0cc83efcc03a2f68ebe227e11e67a5471cd25840aab1"
+    },
+    {
+      "participant": "p10",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/9f3zp/",
+      "sha256": "ac4024122ea44c4630744a4bfaeabadd92493dd9f2e4c60240a38d9314cdf54a"
+    },
+    {
+      "participant": "p10",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/5e9a9bc1d6973505e8bd9220/",
+      "sha256": "b6cf561a146c2cf13cefccf8cc976f9b211cec828ebcd892fe683d8653107272"
+    },
+    {
+      "participant": "p11",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/gjwbr/",
+      "sha256": "d2793ccb5ead696090e539a9849b91a170b4e9cd622f9745d50c0925fd73ede8"
+    },
+    {
+      "participant": "p11",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/ytgq3/",
+      "sha256": "b762cf47f84045a99ae63cf06f3348aedc9f53aadaaf38681b09b62dfe5f5d4c"
+    },
+    {
+      "participant": "p11",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/5e9a9ba6f1353505f1d5697c/",
+      "sha256": "408a5b6943c8fedb441e54f23bfba33c561f21bd4f809a86f062b09f49d7eee3"
+    },
+    {
+      "participant": "p12",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/qubwa/",
+      "sha256": "3c5e213a9c4de3a35744a81469ca1ba2db9e1e3f66ec0a0a06161c653cdbf731"
+    },
+    {
+      "participant": "p12",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/28c57/",
+      "sha256": "8f25b58243a305c2badf0e226db1200d136b91326d606df4319078592dc2aaa1"
+    },
+    {
+      "participant": "p13",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/k42x5/",
+      "sha256": "14640f075ac0aa5c0e5deffcc3b888142d9b9d0752d50cb40e968cdd5b18ae16"
+    },
+    {
+      "participant": "p13",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/yg2dh/",
+      "sha256": "cb9267f657f51693794564e9559f2f0fb1ad742dc90eaec20c308e124c082c69"
+    },
+    {
+      "participant": "p14",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/3c2r6/",
+      "sha256": "61cfd166d45db134bb27ae1549d2748e18bce4ad0c18137362d3965e3f5152e5"
+    },
+    {
+      "participant": "p14",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/b26fq/",
+      "sha256": "7da7f8a05991e2bab3a6adeb222573158b5619d0a53a2f80b28cc2edab38dd30"
+    },
+    {
+      "participant": "p14",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/5e9a9b51d6973505e2bde8ca/",
+      "sha256": "0e8ae7137866c41a3ea708760aa638417334a0929d5ee843bc6c6377bf28471e"
+    },
+    {
+      "participant": "p15",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/g24e8/",
+      "sha256": "d0a06ced1b229e6972c1342f378f518587302f0cc23b71c5f34f816f4d4226ad"
+    },
+    {
+      "participant": "p15",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/pd38n/",
+      "sha256": "4f32345095951a4306a90ef90be128c49f1262dc10b3fd8c496e020e040c0fd1"
+    },
+    {
+      "participant": "p15",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/5e9a9b08f1353505f9d53089/",
+      "sha256": "75df5401e71dc11baf39521ec6288ea22edd842fa425ad570ab693725fea1e9e"
+    },
+    {
+      "participant": "p16",
+      "file": "wellness.csv",
+      "url": "https://osf.io/download/mhxz4/",
+      "sha256": "991e1ffc3784f744613f42228c2c57de5e082535a536942b5ede9ac8befef082"
+    },
+    {
+      "participant": "p16",
+      "file": "sleep.json",
+      "url": "https://osf.io/download/4f6wr/",
+      "sha256": "5acf6b34ce75206620da6838d0e2cb94e09b4e4ccb60a700806fbdd8c392a78b"
+    },
+    {
+      "participant": "p16",
+      "file": "resting_heart_rate.json",
+      "url": "https://osf.io/download/dt9fv/",
+      "sha256": "347c36a1b354e9e70785dbc448b74fb7be96a0591bfade9d2ccb9926f30512b9"
+    }
+  ],
+  "retrievedAt": "2026-11-14T19:01:53.856656+00:00",
+  "qualityByParticipant": [
+    {
+      "participant": "p01",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 0,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p02",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 2,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p03",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 51,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p04",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 0,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p05",
+      "invalidFatigueRows": 2,
+      "invalidRestingHRRows": 9,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p06",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 2,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p07",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 4,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p08",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 4,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p09",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 5,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p10",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 38,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p11",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 18,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p12",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 0,
+      "missingRestingHRFile": true
+    },
+    {
+      "participant": "p13",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 0,
+      "missingRestingHRFile": true
+    },
+    {
+      "participant": "p14",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 11,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p15",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 1,
+      "missingRestingHRFile": false
+    },
+    {
+      "participant": "p16",
+      "invalidFatigueRows": 0,
+      "invalidRestingHRRows": 0,
+      "missingRestingHRFile": false
+    }
+  ]
+}

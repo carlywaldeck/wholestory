@@ -52,6 +52,8 @@ import { appointmentQuestions, cycleContext } from "../lib/cycles";
 import { useSpokenReplies } from "../hooks/use-spoken-replies";
 import { VoicePicker } from "../components/voice-picker";
 import { PersonalPreferences } from "../components/personal-preferences";
+import { JourneyProgress } from "../components/journey-progress";
+import { HeroBackground } from "../components/hero-background";
 import {
   defaultPreferences,
   loadPreferences,
@@ -134,7 +136,8 @@ export default function Home() {
     [statement, setStatement] = useState(""),
     [questions, setQuestions] = useState<string[]>([]),
     [selected, setSelected] = useState(""),
-    [calendar, setCalendar] = useState(false);
+    [calendar, setCalendar] = useState(false),
+    [openingMenu, setOpeningMenu] = useState(false);
   useEffect(() => {
     if (!editor && !settings && !showWelcome) return;
     const previous = document.activeElement as HTMLElement;
@@ -234,6 +237,13 @@ export default function Home() {
   const demo = demoMode;
   const data = insights(entries);
   const brief = report(entries);
+  const symptomClaims = brief.claims.filter((claim) =>
+    categories.includes(claim.kind as (typeof categories)[number]),
+  );
+  const impactClaims = brief.claims.filter((claim) => claim.kind === "Daily-life impact");
+  const treatmentEntries = entries.filter((e) => e.facts.some((f) =>
+    ["Intervention", "Medication effect", "What helped"].includes(f.kind),
+  )).slice(0, 4);
   const visible = entries.filter(
     (e) =>
       (!evidence || evidence.includes(e.id)) &&
@@ -295,6 +305,7 @@ export default function Home() {
       );
       setEditor(false);
       await refresh();
+      setView("Your story");
       setNotice("Your entry is saved on this device.");
       speech.speak(
         "Your entry is saved on this device. Thank you for making a little space for yourself today.",
@@ -476,8 +487,9 @@ export default function Home() {
       setError("The PDF could not be generated. Please try again.");
     }
   }
+  const openingMode = view === "Today" && entries.length === 0 && !demo;
   return (
-    <div className="shell">
+    <div className={`shell${openingMode ? " opening-mode" : ""}`}>
       <aside>
         <a className="brand" href="#" onClick={() => setView("Today")}>
           <span className="brand-mark" aria-hidden="true">
@@ -514,8 +526,8 @@ export default function Home() {
         </nav>
         <div className="sidebar-bottom">
           <p className="sidebar-note">
-            A record of your days.
-            <br />A little less to remember.
+            Your entries stay on this device.
+            <br />Review them when you need them.
           </p>
           <button onClick={() => setSettings(true)}>
             <Settings size={16} /> Privacy & settings
@@ -598,30 +610,80 @@ export default function Home() {
         )}
         {view === "Today" ? (
           <>
-            <section className="intro">
-              <div className="eyebrow">
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </div>
-              <h1>
-                How are you feeling <em>today?</em>
-              </h1>
-              <p>
-                A place for what you feel, and how it shapes your day.
-                <br className="desktop-break" /> Small details are welcome here.
-              </p>
-            </section>
-            <section className="capture">
+            {openingMode ? (
+              <section className="opening-screen" aria-label="Start your story">
+                <HeroBackground />
+                <div className="opening-copy">
+                  <h1>Your life with endometriosis deserves to be understood.</h1>
+                  <p>Bring Oura data and your symptom notes together to prepare for care.</p>
+                </div>
+                <button
+                  className="opening-menu-trigger"
+                  aria-expanded={openingMenu}
+                  aria-controls="opening-menu"
+                  onClick={() => setOpeningMenu((open) => !open)}
+                >
+                  Menu
+                </button>
+                {openingMenu && (
+                  <div className="opening-menu" id="opening-menu">
+                    <button onClick={() => { setOpeningMenu(false); setView("Your story"); }}>
+                      Your story
+                    </button>
+                    <button onClick={() => { setOpeningMenu(false); setView("Appointment brief"); }}>
+                      Appointment brief
+                    </button>
+                    <button onClick={() => { setOpeningMenu(false); setSettings(true); }}>
+                      Privacy & settings
+                    </button>
+                    <button onClick={() => { setOpeningMenu(false); void tryDemo(); }}>
+                      Try demo
+                    </button>
+                  </div>
+                )}
+                <button
+                  className="opening-start"
+                  aria-label="Write an entry"
+                  onClick={() => open()}
+                >
+                  <span>Start your story</span>
+                  <ArrowRight size={18} aria-hidden="true" />
+                </button>
+                <button className="visually-hidden" onClick={() => voice()}>
+                  Record instead
+                </button>
+              </section>
+            ) : (
+              <>
+                <section className="intro">
+                  <HeroBackground />
+                  <div className="eyebrow">
+                    {new Date().toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
+                  <h1>How are you feeling today?</h1>
+                  <p>
+                    Write or record what happened and how it affected your day.
+                  </p>
+                </section>
+                <JourneyProgress
+                  current="capture"
+                  hasEntries={entries.length > 0}
+                  onNavigate={(step) => {
+                    if (step === "capture") open();
+                    if (step === "review") setView("Your story");
+                    if (step === "prepare") setView("Appointment brief");
+                  }}
+                />
+                <section className="capture">
               <div className="capture-copy">
-                <span className="section-kicker">A NEW ENTRY</span>
-                <h2>Start with a moment.</h2>
+                <span className="section-kicker">NEW ENTRY</span>
+                <h2>Add an entry.</h2>
                 <p>
-                  Talk it through or write it down.
-                  <br />
-                  You can check everything before you save.
+                  Write an entry or record a transcript. Review it before saving.
                 </p>
               </div>
               <div className="capture-actions">
@@ -674,18 +736,17 @@ export default function Home() {
                   needed.
                 </div>
               </div>
-            </section>
+                </section>
+              </>
+            )}
             {entries.length > 0 && (
               <section className="next-step">
                 <div>
-                  <span className="section-kicker">
-                    YOUR WORDS, READY TO BE HEARD
-                  </span>
-                  <h2>A little less to carry into your appointment.</h2>
+                  <span className="section-kicker">APPOINTMENT PREPARATION</span>
+                  <h2>Prepare an appointment brief.</h2>
                   <p>
-                    Bring together what happened, how it affected your days, and
-                    what you want to ask. Every observation links back to your
-                    entries.
+                    Review your entries, choose what to include, and export a
+                    source-linked PDF.
                   </p>
                 </div>
                 <Button onClick={() => setView("Appointment brief")}>
@@ -693,18 +754,6 @@ export default function Home() {
                 </Button>
               </section>
             )}
-            <button
-              className="pattern-home-link"
-              onClick={() => setView("Insights")}
-            >
-              <span>Sleep, movement & your experience</span>
-              <strong>
-                Explore what changes on difficult days <ArrowRight size={16} />
-              </strong>
-              <span>
-                Start with a fictional wearable demo, or import a daily export.
-              </span>
-            </button>
             <section className="recent">
               <div className="section-heading">
                 <h2>
@@ -719,12 +768,12 @@ export default function Home() {
                   <div className="empty-icon">
                     <BookOpen size={23} />
                   </div>
-                  <p>Your first page is waiting.</p>
+                  <p>No entries yet.</p>
                   <span>
-                    You don’t need the right words. Just start with today.
+                    Add an entry to start your journal.
                   </span>
                   <Button onClick={() => tryDemo()}>
-                    Explore a sample journal <ArrowRight size={15} />
+                    Try a fictional journal <ArrowRight size={15} />
                   </Button>
                 </div>
               ) : (
@@ -737,8 +786,16 @@ export default function Home() {
             <section className="page-title">
               <div className="eyebrow">YOUR JOURNAL</div>
               <h1>Your story</h1>
-              <p>A record of what you felt, and what it meant for your day.</p>
+              <p>Edit entries and review the details you want to bring to care.</p>
             </section>
+            <JourneyProgress
+              current="review"
+              hasEntries={entries.length > 0}
+              onNavigate={(step) => {
+                if (step === "capture") open();
+                if (step === "prepare") setView("Appointment brief");
+              }}
+            />
             <div className="toolbar">
               <select
                 aria-label="Filter symptoms"
@@ -817,9 +874,9 @@ export default function Home() {
               >
                 ← Your story
               </button>
-              <h1>Your days, connected.</h1>
+              <h1>Sleep and movement</h1>
               <p>
-                Bring together what you feel and what your wearable records.
+                Compare imported daily measurements with logged daily-life impact.
               </p>
             </section>
             <WearableExplorer
@@ -919,25 +976,32 @@ export default function Home() {
           <>
             <section className="page-title">
               <div className="eyebrow">APPOINTMENT PREPARATION</div>
-              <h1>A clearer conversation.</h1>
-              <p>Gather the details you want your clinician to understand.</p>
+              <h1>Appointment brief</h1>
+              <p>Review your symptoms, daily-life impact, and questions before you export.</p>
             </section>
+            <JourneyProgress
+              current="prepare"
+              hasEntries={entries.length > 0}
+              onNavigate={(step) => {
+                if (step === "capture") open();
+                if (step === "review") setView("Your story");
+              }}
+            />
             {!entries.length ? (
               <section className="brief-empty">
                 <span className="section-kicker">
                   START WITH YOUR EXPERIENCE
                 </span>
-                <h2>Your words come first.</h2>
+                <h2>Add an entry to build your brief.</h2>
                 <p>
-                  Add an entry about what you felt and what it changed about
-                  your day. Then we’ll bring your notes together into a brief
-                  you can review and share.
+                  Your brief will include reported symptoms, daily-life impact,
+                  what you tried, and questions for your clinician.
                 </p>
                 <Button className="primary" onClick={() => open()}>
                   Write your first entry <ArrowRight size={16} />
                 </Button>
                 <button className="back-link" onClick={() => tryDemo()}>
-                  Explore a fictional example
+                  Try a fictional example
                 </button>
               </section>
             ) : (
@@ -988,23 +1052,38 @@ export default function Home() {
                     </Button>
                   </section>
                 )}
-                <h3>What your entries tell us</h3>
-                {brief.claims.map((c) => (
-                  <p key={c.kind}>
-                    <button
-                      className="claim"
-                      onClick={() => {
-                        setEvidence(c.ids);
-                        setView("Insights");
-                      }}
-                    >
-                      {c.text} <ArrowUpRight size={13} />
-                    </button>
-                  </p>
-                ))}
-                {!brief.claims.length && (
-                  <p>No structured symptoms reported yet.</p>
-                )}
+                <div className="brief-section">
+                  <h3>Reported symptoms</h3>
+                  {symptomClaims.map((c) => (
+                    <p key={c.kind}>
+                      <button className="claim" onClick={() => { setEvidence(c.ids); setView("Insights"); }}>
+                        {c.text} <ArrowUpRight size={13} />
+                      </button>
+                    </p>
+                  ))}
+                  {!symptomClaims.length && <p>No structured symptoms reported yet.</p>}
+                </div>
+                <div className="brief-section">
+                  <h3>Impact on daily life</h3>
+                  {impactClaims.map((c) => (
+                    <p key={c.kind}>
+                      <button className="claim" onClick={() => { setEvidence(c.ids); setView("Insights"); }}>
+                        {c.text} <ArrowUpRight size={13} />
+                      </button>
+                    </p>
+                  ))}
+                  {!impactClaims.length && <p className="muted">No daily-life impact has been structured yet. You can add it by editing a source entry.</p>}
+                </div>
+                <div className="brief-section">
+                  <h3>What I tried and what I noticed</h3>
+                  {treatmentEntries.length ? treatmentEntries.map((e) => (
+                    <p key={e.id}>
+                      <button className="claim" onClick={() => { setEvidence([e.id]); setView("Insights"); }}>
+                        {e.date}: {e.facts.filter((f) => ["Intervention", "Medication effect", "What helped"].includes(f.kind)).map((f) => `“${f.quote}”`).join(" ")} <ArrowUpRight size={13} />
+                      </button>
+                    </p>
+                  )) : <p className="muted">Nothing has been added here yet. Your original notes remain available in Your story.</p>}
+                </div>
                 {brief.patterns.length > 0 && (
                   <>
                     <h3>Recurring observations</h3>
@@ -1127,6 +1206,10 @@ export default function Home() {
                   I have reviewed this brief and the supporting entries for
                   accuracy.
                 </label>
+                <div className="review-check">
+                  <strong>One last check before you share</strong>
+                  <span>Open any linked source entry to correct it. The PDF keeps your wording and source references.</span>
+                </div>
                 <Button
                   disabled={!reviewed || !entries.length}
                   className="primary"
@@ -1152,7 +1235,7 @@ export default function Home() {
         <footer>
           <span>
             <span className="footer-wordmark">WholeStory</span>{" "}
-            <span>A little less to remember.</span>
+            <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
         </footer>
@@ -1171,15 +1254,11 @@ export default function Home() {
               </span>
               WholeStory
             </div>
-            <div className="eyebrow">A SPACE OF YOUR OWN</div>
-            <h2 id="welcome-title">
-              Welcome to
-              <br />
-              <em>your next page.</em>
-            </h2>
+            <div className="eyebrow">SET UP YOUR JOURNAL</div>
+            <h2 id="welcome-title">Set up WholeStory.</h2>
             <p>
-              A few small preferences, then you’re ready. Your journal stays in
-              this browser.
+              Choose a name and a default way to add entries. You can change
+              these later in Settings. Your journal stays in this browser.
             </p>
             <PersonalPreferences
               value={preferences}
@@ -1666,7 +1745,7 @@ export default function Home() {
           </section>
         </div>
       )}
-      {!ready && (
+      {!ready && editor && (
         <span className="loading" role="status">
           Opening your journal…
         </span>

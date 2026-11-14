@@ -1,0 +1,83 @@
+{
+  "reviewedOn": "2026-11-14",
+  "clinicalValidationCompleted": false,
+  "datasets": [
+    {
+      "id": "ki-endolist-1.0.0",
+      "url": "https://physionet.org/content/ki-endolist/1.0.0/",
+      "population": "34 people with diagnosed endometriosis; regular cycles; not using hormonal treatment at enrollment",
+      "contains": "Individual longitudinal symptom reports; individualized scales; no matched wearable data described",
+      "access": "Registration and signed PhysioNet data use agreement",
+      "localPatientFilesAccessed": false,
+      "possibleUse": "Exploratory symptom-only temporal evaluation after authorized access and codebook review",
+      "cannotEstablish": "Diagnostic discrimination, wearable forecasting benefit, or performance in all suspected-endometriosis populations"
+    },
+    {
+      "id": "endotech-2025",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12048534/",
+      "population": "68 participants with confirmed endometriosis in an exploratory actigraphy study",
+      "contains": "Paired symptom and actigraphy observations described in publication",
+      "access": "Individual data not in a public repository; research request subject to ethical approval",
+      "localPatientFilesAccessed": false,
+      "possibleUse": "Motivates studying within-person symptom/activity relationships",
+      "cannotEstablish": "A validated next-day forecast or diagnostic test for this app"
+    },
+    {
+      "id": "pmdata-public-excerpt",
+      "url": "https://datasets.simula.no/pmdata/",
+      "contains": "Public Fitbit research measurements; no endometriosis outcome labels",
+      "access": "Public excerpt already included, separately from symptom demo",
+      "possibleUse": "Import, normalization, missing-data and provenance checks",
+      "cannotEstablish": "Endometriosis symptom prediction or diagnostic benefit",
+      "licenseNote": "Current landing page lists CC BY 4.0; original downloaded license says CC BY-NC 4.0. Retain stricter labeling pending clarification."
+    },
+    {
+      "id": "pmdata-next-day-fatigue",
+      "url": "https://datasets.simula.no/pmdata/",
+      "api": "https://api.osf.io/v2/nodes/vx4bk/files/osfstorage/",
+      "access": "Anonymous public API; download and source checksums verified",
+      "actualEvaluation": {
+        "participants": 13,
+        "heldOutDays": 353,
+        "target": "Next-day fatigue on source 1\u20135 scale"
+      },
+      "clinicalValidation": false,
+      "endometriosisPopulation": false
+    },
+    {
+      "id": "silver-pain-open",
+      "url": "https://data.mendeley.com/datasets/m38f8ydn49/3",
+      "access": "Open physiology/pain labels described by original repository, CC BY 4.0; other modalities controlled",
+      "localPatientFilesAccessed": false,
+      "cannotEstablish": "Next-day endometriosis forecasting"
+    },
+    {
+      "id": "endo-knowledge-australia",
+      "url": "https://www.nature.com/articles/s44294-025-00096-6",
+      "api": "https://api.osf.io/v2/nodes/spzej/files/osfstorage/",
+      "access": "Anonymous API file listing verified; dataset license absent from node metadata",
+      "localPatientFilesAccessed": false,
+      "cannotEstablish": "Longitudinal symptom forecasting"
+    },
+    {
+      "id": "mpis-observed-multisymptom",
+      "url": "https://zenodo.org/records/21538147",
+      "api": "https://zenodo.org/api/records/21538147",
+      "doi": "10.5281/zenodo.21538147",
+      "attribution": "Valeria Tisch, Stefan Konigorski and Hannah Neumayer, MPIS Study Data",
+      "access": "Open CC BY 4.0, no account or API key; checksum-verified download",
+      "localPatientFilesAccessed": true,
+      "contains": "Real self-reported menstrual symptoms; intervention trial; changed dates; most rows imputed",
+      "actualEvaluation": {
+        "observedRows": 304,
+        "imputedRowsExcluded": 1856,
+        "participantsWithPairs": 16,
+        "pairedTargets": 178,
+        "answeredChecklistTargets": 41
+      },
+      "clinicalValidation": false,
+      "endometriosisPopulation": false,
+      "cannotEstablish": "Clinically calibrated multi-symptom risk, wearable benefit or endometriosis-specific forecasting"
+    }
+  ]
+}

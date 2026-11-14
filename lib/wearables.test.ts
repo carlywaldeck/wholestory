@@ -92,3 +92,14 @@ it("exports only generic calendar text and valid event times", () => {
     checkInCalendar({ date: "bad", time: "99:99", note: "" }),
   ).toThrow();
 });
+
+it("excludes conflicting journal dates and rejects duplicated device dates", () => {
+  const impact = entry("2026-11-01", false, true),
+    free = { ...entry("2026-11-01", true), id: "other" };
+  const day = { date: impact.date, sleepHours: 7, steps: 5000 };
+  expect(pairDays([impact, free], [day])[0].group).toBe("unknown");
+  expect(pairDays([impact, free], [day])[0].exclusionReason).toBe(
+    "Conflicting journal reports",
+  );
+  expect(() => pairDays([impact], [day, day])).toThrow();
+});
