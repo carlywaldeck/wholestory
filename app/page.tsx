@@ -613,6 +613,10 @@ export default function Home() {
             {openingMode ? (
               <section className="opening-screen" aria-label="Start your story">
                 <HeroBackground />
+                <div className="opening-copy">
+                  <h1>Your life with endometriosis deserves to be understood.</h1>
+                  <p>Bring Oura data and your symptom notes together to prepare for care.</p>
+                </div>
                 <button
                   className="opening-menu-trigger"
                   aria-expanded={openingMenu}
@@ -1741,7 +1745,7 @@ export default function Home() {
           </section>
         </div>
       )}
-      {!ready && (
+      {!ready && editor && (
         <span className="loading" role="status">
           Opening your journal…
         </span>

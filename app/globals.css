@@ -319,6 +319,17 @@ header {
   color: rgba(255, 250, 241, 0.88);
 }
 .intro .eyebrow { color: rgba(255, 250, 241, 0.78); }
+.hero-background { background-size: cover; background-position: center; }
+.hero-background video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.opening-copy { position: absolute; left: clamp(28px, 5vw, 80px); bottom: 160px; right: 34px; color: #3a2e2a; max-width: 720px; animation: opening-reveal 1.2s ease-out both; }
+.opening-copy h1 { font-family: inherit; font-weight: 600; font-size: clamp(31px, 4.7vw, 65px); line-height: 1.1; letter-spacing: -0.025em; margin-bottom: 28px; }
+.opening-copy p { color: #3a2e2a; font-size: 16px; line-height: 1.8; max-width: 420px; }
+.opening-start { animation: opening-reveal 1.2s ease-out both; }
+@keyframes opening-reveal { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .opening-copy, .opening-start { animation: none; }
+}
+.loading { top: 18px !important; bottom: auto !important; left: 50% !important; right: auto !important; transform: translateX(-50%); }
 .opening-mode {
   max-width: none;
 }
@@ -335,7 +346,9 @@ header {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: 100svh;
+  min-height: calc(100svh - 24px);
+  margin: 12px;
+  border-radius: 24px;
   background: #f7f1eb;
 }
 .opening-screen::after {
@@ -344,7 +357,7 @@ header {
   inset: 48% 0 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(to bottom, transparent 0%, rgba(57, 59, 53, 0.42) 100%);
+  background: linear-gradient(to bottom, transparent, rgba(255, 247, 235, 0.94));
 }
 .opening-screen .hero-background {
   background: #f7f1eb;
@@ -356,9 +369,9 @@ header {
 .opening-start {
   position: absolute;
   z-index: 2;
-  color: #fffaf1;
-  background: rgba(62, 73, 61, 0.2);
-  border: 1px solid rgba(255, 250, 241, 0.46);
+  color: #3a2e2a;
+  background: rgba(255, 250, 241, 0.92);
+  border: 1px solid #fffdf8;
   backdrop-filter: blur(8px);
 }
 .opening-menu-trigger {
@@ -383,7 +396,7 @@ header {
 }
 .opening-start:hover,
 .opening-menu-trigger:hover {
-  background: rgba(62, 73, 61, 0.38);
+  background: #fffaf1;
 }
 .opening-menu {
   position: absolute;
