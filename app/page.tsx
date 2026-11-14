@@ -52,6 +52,7 @@ import { appointmentQuestions, cycleContext } from "../lib/cycles";
 import { useSpokenReplies } from "../hooks/use-spoken-replies";
 import { VoicePicker } from "../components/voice-picker";
 import { PersonalPreferences } from "../components/personal-preferences";
+import { JourneyProgress } from "../components/journey-progress";
 import {
   defaultPreferences,
   loadPreferences,
@@ -234,6 +235,13 @@ export default function Home() {
   const demo = demoMode;
   const data = insights(entries);
   const brief = report(entries);
+  const symptomClaims = brief.claims.filter((claim) =>
+    categories.includes(claim.kind as (typeof categories)[number]),
+  );
+  const impactClaims = brief.claims.filter((claim) => claim.kind === "Daily-life impact");
+  const contextEntries = entries.filter((e) => e.facts.some((f) =>
+    ["Menstrual context", "Timing", "Intervention", "Medication effect", "What helped"].includes(f.kind),
+  )).slice(0, 4);
   const visible = entries.filter(
     (e) =>
       (!evidence || evidence.includes(e.id)) &&
@@ -295,6 +303,7 @@ export default function Home() {
       );
       setEditor(false);
       await refresh();
+      setView("Your story");
       setNotice("Your entry is saved on this device.");
       speech.speak(
         "Your entry is saved on this device. Thank you for making a little space for yourself today.",
@@ -614,6 +623,15 @@ export default function Home() {
                 <br className="desktop-break" /> Small details are welcome here.
               </p>
             </section>
+            <JourneyProgress
+              current="capture"
+              hasEntries={entries.length > 0}
+              onNavigate={(step) => {
+                if (step === "capture") open();
+                if (step === "review") setView("Your story");
+                if (step === "prepare") setView("Appointment brief");
+              }}
+            />
             <section className="capture">
               <div className="capture-copy">
                 <span className="section-kicker">A NEW ENTRY</span>
@@ -739,6 +757,14 @@ export default function Home() {
               <h1>Your story</h1>
               <p>A record of what you felt, and what it meant for your day.</p>
             </section>
+            <JourneyProgress
+              current="review"
+              hasEntries={entries.length > 0}
+              onNavigate={(step) => {
+                if (step === "capture") open();
+                if (step === "prepare") setView("Appointment brief");
+              }}
+            />
             <div className="toolbar">
               <select
                 aria-label="Filter symptoms"
@@ -922,6 +948,14 @@ export default function Home() {
               <h1>A clearer conversation.</h1>
               <p>Gather the details you want your clinician to understand.</p>
             </section>
+            <JourneyProgress
+              current="prepare"
+              hasEntries={entries.length > 0}
+              onNavigate={(step) => {
+                if (step === "capture") open();
+                if (step === "review") setView("Your story");
+              }}
+            />
             {!entries.length ? (
               <section className="brief-empty">
                 <span className="section-kicker">
@@ -988,23 +1022,38 @@ export default function Home() {
                     </Button>
                   </section>
                 )}
-                <h3>What your entries tell us</h3>
-                {brief.claims.map((c) => (
-                  <p key={c.kind}>
-                    <button
-                      className="claim"
-                      onClick={() => {
-                        setEvidence(c.ids);
-                        setView("Insights");
-                      }}
-                    >
-                      {c.text} <ArrowUpRight size={13} />
-                    </button>
-                  </p>
-                ))}
-                {!brief.claims.length && (
-                  <p>No structured symptoms reported yet.</p>
-                )}
+                <div className="brief-section">
+                  <h3>Reported symptoms</h3>
+                  {symptomClaims.map((c) => (
+                    <p key={c.kind}>
+                      <button className="claim" onClick={() => { setEvidence(c.ids); setView("Insights"); }}>
+                        {c.text} <ArrowUpRight size={13} />
+                      </button>
+                    </p>
+                  ))}
+                  {!symptomClaims.length && <p>No structured symptoms reported yet.</p>}
+                </div>
+                <div className="brief-section">
+                  <h3>Impact on daily life</h3>
+                  {impactClaims.map((c) => (
+                    <p key={c.kind}>
+                      <button className="claim" onClick={() => { setEvidence(c.ids); setView("Insights"); }}>
+                        {c.text} <ArrowUpRight size={13} />
+                      </button>
+                    </p>
+                  ))}
+                  {!impactClaims.length && <p className="muted">No daily-life impact has been structured yet. You can add it by editing a source entry.</p>}
+                </div>
+                <div className="brief-section">
+                  <h3>What I tried and what I noticed</h3>
+                  {contextEntries.length ? contextEntries.map((e) => (
+                    <p key={e.id}>
+                      <button className="claim" onClick={() => { setEvidence([e.id]); setView("Insights"); }}>
+                        {e.date}: {e.facts.filter((f) => ["Intervention", "Medication effect", "What helped", "Timing", "Menstrual context"].includes(f.kind)).map((f) => `“${f.quote}”`).join(" ")} <ArrowUpRight size={13} />
+                      </button>
+                    </p>
+                  )) : <p className="muted">Nothing has been added here yet. Your original notes remain available in Your story.</p>}
+                </div>
                 {brief.patterns.length > 0 && (
                   <>
                     <h3>Recurring observations</h3>
@@ -1127,6 +1176,10 @@ export default function Home() {
                   I have reviewed this brief and the supporting entries for
                   accuracy.
                 </label>
+                <div className="review-check">
+                  <strong>One last check before you share</strong>
+                  <span>Open any linked source entry to correct it. The PDF keeps your wording and source references.</span>
+                </div>
                 <Button
                   disabled={!reviewed || !entries.length}
                   className="primary"

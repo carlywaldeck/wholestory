@@ -333,6 +333,43 @@ header {
   font-size: 9px;
   color: #876273;
 }
+.journey-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdfc;
+  overflow: hidden;
+}
+.journey-progress button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 62px;
+  padding: 10px 15px;
+  text-align: left;
+  color: #947482;
+}
+.journey-progress button + button { border-left: 1px solid var(--line); }
+.journey-progress button.current { background: var(--blush); color: var(--rose-dark); }
+.journey-progress button.complete { color: var(--rose); }
+.journey-progress-icon {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  border: 1px solid #e3cbd5;
+  border-radius: 50%;
+  background: #fffafc;
+}
+.journey-progress .current .journey-progress-icon { background: var(--rose); color: white; border-color: var(--rose); }
+.journey-progress strong, .journey-progress small { display: block; }
+.journey-progress strong { font-size: 11px; font-weight: 600; }
+.journey-progress small { margin-top: 2px; font-size: 9px; color: #a18591; }
 .journal-overview {
   display: flex;
   align-items: center;
@@ -705,6 +742,21 @@ header {
 .report > p {
   margin-bottom: 12px;
 }
+.brief-section {
+  margin-top: 28px;
+  padding-top: 4px;
+  border-top: 1px solid #f0e1e6;
+}
+.review-check {
+  display: grid;
+  gap: 3px;
+  margin: 23px 0 4px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--rose);
+  background: #fdf3f6;
+  font-size: 11px;
+}
+.review-check span { color: var(--muted); line-height: 1.7; }
 .custom-question {
   display: flex;
   align-items: flex-end;
@@ -1453,6 +1505,11 @@ textarea {
   .capture-note {
     font-size: 8px;
   }
+  .journey-progress { margin-bottom: 20px; }
+  .journey-progress button { min-height: 56px; padding: 8px 9px; gap: 6px; }
+  .journey-progress-icon { width: 23px; height: 23px; }
+  .journey-progress strong { font-size: 10px; }
+  .journey-progress small { font-size: 8px; }
   .journal-overview {
     gap: 20px;
   }
