@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { HeroBackground } from "./hero-background";
+import type {DayMeasurement} from "./outlook-day";
 import { LinenOutlook } from "./linen-outlook";
 import { LinenBrief } from "./linen-brief";
 import { useAppNavigation } from "./app-navigation";
@@ -16,10 +17,10 @@ const kindFor = (label: string): Fact["kind"] => label === "Pelvic pain / cramps
 const pretty = (date: string) => new Date(date+"T12:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
 type SpeechSession = {start:()=>void;stop:()=>void;abort:()=>void;continuous:boolean;interimResults:boolean;lang:string;onresult:((event:{results:ArrayLike<ArrayLike<{transcript:string}>>})=>void)|null;onerror:((event:{error:string})=>void)|null;onend:(()=>void)|null};
 
-export function LinenPages({view, entries, forecast, loading, forecastError, onSave, onSettings, onDelete, demo, onRetry, demoControls, wearableNote, continuous=false}: {
+export function LinenPages({view, entries, forecast, loading, forecastError, onSave, onSettings, onDelete, demo, onRetry, demoControls, wearableNote, continuous=false, demoDays}: {
   view:string; entries:Entry[]; forecast:ForecastResult|null; loading:boolean; forecastError:string;
   onSave:(entry:Entry)=>Promise<void>; onSettings:()=>void; onDelete:()=>Promise<void>; demo:boolean; onRetry:()=>void;
-  demoControls?:ReactNode; wearableNote?:string; continuous?:boolean;
+  demoControls?:ReactNode; wearableNote?:string; continuous?:boolean; demoDays?:DayMeasurement[];
 }) {
   const nav = useAppNavigation()!;
   const [date,setDate]=useState(localToday);
@@ -83,7 +84,7 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
         {error&&<p role="alert">{error}</p>}
         <div className="linen-main-action"><button className="button primary" disabled={busy||recording} onClick={save}>{busy?"Saving…":existing?"Save changes":"Add to calendar"}</button></div>
       </section>}
-      {(continuous||view==="Outlook")&&<section id={continuous?"home-outlook":undefined} aria-label="Outlook"><LinenOutlook today={localToday()} selected={date} onSelect={setDate} onEdit={goJournal} entries={entries} forecast={forecast} demoControls={demoControls} loading={loading} error={forecastError} onRetry={onRetry}/></section>}
+      {(continuous||view==="Outlook")&&<section id={continuous?"home-outlook":undefined} aria-label="Outlook"><LinenOutlook demoDays={demoDays} onSettings={onSettings} today={localToday()} selected={date} onSelect={setDate} onEdit={goJournal} entries={entries} forecast={forecast} demoControls={demoControls} loading={loading} error={forecastError} onRetry={onRetry}/></section>}
       {view==="Privacy"?<section className="linen-panel"><h1>Privacy</h1><h2>Storage</h2><p>Personal journal entries are saved in this browser’s IndexedDB. Preferences and confirmed check-ins use local storage. Fictional demo entries stay separate from personal entries.</p><h2>Voice</h2><p>Speak uses your browser’s speech recognition when available. Your browser may send audio to its speech service. Microphone access starts only when you press Speak.</p><h2>Export and deletion</h2><p>Appointment Brief lets you copy your selected entries or print them to PDF. Deleting browser data does not delete files you have already exported.</p><button className="button" onClick={onSettings}>Connections and preferences</button><button className="button" onClick={()=>setConfirmDelete(true)}>Delete personal journal data</button>{confirmDelete&&<div><p>Delete saved personal entries and confirmed check-ins from this browser?</p><button className="button" onClick={()=>setConfirmDelete(false)}>Cancel</button><button className="button primary" onClick={async()=>{try{await onDelete();setConfirmDelete(false);setCopied("Personal journal data deleted.");}catch{setError("Deletion failed. Please try again.");}}}>Delete data</button></div>}{copied&&<p role="status">{copied}</p>}{error&&<p role="alert">{error}</p>}</section>:null}
       <div id={continuous?"home-appointment-brief":undefined} hidden={!continuous&&view!=="Appointment brief"}><LinenBrief wearableNote={wearableNote} key={demo?entries[0]?.persona??"demo":"personal"} active={continuous||view==="Appointment brief"} entries={entries} today={localToday()} onSource={entry=>goJournal(entry.date)} onJournal={()=>goJournal()}/></div>
       <p className="linen-disclaimer">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>

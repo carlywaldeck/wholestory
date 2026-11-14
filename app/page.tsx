@@ -586,7 +586,7 @@ function HomeContent() {
     }
   }
   const openingMode = view === "Today";
-  const journalExperience = <LinenPages continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
+  const journalExperience = <LinenPages demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
           demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p></details>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={async()=>{await storage.clearEntries();clearConfirmedDays();await refresh();setCheckinVersion(n=>n+1);}}

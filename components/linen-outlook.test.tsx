@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LinenOutlook } from "./linen-outlook";
 import { symptomRisk } from "../lib/symptom-risk";
 import type { Entry } from "../lib/model";
 afterEach(cleanup);
+beforeEach(()=>{window.history.replaceState(null,"","/outlook");vi.spyOn(window,"scrollTo").mockImplementation(()=>{});});
 const entry:Entry={id:"fictional",date:"2026-11-14",text:"A fictional headache interrupted reading.",facts:[{kind:"Pain",value:"Headache",quote:"headache"}],symptomFree:false,demo:true};
 function props(){return {today:"2026-11-14",selected:"2026-11-14",onSelect:vi.fn(),onEdit:vi.fn(),onRetry:vi.fn(),entries:[] as Entry[],forecast:null,loading:false,error:""};}
 it("keeps unknown days different from explicitly symptom-free days",async()=>{

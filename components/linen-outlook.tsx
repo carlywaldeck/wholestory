@@ -5,6 +5,8 @@ import type { Entry } from "../lib/model";
 import { factKinds, isPresentFact } from "../lib/model";
 import { checkinSymptoms } from "../lib/experience-checkins";
 import type { ForecastResult } from "./forecast-outlook";
+import {OutlookDay,type DayMeasurement} from "./outlook-day";
+import {useAppNavigation} from "./app-navigation";
 
 const monthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
 const displayDate = (date: string) => new Date(date+"T12:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
@@ -13,11 +15,16 @@ export function loggedLabels(entries: Entry[]) {
   return [...new Set(entries.flatMap(e=>e.symptomFree?["No symptoms"]:e.facts.filter(f=>symptomKinds.has(f.kind)&&isPresentFact(f)).map(f=>f.value)))];
 }
 
-export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry,demoControls}: {
+export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry,demoControls,demoDays,onSettings}: {
   today:string;selected:string;onSelect:(date:string)=>void;onEdit:(date:string)=>void;
   entries:Entry[];forecast:ForecastResult|null;loading:boolean;error:string;onRetry:()=>void;
   demoControls?:ReactNode;
+  demoDays?:DayMeasurement[];onSettings?:()=>void;
 }) {
+  const navigation=useAppNavigation();
+  const [detailDate,setDetailDate]=useState<string|null>(null);
+  function openDay(day:string){onSelect(day);setDetailDate(day);navigation?.setView("Outlook");window.history.pushState(null,"","/outlook?day="+day);window.scrollTo(0,0);}
+  useEffect(()=>{const sync=()=>{const day=new URLSearchParams(window.location.search).get("day");const valid=day&&/^\d{4}-\d{2}-\d{2}$/.test(day)?day:null;setDetailDate(valid);if(valid)onSelect(valid);};sync();window.addEventListener("popstate",sync);return()=>window.removeEventListener("popstate",sync);},[]);
   const [month,setMonth]=useState(selected.slice(0,7));
   useEffect(()=>setMonth(selected.slice(0,7)),[selected]);
   const first=new Date(month+"-01T12:00:00");
@@ -35,6 +42,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
   const dayEntries=entries.filter(e=>e.date===selected);
   const dayPredictions=predictions(selected);
   function moveMonth(by:number){setMonth(monthKey(new Date(first.getFullYear(),first.getMonth()+by,1,12)));}
+  if(detailDate)return <OutlookDay date={detailDate} today={today} entries={entries} forecast={forecast} demoDays={demoDays} onDate={openDay} onCalendar={()=>{setDetailDate(null);window.history.pushState(null,"","/outlook");}} onEdit={()=>onEdit(detailDate)} onSettings={onSettings??(()=>{window.location.href="/settings";})}/>;
   return <div className="outlook-composition">
     <section className="linen-panel outlook-summary" aria-labelledby="outlook-summary-heading">
       <div className="outlook-summary-top"><h1 id="outlook-summary-heading">Today’s summary</h1><span>{displayDate(today)}</span></div>
@@ -55,7 +63,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
           if(!day)return <span className="outlook-blank" key={i}/>;
           const logs=entries.filter(e=>e.date===day);const symptoms=loggedLabels(logs);const estimated=predictions(day);
           const more=Math.max(0,symptoms.length-2)+Math.max(0,estimated.length-1);
-          return <button key={day} className={`outlook-date${selected===day?" is-selected":""}${today===day?" is-today":""}`} aria-pressed={selected===day} aria-current={today===day?"date":undefined} aria-label={`${displayDate(day)}${today===day?", today":""}${logs.length?", Logged: "+(symptoms.join(", ")||"entry") :""}${estimated.length?", Estimate: "+estimated.map(s=>s.label).join(", "):""}`} onClick={()=>onSelect(day)}>
+          return <button key={day} className={`outlook-date${selected===day?" is-selected":""}${today===day?" is-today":""}`} aria-pressed={selected===day} aria-current={today===day?"date":undefined} aria-label={`${displayDate(day)}${today===day?", today":""}${logs.length?", Logged: "+(symptoms.join(", ")||"entry") :""}${estimated.length?", Estimate: "+estimated.map(s=>s.label).join(", "):""}`} onClick={()=>openDay(day)}>
             <span className="outlook-date-number">{Number(day.slice(-2))}{today===day&&<span className="outlook-today-label">Today</span>}</span>
             {logs.length>0&&<div className="outlook-cell-log"><span className="outlook-cell-label">● Logged</span>{symptoms.length?symptoms.slice(0,2).map(s=><span className="outlook-cell-symptom" key={s}>{s}</span>):<span className="outlook-cell-symptom">Journal entry</span>}</div>}
             {estimated.length>0&&<div className="outlook-cell-estimate"><span className="outlook-cell-label">◇ Estimate</span><span className="outlook-cell-symptom">{estimated[0].label}</span></div>}

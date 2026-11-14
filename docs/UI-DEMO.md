@@ -13,6 +13,10 @@ No wearable purchase or additional account is needed. Demo changes stay in memor
 
 ## Frontend contracts
 
+Calendar dates now open `/outlook?day=YYYY-MM-DD`. Past/current days show sibling Journal and wearable panels, with Edit opening the correct Journal date. Future days show only estimates returned for that exact forecast date; beyond the available horizon, the outlook is explicitly unavailable. Date arrows and Month calendar provide navigation. The animated scrolling Home and its section order remain unchanged.
+
+Daily wearable details reuse the existing saved import and matching fictional physiology. No wearable schema, API, model, credentials or forecast logic changed. Real imports currently guarantee sleep and steps; unavailable temperature or other signals stay unavailable. Live Oura authorization with a consenting account remains unverified. Fictional readings are labeled and never imply a connected device.
+
 - No model, API route, research or wearable-owned files changed.
 - `LinenPages.onSave(Entry): Promise<void>` updates the confirmed day using the existing `checkinRecord` helper. True / false / null remain present / explicitly absent / unanswered. Demo saves update both `demoInput.days` and `demoJournalEntries`, then call the existing model with evaluation disabled.
 - The existing wearable `onInclude(text)` callback still supplies optional context to the brief, copy and print. It does not influence forecasts.
