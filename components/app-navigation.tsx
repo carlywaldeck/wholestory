@@ -18,6 +18,7 @@ const destinations = [
   { label: "Journal", view: "Your story", href: "/journal", Icon: BookOpen },
   { label: "Outlook", view: "Outlook", href: "/outlook", Icon: CalendarDays },
   { label: "Appointment Brief", view: "Appointment brief", href: "/appointment-brief", Icon: FileText },
+  { label: "Privacy", view: "Privacy", href: "/privacy", Icon: Settings },
 ];
 export function AppNavigationProvider({ children }: { children: ReactNode }) {
   const [view, updateView] = useState("Today");
@@ -93,12 +94,10 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
           {destinations.map(({label,view:next,href,Icon})=><a key={next} href={href} className={current===next?"is-current":""} aria-current={current===next?"page":undefined} onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();requestLeave(()=>navigate(next));}}>
             <Icon size={18} aria-hidden="true"/><span>{label}</span>{current===next&&<Check size={16} aria-hidden="true" className="app-current-check"/>}
           </a>)}
-          <div className="app-menu-divider" />
-          <a href="/settings" className="app-settings-link" onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();close();window.history.pushState(null,"","/settings");setSettings(true);}}><Settings size={16} aria-hidden="true"/><span>Settings</span></a>
         </GlassCard>
       </div>
       <Link className="app-wordmark-link" href="/" aria-label="elya, go to the home page" onNavigate={e=>{e.preventDefault();requestLeave(()=>navigate("Today"));}}><Wordmark /></Link>
-      <a href="#journal" className="app-checkin-pill" hidden={view!=="Outlook"} onClick={e=>{e.preventDefault();navigate("Your story");setCheckinRequest(n=>n+1);}}>Check in</a>
+      <a href="/journal" className="app-checkin-pill" hidden={view!=="Outlook"} onClick={e=>{e.preventDefault();requestLeave(()=>{window.dispatchEvent(new Event("elya-checkin-today"));navigate("Your story");});}}>Check in</a>
     </div>
     {leaving && <div className="overlay"><section className="modal" role="alertdialog" aria-modal="true" aria-labelledby="leave-title">
       <h2 id="leave-title">Leave without saving? Your entry isn't saved yet.</h2>

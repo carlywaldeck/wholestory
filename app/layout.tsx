@@ -2,6 +2,7 @@ import "./globals.css";
 import "../components/forecast-experience.css";
 import "../components/typography.css";
 import "../components/app-navigation.css";
+import "../components/linen-pages.css";
 import { AppNavigationProvider } from "../components/app-navigation";
 import { Inter, Rethink_Sans } from "next/font/google";
 const displayFont = Rethink_Sans({ subsets: ["latin"], weight: "variable", variable: "--font-display", display: "swap", adjustFontFallback: true });

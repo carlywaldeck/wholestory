@@ -56,6 +56,7 @@ import { VoicePicker } from "../components/voice-picker";
 import { PersonalPreferences } from "../components/personal-preferences";
 import { JourneyProgress } from "../components/journey-progress";
 import { HeroBackground } from "../components/hero-background";
+import { LinenPages } from "../components/linen-pages";
 import { DataLegend, SymptomOutlook } from "../components/brand-states";
 import { ForecastOutlook, type ForecastResult } from "../components/forecast-outlook";
 import { QuickCheckin } from "../components/quick-checkin";
@@ -138,6 +139,7 @@ function HomeContent() {
   const [checkin, setCheckin] = useState(false);
   const [checkinVersion, setCheckinVersion] = useState(0);
   const [journalLimit, setJournalLimit] = useState(14);
+  const [homeDraft, setHomeDraft] = useState("");
   const forecastRequest = useRef(0);
   const [customQuestion, setCustomQuestion] = useState("");
   const [entryMode, setEntryMode] = useState<"write" | "voice">("write");
@@ -270,10 +272,10 @@ function HomeContent() {
     setEditor(false);
   }, [view]);
   useEffect(() => {
-    setDirty(editor && (review || !!text.trim() || !!answer.trim()));
-  }, [editor, review, text, answer, setDirty]);
+    setDirty(!!homeDraft.trim() || (editor && (review || !!text.trim() || !!answer.trim())));
+  }, [editor, review, text, answer, homeDraft, setDirty]);
   useEffect(()=>{
-    const home=()=>{setEditor(false);setCheckin(false);setSelected("");};
+    const home=()=>{setEditor(false);setCheckin(false);setSelected("");setHomeDraft("");};
     window.addEventListener("elya-home",home);
     return ()=>window.removeEventListener("elya-home",home);
   },[]);
@@ -586,8 +588,8 @@ function HomeContent() {
   const openingMode = view === "Today";
   return (
     <div className={`shell persistent-nav-shell${openingMode ? " opening-mode" : ""}`}>
-      <main key={view} className={openingMode ? undefined : "page-content-transition"}>
-        {demo && (
+      <main className={openingMode ? undefined : "page-content-transition"}>
+        {demo && openingMode && (
           <div className="demo-banner">
             <span className="demo-chip">Fictional demo history</span>{" "}
             <span>Fictional entries for exploring elya.</span>
@@ -607,9 +609,15 @@ function HomeContent() {
             {error}
           </p>
         )}
-        {demo && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
+        {demo && openingMode && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
         {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
-        {view === "Outlook" ? (
+        {!openingMode ? <LinenPages view={view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
+          onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={async()=>{await storage.clearEntries();clearConfirmedDays();await refresh();setCheckinVersion(n=>n+1);}}
+          onSave={async entry=>{
+            const saved=validateEntry({...entry,...(demo?{persona}: {})});
+            if(demo){setForecastDemo(current=>current?{...current,demoJournalEntries:[saved,...current.demoJournalEntries.filter(e=>e.id!==saved.id)]}:current);}
+            else {await storage.putEntry(saved);const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:null])) as Answers;saveConfirmedDay(checkinRecord(saved.date,answers,saved.text).day);await refresh();setCheckinVersion(n=>n+1);}
+          }}/>:String(view) === "Outlook" ? (
           <>
           <ForecastOutlook result={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} error={settings ? "" : forecastError}
             onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)}
@@ -723,7 +731,26 @@ function HomeContent() {
                 </section>
               </>
             )}
-            {entries.length > 0 && (
+            {openingMode && <section id="home-journal" className="home-journal-entry" aria-labelledby="home-journal-title">
+              <h2 id="home-journal-title">Journal</h2>
+              <form onSubmit={e=>{
+                e.preventDefault();
+                open();
+                setText(homeDraft);
+                setReview(true);
+                setQuestion(null);
+                setHomeDraft("");
+              }}>
+                <label htmlFor="home-journal-words">How are you feeling?</label>
+                <textarea id="home-journal-words" placeholder="Describe your symptoms…" maxLength={10000} value={homeDraft} onChange={e=>setHomeDraft(e.target.value)} />
+                <div className="toolbar">
+                  <Button type="submit" className="primary" disabled={!homeDraft.trim()}>Review entry</Button>
+                  <Button type="button" onClick={()=>{open(undefined,"voice");setText(homeDraft);setHomeDraft("");}}>Speak</Button>
+                </div>
+              </form>
+              <Button onClick={()=>setView("Your story")}>Past entries</Button>
+            </section>}
+            {!openingMode && entries.length > 0 && (
               <section className="next-step">
                 <div>
                   <span className="section-kicker">APPOINTMENT PREPARATION</span>
@@ -738,7 +765,7 @@ function HomeContent() {
                 </Button>
               </section>
             )}
-            <section className="recent">
+            {!openingMode && <section className="recent">
               <div className="section-heading">
                 <h2>
                   Your recent entries <span>{entries.length}</span>
@@ -763,7 +790,7 @@ function HomeContent() {
               ) : (
                 entries.slice(0, 3).map((e) => entryCard(e))
               )}
-            </section>
+            </section>}
           </>
         ) : view === "Your story" ? (
           <>
@@ -1223,15 +1250,15 @@ function HomeContent() {
             )}
           </>
         )}
-        <SafetySection />
-        <footer>
+        {openingMode && <SafetySection />}
+        {openingMode && <footer>
           <span>
             <Wordmark size="sm" />{" "}
             <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
           <p>Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
-        </footer>
+        </footer>}
       </main>
       {showWelcome && (
         <div className="overlay">

@@ -40,7 +40,7 @@ void main() {
   gl_FragColor=vec4(color,1.);
 }`;
 
-export function HeroBackground() {
+export function HeroBackground({ frozen = false }: { frozen?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [path, setPath] = useState("initializing");
   useEffect(() => {
@@ -103,7 +103,7 @@ export function HeroBackground() {
       // Integer orbit count keeps both fold and glow cycles seamless when tuned.
       const phase = elapsed / (LINEN.glowBreathPeriod * 6000) * Math.PI * 2;
       gl.uniform1f(timeUniform, phase * Math.max(1, Math.round(LINEN.foldSpeed)));
-      gl.uniform1f(breathUniform, reduced.matches ? 0.5 : .5-.5*Math.cos(phase*6));
+      gl.uniform1f(breathUniform, frozen || reduced.matches ? 0.5 : .5-.5*Math.cos(phase*6));
       gl.drawArrays(gl.TRIANGLES,0,6);
       canvas.style.opacity = "1";
     };
@@ -123,8 +123,8 @@ export function HeroBackground() {
     };
     const update = () => {
       cancelAnimationFrame(frame); last=0;
-      report(reduced.matches ? "reduced-motion static" : "WebGL");
-      if (reduced.matches) { elapsed=0; draw(); }
+      report(frozen ? "frozen WebGL frame" : reduced.matches ? "reduced-motion static" : "WebGL");
+      if (frozen || reduced.matches) { elapsed=frozen ? 6800 : 0; draw(); }
       else if (!document.hidden) frame=requestAnimationFrame(tick);
     };
     const observer = new ResizeObserver(resize);
@@ -138,7 +138,7 @@ export function HeroBackground() {
       gl.deleteBuffer(buffer); gl.deleteProgram(program);
       shaders.forEach(s => gl.deleteShader(s));
     };
-  }, []);
+  }, [frozen]);
   return <div className="hero-background" aria-hidden="true" style={{
     background: "linear-gradient(125deg, var(--white), var(--pearl) 60%, var(--pearl-deep))",
   }}><canvas ref={ref} style={{ width: "100%", height: "100%", display: "block", opacity: 0, filter: "blur(2px)", transform: "scale(1.015)" }} />
