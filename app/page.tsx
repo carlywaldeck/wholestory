@@ -711,18 +711,6 @@ export default function Home() {
                 </Button>
               </section>
             )}
-            <button
-              className="pattern-home-link"
-              onClick={() => setView("Insights")}
-            >
-              <span>Sleep, movement & your experience</span>
-              <strong>
-                Explore what changes on difficult days <ArrowRight size={16} />
-              </strong>
-              <span>
-                Start with a fictional wearable demo, or import a daily export.
-              </span>
-            </button>
             <section className="recent">
               <div className="section-heading">
                 <h2>
