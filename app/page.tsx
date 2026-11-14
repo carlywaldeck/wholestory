@@ -136,7 +136,8 @@ export default function Home() {
     [statement, setStatement] = useState(""),
     [questions, setQuestions] = useState<string[]>([]),
     [selected, setSelected] = useState(""),
-    [calendar, setCalendar] = useState(false);
+    [calendar, setCalendar] = useState(false),
+    [openingMenu, setOpeningMenu] = useState(false);
   useEffect(() => {
     if (!editor && !settings && !showWelcome) return;
     const previous = document.activeElement as HTMLElement;
@@ -486,8 +487,9 @@ export default function Home() {
       setError("The PDF could not be generated. Please try again.");
     }
   }
+  const openingMode = view === "Today" && entries.length === 0 && !demo;
   return (
-    <div className="shell">
+    <div className={`shell${openingMode ? " opening-mode" : ""}`}>
       <aside>
         <a className="brand" href="#" onClick={() => setView("Today")}>
           <span className="brand-mark" aria-hidden="true">
@@ -608,30 +610,71 @@ export default function Home() {
         )}
         {view === "Today" ? (
           <>
-            <section className="intro">
-              <HeroBackground />
-              <div className="eyebrow">
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </div>
-              <h1>How are you feeling today?</h1>
-              <p>
-                Write or record what happened and how it affected your day.
-              </p>
-            </section>
-            <JourneyProgress
-              current="capture"
-              hasEntries={entries.length > 0}
-              onNavigate={(step) => {
-                if (step === "capture") open();
-                if (step === "review") setView("Your story");
-                if (step === "prepare") setView("Appointment brief");
-              }}
-            />
-            <section className="capture">
+            {openingMode ? (
+              <section className="opening-screen" aria-label="Start your story">
+                <HeroBackground />
+                <button
+                  className="opening-menu-trigger"
+                  aria-expanded={openingMenu}
+                  aria-controls="opening-menu"
+                  onClick={() => setOpeningMenu((open) => !open)}
+                >
+                  Menu
+                </button>
+                {openingMenu && (
+                  <div className="opening-menu" id="opening-menu">
+                    <button onClick={() => { setOpeningMenu(false); setView("Your story"); }}>
+                      Your story
+                    </button>
+                    <button onClick={() => { setOpeningMenu(false); setView("Appointment brief"); }}>
+                      Appointment brief
+                    </button>
+                    <button onClick={() => { setOpeningMenu(false); setSettings(true); }}>
+                      Privacy & settings
+                    </button>
+                    <button onClick={() => { setOpeningMenu(false); void tryDemo(); }}>
+                      Try demo
+                    </button>
+                  </div>
+                )}
+                <button
+                  className="opening-start"
+                  aria-label="Write an entry"
+                  onClick={() => open()}
+                >
+                  <span>Start your story</span>
+                  <ArrowRight size={18} aria-hidden="true" />
+                </button>
+                <button className="visually-hidden" onClick={() => voice()}>
+                  Record instead
+                </button>
+              </section>
+            ) : (
+              <>
+                <section className="intro">
+                  <HeroBackground />
+                  <div className="eyebrow">
+                    {new Date().toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
+                  <h1>How are you feeling today?</h1>
+                  <p>
+                    Write or record what happened and how it affected your day.
+                  </p>
+                </section>
+                <JourneyProgress
+                  current="capture"
+                  hasEntries={entries.length > 0}
+                  onNavigate={(step) => {
+                    if (step === "capture") open();
+                    if (step === "review") setView("Your story");
+                    if (step === "prepare") setView("Appointment brief");
+                  }}
+                />
+                <section className="capture">
               <div className="capture-copy">
                 <span className="section-kicker">NEW ENTRY</span>
                 <h2>Add an entry.</h2>
@@ -689,7 +732,9 @@ export default function Home() {
                   needed.
                 </div>
               </div>
-            </section>
+                </section>
+              </>
+            )}
             {entries.length > 0 && (
               <section className="next-step">
                 <div>
