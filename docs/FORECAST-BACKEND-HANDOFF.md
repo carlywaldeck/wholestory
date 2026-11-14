@@ -1,6 +1,6 @@
 # Forecast backend handoff for Lexi
 
-Backend branch: `carly/forecast-backend`. No UI, styling, Settings, journal schema or PDF changes. Model version 0.2.0; API schema version 1.0. Always present these as experimental estimates, not validated medical risk.
+Backend branch: `carly/forecast-backend`. UI changes are limited to the explicitly requested Elya branding, accessibility labels and export filenames. No layout, styling, Settings behavior or journal-schema changes. Model version 0.2.0; API schema version 1.0. Always present these as experimental estimates, not validated medical risk.
 
 ## Ready-to-use sample API
 
@@ -78,7 +78,7 @@ Each normalized physiological row has `date`, `availableAt`, `source`, `kind` an
 
 The endpoint returns support and explicitly sets validation.evaluationStatus to not-run. Retrospective scoring is intentionally kept out of live requests; run symptomRisk(input) locally with its default evaluation option for development comparisons. Use symptomRisk(input, {evaluate:false}) for faster interactive estimates. An unavailable evaluation is not an accuracy score. Tests replay the same local issuance clock, account for DST, exclude future and late data, preserve missingness, and compare identical held-out dates. The three constructed personas demonstrate different behavior; synthetic accuracy is an engineering check only. Real MPIS experiments and their cluster uncertainty are separate and do not validate the new cycle mixture. Research details: `CYCLE-AND-PHYSIOLOGY.md`.
 
-Current work is backend-only. Lexi owns the forecast screen and check-in UX; no experience files should be overwritten to mount this module.
+Current work is backend-only. Lexi owns the forecast screen and check-in UX; no experience files should be overwritten to mount this module. The Elya branding edits are the explicit rename exception.
 
 Evaluation also separates new symptom onsets after an explicitly absent preceding day from continuation after a present preceding day. A continuation forecast is not evidence of advance warning before symptoms begin.
 

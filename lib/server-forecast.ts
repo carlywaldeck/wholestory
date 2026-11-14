@@ -26,6 +26,24 @@ const json = (body: unknown, status = 200) =>
     },
   });
 class PayloadTooLarge extends Error {}
+function publicOrigin(req: Request) {
+  const url = new URL(req.url),
+    host = req.headers.get("host");
+  if (!host) return url.origin;
+  // Next's standalone server can use localhost in Request.url while retaining
+  // the browser's actual Host header (for example a 127.0.0.1 preview).
+  try {
+    const candidate = new URL(`${url.protocol}//${host}`);
+    return !candidate.username &&
+      !candidate.password &&
+      candidate.host === host.toLowerCase() &&
+      candidate.pathname === "/"
+      ? candidate.origin
+      : null;
+  } catch {
+    return null;
+  }
+}
 async function readJSON(req: Request) {
   if (Number(req.headers.get("content-length")) > MAX_BYTES)
     throw new PayloadTooLarge();
@@ -133,8 +151,8 @@ export async function handleForecast(
       status: 405,
       headers: { Allow: "GET, POST", "Cache-Control": "no-store" },
     });
-  const origin = env.APP_ORIGIN ?? url.origin;
-  if (req.headers.get("origin") !== origin)
+  const origin = env.APP_ORIGIN ?? publicOrigin(req);
+  if (!origin || req.headers.get("origin") !== origin)
     return json({ error: "Same-origin requests are required." }, 403);
   if (!/^application\/json(?:;|$)/i.test(req.headers.get("content-type") ?? ""))
     return json({ error: "Use application/json." }, 415);
