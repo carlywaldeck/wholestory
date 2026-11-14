@@ -615,9 +615,7 @@ export default function Home() {
                   day: "numeric",
                 })}
               </div>
-              <h1>
-                How are you feeling <em>today?</em>
-              </h1>
+              <h1>How are you feeling today?</h1>
               <p>
                 Write or record what happened and how it affected your day.
               </p>
@@ -633,12 +631,10 @@ export default function Home() {
             />
             <section className="capture">
               <div className="capture-copy">
-                <span className="section-kicker">A NEW ENTRY</span>
+                <span className="section-kicker">NEW ENTRY</span>
                 <h2>Add an entry.</h2>
                 <p>
-                  Talk it through or write it down.
-                  <br />
-                  You can check everything before you save.
+                  Write an entry or record a transcript. Review it before saving.
                 </p>
               </div>
               <div className="capture-actions">
@@ -695,9 +691,7 @@ export default function Home() {
             {entries.length > 0 && (
               <section className="next-step">
                 <div>
-                  <span className="section-kicker">
-                    YOUR WORDS, READY TO BE HEARD
-                  </span>
+                  <span className="section-kicker">APPOINTMENT PREPARATION</span>
                   <h2>Prepare an appointment brief.</h2>
                   <p>
                     Review your entries, choose what to include, and export a
@@ -829,9 +823,9 @@ export default function Home() {
               >
                 ← Your story
               </button>
-              <h1>Your days, connected.</h1>
+              <h1>Sleep and movement</h1>
               <p>
-                Bring together what you feel and what your wearable records.
+                Compare imported daily measurements with logged daily-life impact.
               </p>
             </section>
             <WearableExplorer
@@ -1209,15 +1203,11 @@ export default function Home() {
               </span>
               WholeStory
             </div>
-            <div className="eyebrow">A SPACE OF YOUR OWN</div>
-            <h2 id="welcome-title">
-              Welcome to
-              <br />
-              <em>your next page.</em>
-            </h2>
+            <div className="eyebrow">SET UP YOUR JOURNAL</div>
+            <h2 id="welcome-title">Set up WholeStory.</h2>
             <p>
-              A few small preferences, then you’re ready. Your journal stays in
-              this browser.
+              Choose a name and a default way to add entries. You can change
+              these later in Settings. Your journal stays in this browser.
             </p>
             <PersonalPreferences
               value={preferences}

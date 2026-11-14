@@ -172,7 +172,7 @@ nav .dot {
   padding: 25px 10px 0;
 }
 .sidebar-note {
-  font: italic 16px/1.7 Georgia;
+  font: 16px/1.7 Georgia;
   color: #876273;
   margin-bottom: 35px;
 }
@@ -917,7 +917,7 @@ footer > span {
   justify-content: space-between;
   gap: 10px;
   color: #876273;
-  font: italic 12px Georgia;
+  font: 12px Georgia;
 }
 .footer-wordmark {
   font: 21px Georgia;
