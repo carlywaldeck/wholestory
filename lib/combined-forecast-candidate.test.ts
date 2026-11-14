@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import { forecastDemo } from "./forecast-demo";
-import { candidateMetrics, combinedSymptomCandidate, fitPersonalLogistic, type LearningRow } from "./combined-forecast-candidate";
+import { candidateMetrics, combinedSymptomCandidate, fitPersonalLogistic, selectPersonalFeatureSet, type LearningRow } from "./combined-forecast-candidate";
+import { shiftDate } from "./forecast-time";
 
 it("can learn a predictive sensor signal and ignore a sensor never observed in training", () => {
   const rows: LearningRow[] = Array.from({ length: 100 }, (_, i) => ({
@@ -87,4 +88,25 @@ it("period starts learned only at the final cutoff cannot leak into historical c
     expect(row.evaluation.cycleAblation.trainingDaysWithCycle).toBe(0);
     expect(row.evaluation.cycleAblation.testDaysWithCycle).toBe(0);
   }
+});
+
+it("the feature selector can learn a known synthetic cycle signal using earlier validation only", () => {
+  const rows: LearningRow[] = Array.from({length:100},(_,i)=>{
+    const date=shiftDate("2026-01-01",i);
+    return {date,availableAt:date+"T18:00:00Z",previous:false,y:i%2,x:[0,.5,.5,7,i%2,0,0,0,0]};
+  });
+  const result=selectPersonalFeatureSet(rows,date=>Date.parse(date+"T00:00:00Z"));
+  expect(result.selected).toBe("cycle");
+  expect(result.cycleValidationBrier!).toBeLessThan(result.historyValidationBrier!-.005);
+  rows.slice(0,10).forEach(r=>{r.availableAt="2027-01-01T00:00:00Z";});
+  expect(selectPersonalFeatureSet(rows,date=>Date.parse(date+"T00:00:00Z")).innerTrainingDays).toBe(60);
+});
+
+it("later test outcomes cannot change the earlier feature selection", () => {
+  const demo=forecastDemo("maya","2026-11-15");
+  const before=combinedSymptomCandidate(demo.input,[]).symptoms.find(r=>r.symptom==="pelvicPain")!.evaluation!;
+  demo.input.days.slice(-10).forEach(d=>{d.symptoms.pelvicPain=!d.symptoms.pelvicPain;});
+  const after=combinedSymptomCandidate(demo.input,[]).symptoms.find(r=>r.symptom==="pelvicPain")!.evaluation!;
+  expect(after.adaptiveSelection.selection).toEqual(before.adaptiveSelection.selection);
+  expect(after.adaptiveSelection.metrics).not.toEqual(before.adaptiveSelection.metrics);
 });

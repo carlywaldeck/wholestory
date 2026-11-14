@@ -87,6 +87,34 @@ function onsetFit(rows: LearningRow[], columns: number[]) {
     ? fitPersonalLogistic(opportunities, columns) : null;
 }
 
+/** Fixed selector. The caller supplies only outer-training rows, never test outcomes. */
+export function selectPersonalFeatureSet(rows: LearningRow[], origin: (date: string) => number | null) {
+  const split = Math.floor(rows.length*.7), validation = rows.slice(split);
+  const cutoff = validation.length ? origin(validation[0].date) : null;
+  const training = cutoff === null ? [] : rows.slice(0, split).filter(r => Date.parse(r.availableAt) <= cutoff);
+  const events = training.reduce((s, r) => s+r.y, 0);
+  const cycleKnown = (r: LearningRow) => r.x.slice(4, 9).length === 5 && r.x.slice(4, 9).every(v => v !== null);
+  const support = {innerTrainingDays: training.length, validationDays: validation.length,
+    cycleTrainingDays: training.filter(cycleKnown).length, cycleValidationDays: validation.filter(cycleKnown).length};
+  const base = {selected: "history" as "history" | "cycle", ...support,
+    historyValidationBrier: null as number | null, cycleValidationBrier: null as number | null,
+    firstValidationTarget: validation[0]?.date ?? null, lastInnerTrainingTarget: training.at(-1)?.date ?? null};
+  if (training.length < 30 || events < 5 || training.length-events < 5 || validation.length < 14)
+    return {...base, reason: "insufficient-inner-validation-support"};
+  if (support.cycleTrainingDays < 14 || support.cycleValidationDays < 7)
+    return {...base, reason: "insufficient-earlier-cycle-support"};
+  const history = fitPersonalLogistic(training, journalOnlyColumns);
+  const cycle = fitPersonalLogistic(training, journalCycleColumns);
+  const historyBrier = mean(validation.map(r => (history.predict(r.x)-r.y)**2));
+  const cycleBrier = mean(validation.map(r => {
+    const estimate = cycleKnown(r) ? cycle.predict(r.x) : history.predict(r.x);
+    return (estimate-r.y)**2;
+  }));
+  const selected = cycleBrier <= historyBrier-.005 ? "cycle" : "history";
+  return {...base, selected, historyValidationBrier: historyBrier, cycleValidationBrier: cycleBrier,
+    reason: selected === "cycle" ? "earlier-brier-improvement-at-least-0.005" : "earlier-cycle-improvement-not-established"};
+}
+
 export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: CandidatePhysiologyDay[]) {
   const input = riskInputSchema.parse(raw);
   const readings = z.array(candidatePhysiologySchema).max(730).parse(rawPhysiology);
@@ -169,6 +197,8 @@ export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: Candidat
         const cycleKnown = (r: LearningRow) => r.x.slice(4, 9).every(v => v !== null);
         const cycleTrain = train.filter(cycleKnown);
         const cycleTest = test.filter(cycleKnown);
+        const selection = selectPersonalFeatureSet(train, date => schedule.origin(date));
+        const adaptive = (r: LearningRow) => selection.selected === "cycle" && cycleKnown(r) ? journal.predict(r.x) : journalOnly.predict(r.x);
         const prevalence = (train.reduce((s, r) => s+r.y, 0)+1)/(train.length+2);
         return { trainingDays: train.length, testDays: test.length,
           lastTrainingTarget: train.at(-1)!.date, firstTestTarget: test[0].date,
@@ -181,6 +211,9 @@ export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: Candidat
               journalAndCycle: candidateMetrics(cycleTest.map(r => ({ ...r, p: journal.predict(r.x) }))),
             } : null,
           },
+          adaptiveSelection: {selection,
+            cycleUsedTestDays: selection.selected === "cycle" ? cycleTest.length : 0,
+            metrics: candidateMetrics(test.map(r => ({...r, p: adaptive(r)})))},
           journalCycleAndWearables: candidateMetrics(test.map(r => ({ ...r, p: combined.predict(r.x) }))),
           historicalRate: candidateMetrics(test.map(r => ({ ...r, p: prevalence }))),
           persistence: candidateMetrics(test.map(r => ({ ...r, p: Number(r.previous) }))),
@@ -194,10 +227,14 @@ export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: Candidat
       const fit = enough(rows) && x ? fitPersonalLogistic(rows, allColumns) : null;
       const journal = fit ? fitPersonalLogistic(rows, journalCycleColumns) : null;
       const onset = x?.[0] === 0 ? onsetFit(rows, allColumns) : null;
+      const selection = fit ? selectPersonalFeatureSet(rows, date => schedule.origin(date)) : null;
+      const adaptiveFit = fit ? fitPersonalLogistic(rows, selection?.selected === "cycle" && x!.slice(4, 9).every(v => v !== null)
+        ? journalCycleColumns : journalOnlyColumns) : null;
       return { symptom, status: fit ? "experimental-candidate" : "learning",
         trainingDays: rows.length, candidateEstimate: fit && x ? fit.predict(x) : null,
         journalCycleEstimate: journal && x ? journal.predict(x) : null,
         newOnsetCandidateEstimate: onset && x ? onset.predict(x) : null,
+        adaptiveCandidate: {selection, estimate: adaptiveFit && x ? adaptiveFit.predict(x) : null},
         observedTrainingFeatures: fit?.observedFeatures ?? [], evaluation };
     }),
   };
