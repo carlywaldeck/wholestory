@@ -1,14 +1,14 @@
 {
   "name": "wholestory",
   "version": "1.0.0",
-  "description": "",
+  "description": "WholeStory: an evidence-first symptom journal with chosen spoken replies and clinician briefs",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "build:sites": "next build && node scripts/build-worker.mjs"
   },
   "keywords": [],
@@ -41,5 +41,6 @@
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
-  }
+  },
+  "private": true
 }

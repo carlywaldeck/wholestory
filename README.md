@@ -1,10 +1,16 @@
 # WholeStory
 
-A weekend MVP for private, evidence-first symptom documentation. Next.js App Router, React, TypeScript, Tailwind CSS, a shadcn-style button, Lucide, Recharts, Zod, IndexedDB (`idb`), and jsPDF.
+WholeStory turns scattered symptoms into a clear, evidence-linked story for a healthcare appointment. It combines natural voice/text logging, optional structured forms, explicit cycle context, and concise clinician briefs. No account is required inside the app; the current private Sites host has an owner sign-in gate.
+
+**“These patterns may be worth discussing with a healthcare professional. This tool does not diagnose endometriosis or replace medical care.”**
+
+- [Private live app](https://wholestory-journal.ingeniouscondor8.chatgpt.site)
+- [Private source repository](https://github.com/cwaldecknts/wholestory)
+- [Combined product and source rationale](docs/PRODUCT.md)
 
 ## Run locally
 
-Use Node.js 22.13+ (tested here with Node 26.8.1).
+Node.js 22.13+; tested with Node 26.8.1.
 
 ```sh
 npm ci
@@ -12,7 +18,9 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000. No account or API key is needed for manual entries, demo history, insights, or reports. Optional: set `OPENAI_API_KEY` on the **server** and `OPENAI_MODEL` (default `gpt-4.1-mini`). Never use a NEXT_PUBLIC variable for the secret. Restart the dev server after changing environment variables.
+Open http://localhost:3000. If the environment cannot start a filesystem watcher, use `npm run build && npm start` instead.
+
+Optional: set server-side `OPENAI_API_KEY` and `OPENAI_MODEL` (default `gpt-4.1-mini`) in `.env.local`, then restart. Never put the key in a `NEXT_PUBLIC` variable or commit it. Manual entry, forms, browser voices, demos, analytics, and PDF generation need no API key.
 
 ```sh
 npm test
@@ -21,56 +29,66 @@ npm run build
 npm start
 ```
 
-## Try the primary flow
+## Voice: choose before speaking
 
-1. Choose **Try demo** for 24 fictional logged days across a 30-day window. The banner labels synthetic data. Demo and personal records are separate; entries created while in demo mode are synthetic.
-2. Choose **I'd rather type**, describe your experience, and choose **Review manually**, or explicitly consent to AI extraction if configured.
-3. In manual review, add only supported structured details and paste exact source quotes. Review AI fields the same way. Editing source text resets extracted details.
-4. Answer or skip the single optional question. **Save now** works without answering. Follow-up answers remain in the entry's verbatim text; they are not automatically classified or assigned severity.
-5. Open **Your story**, filter symptoms, use the 30-day calendar, edit or delete entries. Unlogged days are labeled separately from explicitly symptom-free entries.
-6. Open **Insights**, click a count, and inspect the supporting entries and exact quotations.
-7. Open **Doctor brief**, review claims, edit source entries if needed, add your own statement and clinician questions, then check the review box and download a PDF. The optional appendix contains dated quotations. The month-long MVP uses a compact first-page summary and a separate optional evidence appendix. Larger journals can span pages.
-8. Privacy & settings supports JSON export/import and all-data deletion. Import validates the complete file before writing; matching IDs are updated. Export a backup before importing an overlapping journal.
+1. Open the microphone or typed entry flow.
+2. In **A voice that feels right to you**, choose an available browser voice and select **Preview voice**. Adjust the pace if you like. Previews use a fixed, non-medical sentence.
+3. Select **Use this voice** to enable replies. No voice is chosen automatically, and there is no fallback to a different/default voice. The choice is remembered locally; each new session starts muted.
+4. Choose **Start recording**, describe the entry, and stop. Review manually or consent to AI extraction. The single optional follow-up can be read aloud, replayed, skipped, or answered with **Answer by voice**.
+5. Review and save. **Stop speaking** interrupts a reply or preview. Unchecking **Read replies aloud** mutes replies, including late AI results.
 
-## Deploy
+Starting a recording stops playback; playing a preview stops recording. Source dictation and follow-up dictation have separate targets and append to existing words. Device/browser voices vary in quality and availability. Browser speech services may process audio or spoken text externally; the interface discloses this before activation. No raw audio is stored. The app does not claim to use a premium AI voice service: these are voices provided by the user's browser/system.
 
-### Vercel / standard Node hosting
+## The merged symptom workflow
 
-Import this folder as a Next.js project. Build with `npm run build`; start with `npm start` on a Node host. Set server-side `OPENAI_API_KEY` and optional `OPENAI_MODEL` in the host's secret settings. Use HTTPS for microphone support. A Vercel deployment uses its native Next.js runtime without the Sites adapter.
+Speak, type, or expand the optional form. Capture only what you know: cycle day and period-start date, pain severity/location, bleeding, fatigue, gastrointestinal symptoms, pain with sex/bowel movements/urination, interventions, reported effects, and daily-life impact. Form answers become exact, editable quoted statements. Relative timing is not converted into a guessed cycle date, and qualitative severity is not converted into a numeric score.
 
-### Sites
+Review extracted/manual details and source quotations, answer or skip at most one follow-up, and save to IndexedDB. Editing source text clears old extracted details. Follow-up answers remain verbatim in the entry rather than being silently reclassified.
 
-`npm run build:sites` compiles the real Next prerendered home route and its client assets into `dist/server/index.js`, together with the same server extraction handler. The app has a single URL and client-side views, so no Next server routing is needed in this adapter. Assets are embedded in the Worker to avoid an external storage binding. Rebuild this adapter when adding routes or changing the Next asset layout. `.openai/hosting.json` retains Site identity. Use the Sites source packaging/publishing workflow, then add the API key as a secret runtime environment variable and redeploy. New publication is private by default.
+**Your story** offers dated entries, edits/deletion, symptom filters, and a 30-day calendar. Unlogged days are separate from explicitly symptom-free reports.
 
-## Modules
+**Insights** shows distinct logged-day counts and links each observation to its source entries. Cycle charts use only explicit cycle days/start dates and numeric scores; gaps remain unknown, no 28-day cycle is assumed, and recurring observations need at least two documented cycles. The highest explicit pain score is shown when multiple entries share a cycle day. Suggested appointment questions are selected deterministically from documented categories; users can add their own questions.
 
-- `app/page.tsx`: responsive home, entry review, timeline, calendar, evidence drawer, brief and privacy settings.
-- `lib/model.ts`: Zod schemas, exact quote validation, distinct-day calculations, evidence-linked report claims.
-- `lib/storage.ts`: IndexedDB persistence, atomic validated import, edit/delete.
-- `lib/server-extract.ts`: consent-gated, server-only structured extraction; no sensitive content logging.
-- `lib/demo.ts`: explicitly synthetic history with unlogged and symptom-free days.
-- `worker/` and `scripts/build-worker.mjs`: Sites hosting adapter.
+**Doctor brief** combines computed counts, selected recurring observations, dated patient context, an editable patient statement, and selected questions. Review is required before PDF export or print. The summary stays compact; the optional appendix lists all computed categories and dated quotations. Larger journals can span additional pages rather than losing evidence. Correct factual claims by editing their source entries.
 
-Brand name is centralized as `BRAND` in `app/page.tsx`; update layout metadata, README, and database/export names if renaming the product.
+## Synthetic demos
 
-## Privacy, clinical context, and limits
+**Try demo** opens three separate fictional personas, each spanning 56 days with two explicitly recorded fictional cycles and unlogged days:
 
-Entries remain in browser-local IndexedDB. This is not encrypted medical storage and no HIPAA compliance is claimed. Clearing browser data removes entries. No analytics or raw voice recordings are saved. Browser speech recognition can send audio to a browser-vendor service; the interface discloses this before activation. Text is sent to OpenAI only after consent and an extraction click. Provider requests use `store:false`; this does not claim that the provider retains no data under its service policies. Previous journal history is not transmitted.
+- **Maya:** cyclical pain, bowel symptoms, fatigue, and missed classes.
+- **Alex:** persistent pain beyond period days, gastrointestinal/urinary symptoms, and cancelled activities.
+- **Jules:** mild cramps, little functional disruption, and reported relief after interventions, without claiming causation.
 
-No diagnosis, disease probabilities, causal claims, or treatment recommendations. Educational source links: [NICE NG73](https://www.nice.org.uk/guidance/ng73/chapter/recommendations) and [ACOG diagnosis guidance](https://www.acog.org/clinical/clinical-guidance/clinical-practice-guideline/articles/2026/03/diagnosis-of-endometriosis). These pages restricted automated access during development; clinical review remains necessary. Question categories cover impact, timing, and menstrual context, rather than implementing a diagnostic algorithm.
+The banner labels **SYNTHETIC DEMO DATA**. New entries made in demo mode belong to that persona. Switching personas does not mix their counts or personal records. The first build's older demo records remain in storage but are separate from these personas. Export a backup before importing overlapping IDs; imports update matching IDs atomically after validating the full file.
 
-Counts reflect explicit reviewed structured fields, not a scan of all free text. Exact quote validation verifies provenance, not clinical truth or semantic correctness; user review is essential. No numeric severity is inferred. AI errors retain editable text and permit manual review. Speech support varies by browser; text always works. Longitudinal statistical trends and menstrual correlation analysis are deliberately not inferred from the small demo sample. Reports use deterministic claims and editable patient text rather than AI prose. The endpoint has text limits, same-origin checks, a provider timeout, and no content logs; add authenticated rate limits and abuse protection before making an API-key-enabled deployment broadly public.
+## Privacy and clinical context
 
-## Next priorities
+Entries stay in this browser's IndexedDB. This is not encrypted medical storage; clearing browser data can erase it. No analytics or raw audio storage. Settings provide JSON import/export, individual deletion, and all-local-data deletion. AI extraction requires explicit consent; only the current entry text is sent to OpenAI, with `store:false`. This does not claim the provider retains no data under its service policies. Previous entries are not transmitted. No sensitive content is logged by the application.
 
-1. Clinical and accessibility review with patients; test on actual iOS/Android speech engines.
-2. Meaningful longitudinal comparisons with transparent eligibility and source links.
-3. Extract follow-up answers into reviewed, attributed fields without another question.
-4. Better report range controls, custom questions, and patient-editable narrative sections.
-5. Production abuse controls, consent audit UX, encrypted backups, and a documented privacy policy.
+An always-available care section provides general emergency/urgent-care guidance linked to [NHS pelvic-pain guidance](https://www.nhs.uk/symptoms/pelvic-pain/). It is not an automated triage assessment; absence of a prompt must not be taken as reassurance. [WHO](https://www.who.int/news-room/fact-sheets/detail/endometriosis) and [ESHRE](https://www.eshre.eu/guideline/endometriosis) inform general symptom/context categories. NICE and ACOG are linked as additional resources, with automated access limitations documented in the product notes.
 
-## Verification in this build
+No diagnostic model, disease probability, treatment recommendation, or causal effectiveness claim. We did not reproduce/administer/score EHP-30, use restricted KI EndoLIST patient files, or train a model. Current personas are original fictional records rather than Synthea output. Exact-quote validation verifies provenance, not clinical truth or semantic correctness; user review remains essential.
 
-16 automated tests cover distinct-day symptom/impact counts, missing versus symptom-free days, exact source validation, empty data, atomic import, editing/deletion, consent and AI fallback, PDF pagination, the manual UI journey, demo isolation, and report review gating. TypeScript and optimized Next/Sites builds pass. The production localhost preview was checked on desktop and a 390px mobile viewport. A fictional manual entry saved with its exact quote; a demo insight opened its four source entries; a reviewed brief downloaded successfully. The development watcher failed in this sandbox, so the production server was used for visual QA. The private hosted URL requires an owner sign-in. Real microphone recognition remains untested. No live OpenAI call was made without a configured key.
+## Deployment and GitHub
 
-Private preview: https://wholestory-journal.ingeniouscondor8.chatgpt.site
+The repository stores source; the working app is hosted separately on Sites. GitHub Pages cannot run this application's server-side AI endpoint.
+
+For Vercel, import `cwaldecknts/wholestory`, use the Next.js preset, and configure server secrets. A Node host uses `npm run build` then `npm start`. Use HTTPS for speech features. The key-enabled endpoint needs authenticated rate limiting/abuse protection before a broad public release.
+
+For Sites, `npm run build:sites` packages Next's actual prerendered single route, client assets, and the same extraction handler into a Worker at `dist/server/index.js`. `.openai/hosting.json` retains Site identity. Rebuild/update the adapter if adding server routes or changing Next's asset layout. Publish through the Sites source workflow and keep the existing access audience. Runtime API keys belong in secret environment settings, followed by redeployment.
+
+## Modules and checks
+
+- `app/page.tsx`: views and entry workflow.
+- `hooks/use-spoken-replies.ts`, `components/voice-picker.tsx`: chosen voice previews, playback, mute, cancellation.
+- `components/structured-details.tsx`: source-attributed optional form.
+- `lib/model.ts`, `lib/cycles.ts`: schemas, exact quotation/numeric validation, distinct-day counts, recurring observations and source links.
+- `lib/storage.ts`: IndexedDB and validated atomic import.
+- `lib/demo.ts`: separate fictional personas.
+- `lib/pdf.ts`: deterministic report generation and evidence appendix.
+- `lib/server-extract.ts`: consent-gated server extraction.
+- `components/safety-section.tsx`, `lib/clinical-context.ts`: sourced general context and care guidance.
+
+33 automated tests cover counts, missing data, source attribution, numeric/cycle consistency, storage, AI consent/failure, form entry, persona isolation, cycle recurrence, PDF layout, and voice selection/preview/mute/answer routing. TypeScript and production builds are checked. Browser speech recognition and audio quality still need testing on each target device; automated tests mock speech engines, and no live OpenAI extraction was made without a configured key.
+
+Next priorities: patient/clinical and accessibility review, encrypted backups, clinician-reviewed questions, more flexible report date ranges, and a separately consented higher-quality voice provider if browser previews do not meet expectations.
