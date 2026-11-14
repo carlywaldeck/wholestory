@@ -7,7 +7,8 @@ import {
   BookOpen,
   ChartNoAxesCombined,
   FileText,
-  Flower2,
+  PenLine,
+  LockKeyhole,
   Plus,
   ShieldCheck,
   X,
@@ -48,6 +49,14 @@ import { safetyBoundary } from "../lib/clinical-context";
 import { appointmentQuestions, cycleContext } from "../lib/cycles";
 import { useSpokenReplies } from "../hooks/use-spoken-replies";
 import { VoicePicker } from "../components/voice-picker";
+import { PersonalPreferences } from "../components/personal-preferences";
+import {
+  defaultPreferences,
+  loadPreferences,
+  savePreferences,
+  clearPreferences,
+  type Preferences,
+} from "../lib/preferences";
 const BRAND = "WholeStory";
 const today = () => {
   const d = new Date();
@@ -70,8 +79,31 @@ type Recognition = {
 };
 export default function Home() {
   const speech = useSpokenReplies();
+  const [preferences, setPreferences] =
+    useState<Preferences>(defaultPreferences);
+  const [showWelcome, setShowWelcome] = useState(false);
+  useEffect(() => {
+    let active = true;
+    loadPreferences()
+      .then((p) => {
+        if (active) {
+          setPreferences(p);
+          setShowWelcome(!p.setupComplete);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+  async function updatePreferences(value: Preferences) {
+    await savePreferences(value);
+    setPreferences(value);
+    setShowWelcome(false);
+  }
   const [persona, setPersona] = useState<PersonaId>("maya");
   const [customQuestion, setCustomQuestion] = useState("");
+  const [entryMode, setEntryMode] = useState<"write" | "voice">("write");
   const [voiceTarget, setVoiceTarget] = useState<"entry" | "answer">("entry");
   const [allEntries, setEntries] = useState<Entry[]>([]),
     [demoMode, setDemoMode] = useState(false),
@@ -101,19 +133,27 @@ export default function Home() {
     [selected, setSelected] = useState(""),
     [calendar, setCalendar] = useState(false);
   useEffect(() => {
-    if (!editor && !settings) return;
+    if (!editor && !settings && !showWelcome) return;
     const previous = document.activeElement as HTMLElement;
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         closeEditor();
+        speech.stop();
         setSettings(false);
+        if (showWelcome)
+          void updatePreferences({ ...preferences, setupComplete: true });
       }
       if (e.key === "Tab") {
         const items = Array.from(
           document.querySelectorAll<HTMLElement>(
-            ".modal button:not(:disabled),.modal input:not([hidden]),.modal textarea,.modal select,.modal a",
+            ".modal button:not(:disabled),.modal input:not([hidden]),.modal textarea,.modal select,.modal a,.modal summary",
           ),
-        );
+        ).filter((el) => {
+          const hidden = el.closest("details:not([open])");
+          return (
+            !hidden || (el.tagName === "SUMMARY" && el.parentElement === hidden)
+          );
+        });
         const first = items[0],
           last = items[items.length - 1];
         if (e.shiftKey && document.activeElement === first) {
@@ -127,13 +167,21 @@ export default function Home() {
     };
     document.addEventListener("keydown", key);
     document.body.style.overflow = "hidden";
-    document.querySelector<HTMLElement>(".modal button")?.focus();
+    document
+      .querySelector<HTMLElement>(
+        showWelcome
+          ? ".modal input"
+          : editor && entryMode === "write"
+            ? ".journal-input textarea"
+            : ".modal .close",
+      )
+      ?.focus();
     return () => {
       document.removeEventListener("keydown", key);
       document.body.style.overflow = "";
       previous?.focus();
     };
-  }, [editor, settings]);
+  }, [editor, settings, showWelcome]);
   const extractionId = useRef(0);
   const recognition = useRef<Recognition | null>(null);
   const file = useRef<HTMLInputElement>(null);
@@ -206,7 +254,8 @@ export default function Home() {
     speech.stop();
     setEditor(false);
   }
-  function open(e?: Entry) {
+  function open(e?: Entry, mode: "write" | "voice" = "write") {
+    setEntryMode(mode);
     extractionId.current++;
     setBusy(false);
     stopCapture();
@@ -290,15 +339,15 @@ export default function Home() {
     };
     const R = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (!R) {
-      open();
+      open(undefined, "voice");
       setNotice(
         "Speech recognition is unavailable in this browser. You can type your entry and still enable spoken replies.",
       );
       return;
     }
-    open();
+    open(undefined, "voice");
     setNotice(
-      "Browser speech recognition may send audio to an external service. Use “Start recording” below only if you agree. Choose a voice from the previews to hear spoken replies.",
+      "Recording may use your browser’s speech service. Your transcript can be edited before saving.",
     );
   }
   function startMic(target: "entry" | "answer" = "entry") {
@@ -360,7 +409,7 @@ export default function Home() {
         speech.speak(
           target === "answer"
             ? "I have added your answer. You can review it and save when you are ready."
-            : "I have captured your words. Choose Extract with AI if you have consented, or Review manually to continue.",
+            : "I have captured your words. You can organize the details if you have consented, or choose Continue to review them yourself.",
           true,
         );
     };
@@ -420,20 +469,25 @@ export default function Home() {
     <div className="shell">
       <aside>
         <a className="brand" href="#" onClick={() => setView("Today")}>
-          <Flower2 size={31} />
+          <span className="brand-mark" aria-hidden="true">
+            w.
+          </span>
           {BRAND}
-          <span>®</span>
         </a>
-        <div className="navlabel">YOUR SPACE</div>
+        <div className="navlabel">YOUR JOURNAL</div>
         <nav>
           {[
-            ["Today", Flower2],
+            ["Today", CalendarDays],
             ["Your story", BookOpen],
-            ["Insights", ChartNoAxesCombined],
-            ["Doctor brief", FileText],
+            ["Appointment brief", FileText],
           ].map(([label, Icon]) => (
             <button
-              className={view === label ? "active" : ""}
+              className={
+                view === label ||
+                (label === "Your story" && view === "Insights")
+                  ? "active"
+                  : ""
+              }
               key={String(label)}
               onClick={() => {
                 setView(String(label));
@@ -448,24 +502,26 @@ export default function Home() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="smallflower">✳</div>
-          <h3>A little more understood.</h3>
-          <p>
-            Every entry helps you tell
-            <br />
-            the whole story.
+          <p className="sidebar-note">
+            A record of your days.
+            <br />A little less to remember.
           </p>
           <button onClick={() => setSettings(true)}>
-            <Settings size={17} /> Privacy & settings
+            <Settings size={16} /> Privacy & settings
           </button>
           <span>
-            <ShieldCheck size={14} /> Stored on your device
+            <LockKeyhole size={13} /> Kept on this device
           </span>
         </div>
       </aside>
       <main>
         <header>
-          <span>Your experience matters. All of it.</span>
+          <span className="header-location">
+            {preferences.name
+              ? `${preferences.name}’s journal`
+              : "Your journal"}{" "}
+            <span>/</span> {view}
+          </span>
           {(speech.speaking || speech.preparing) && (
             <button className="stop-reply" onClick={speech.stop}>
               <VolumeX size={14} /> Stop speaking
@@ -475,11 +531,11 @@ export default function Home() {
             Try demo <ArrowUpRight size={14} />
           </button>
           <button
-            className="avatar"
+            className="header-settings"
             aria-label="Privacy settings"
             onClick={() => setSettings(true)}
           >
-            Y
+            <Settings size={18} />
           </button>
         </header>
         {demo && (
@@ -532,78 +588,104 @@ export default function Home() {
         {view === "Today" ? (
           <>
             <section className="intro">
-              <div className="eyebrow">A MOMENT FOR YOU</div>
-              <h1>How are you feeling today?</h1>
-              <p>The little things. The hard things. Start wherever you are.</p>
+              <div className="eyebrow">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+              <h1>
+                How are you feeling <em>today?</em>
+              </h1>
+              <p>
+                A place for what you feel, and how it shapes your day.
+                <br className="desktop-break" /> Small details are welcome here.
+              </p>
             </section>
             <section className="capture">
-              <div className="capture-flower">✳</div>
-              <div className="mic-halo">
+              <div className="capture-copy">
+                <span className="section-kicker">A NEW ENTRY</span>
+                <h2>Start with a moment.</h2>
+                <p>
+                  Talk it through or write it down.
+                  <br />
+                  You can check everything before you save.
+                </p>
+              </div>
+              <div className="capture-actions">
                 <button
                   className="mic"
-                  aria-label="Create a voice entry"
-                  onClick={voice}
+                  aria-label={
+                    preferences.inputMode === "write"
+                      ? "Write an entry"
+                      : "Record a moment"
+                  }
+                  onClick={() =>
+                    preferences.inputMode === "write" ? open() : voice()
+                  }
                 >
-                  <Mic size={36} strokeWidth={1.5} />
+                  {preferences.inputMode === "write" ? (
+                    <PenLine size={20} />
+                  ) : (
+                    <Mic size={20} />
+                  )}
+                  <span>
+                    {preferences.inputMode === "write"
+                      ? "Write an entry"
+                      : "Record a moment"}
+                  </span>
+                  <ArrowRight size={17} />
                 </button>
-              </div>
-              <h2>You talk. We talk it through.</h2>
-              <p>Tell us about your day. Hear one thoughtful follow-up.</p>
-              <button className="type-link" onClick={() => open()}>
-                I’d rather type <ArrowRight size={16} />
-              </button>
-              <div className="capture-note">
-                <ShieldCheck size={13} /> Private by default. Always your story.
+                <button
+                  className="type-link"
+                  aria-label={
+                    preferences.inputMode === "write"
+                      ? "Record instead"
+                      : "Write instead"
+                  }
+                  onClick={() =>
+                    preferences.inputMode === "write" ? voice() : open()
+                  }
+                >
+                  {preferences.inputMode === "write" ? (
+                    <Mic size={17} />
+                  ) : (
+                    <PenLine size={17} />
+                  )}{" "}
+                  {preferences.inputMode === "write"
+                    ? "Record instead"
+                    : "Write instead"}{" "}
+                  <ArrowRight size={15} />
+                </button>
+                <div className="capture-note">
+                  <LockKeyhole size={12} /> Saved in your browser. No account
+                  needed.
+                </div>
               </div>
             </section>
-            <div className="dashboard-grid">
-              <section className="insight-card">
-                <div className="section-kicker">
-                  <ChartNoAxesCombined size={18} /> A LITTLE PERSPECTIVE
+            {entries.length > 0 && (
+              <section className="next-step">
+                <div>
+                  <span className="section-kicker">
+                    YOUR WORDS, READY TO BE HEARD
+                  </span>
+                  <h2>A little less to carry into your appointment.</h2>
+                  <p>
+                    Bring together what happened, how it affected your days, and
+                    what you want to ask. Every observation links back to your
+                    entries.
+                  </p>
                 </div>
-                <h2>
-                  {data.logged
-                    ? "Your everyday life is part of the picture."
-                    : "Small moments can reveal a bigger picture."}
-                </h2>
-                <p>
-                  {data.logged
-                    ? data.items.find((i) => i.kind === "Daily-life impact")
-                        ?.days
-                      ? `You mentioned symptoms affecting everyday life on ${data.items.find((i) => i.kind === "Daily-life impact")?.days} logged days. See the moments behind that observation.`
-                      : `You’ve captured ${data.logged} ${data.logged === 1 ? "day" : "days"} of your story. Each one adds context to your next conversation.`
-                    : "A few entries are all it takes to start noticing what matters to you."}
-                </p>
-                <button
-                  onClick={() => {
-                    setView("Insights");
-                    setEvidence(null);
-                  }}
-                >
-                  Explore your insights <ArrowUpRight size={16} />
-                </button>
-                <span className="abstract">✧</span>
+                <Button onClick={() => setView("Appointment brief")}>
+                  Prepare your brief <ArrowRight size={16} />
+                </Button>
               </section>
-              <section className="brief-card">
-                <div className="section-kicker">
-                  <FileText size={18} /> FEEL MORE PREPARED
-                </div>
-                <h2>
-                  Your story, ready <br />
-                  for your appointment.
-                </h2>
-                <p>
-                  Bring the details that matter, with the entries behind them.
-                </p>
-                <button onClick={() => setView("Doctor brief")}>
-                  Create a doctor brief <ArrowRight size={16} />
-                </button>
-              </section>
-            </div>
+            )}
             <section className="recent">
               <div className="section-heading">
                 <h2>
-                  Recent moments <span>{entries.length}</span>
+                  Your recent entries <span>{entries.length}</span>
                 </h2>
                 <button onClick={() => setView("Your story")}>
                   View your story <ArrowRight size={15} />
@@ -611,13 +693,15 @@ export default function Home() {
               </div>
               {!entries.length ? (
                 <div className="empty">
-                  <BookOpen size={25} />
-                  <p>Your story starts with a moment.</p>
+                  <div className="empty-icon">
+                    <BookOpen size={23} />
+                  </div>
+                  <p>Your first page is waiting.</p>
                   <span>
-                    Add your first entry, or explore a fictional history.
+                    You don’t need the right words. Just start with today.
                   </span>
                   <Button onClick={() => tryDemo()}>
-                    Try the demo <ArrowUpRight size={15} />
+                    Explore a sample journal <ArrowRight size={15} />
                   </Button>
                 </div>
               ) : (
@@ -628,7 +712,7 @@ export default function Home() {
         ) : view === "Your story" ? (
           <>
             <section className="page-title">
-              <div className="eyebrow">EVERY MOMENT COUNTS</div>
+              <div className="eyebrow">YOUR JOURNAL</div>
               <h1>Your story</h1>
               <p>A record of what you felt, and what it meant for your day.</p>
             </section>
@@ -643,6 +727,9 @@ export default function Home() {
                   <option key={c}>{c}</option>
                 ))}
               </select>
+              <Button onClick={() => setView("Insights")}>
+                <ChartNoAxesCombined size={17} /> See patterns
+              </Button>
               <Button onClick={() => setCalendar(!calendar)}>
                 <CalendarDays size={17} /> Calendar
               </Button>
@@ -700,9 +787,17 @@ export default function Home() {
         ) : view === "Insights" ? (
           <>
             <section className="page-title">
-              <div className="eyebrow">CONNECTIONS, WITH CONTEXT</div>
-              <h1>A clearer picture.</h1>
-              <p>Real counts. Your words. Every observation has a source.</p>
+              <div className="eyebrow">LOOKING BACK</div>
+              <button
+                className="back-link"
+                onClick={() => setView("Your story")}
+              >
+                ← Your story
+              </button>
+              <h1>Your patterns, in context.</h1>
+              <p>
+                What you’ve recorded, with the moments behind each observation.
+              </p>
             </section>
             <div className="stats">
               <div>
@@ -750,7 +845,7 @@ export default function Home() {
                     width={135}
                   />
                   <Tooltip />
-                  <Bar dataKey="days" fill="#9b87b9" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="days" fill="#b97191" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </section>
@@ -786,201 +881,263 @@ export default function Home() {
         ) : (
           <>
             <section className="page-title">
-              <div className="eyebrow">BRING YOUR WHOLE STORY</div>
-              <h1>Your appointment brief.</h1>
-              <p>Review your evidence, add your voice, and take it with you.</p>
+              <div className="eyebrow">APPOINTMENT PREPARATION</div>
+              <h1>A clearer conversation.</h1>
+              <p>Gather the details you want your clinician to understand.</p>
             </section>
-            <section className="report">
-              <div className="section-kicker">
-                <Flower2 /> {BRAND} / PATIENT-REPORTED SUMMARY
-              </div>
-              {demo && <b>SYNTHETIC DEMO DATA</b>}
-              <h2>Appointment brief</h2>
-              <p>
-                {brief.range} · {brief.logged} logged days
-              </p>
-              <p className="muted">
-                Unlogged days are unknown. Counts describe reports, not a
-                diagnosis.
-              </p>
-              {brief.claims.map((c) => (
-                <p key={c.kind}>
-                  <button
-                    className="claim"
-                    onClick={() => {
-                      setEvidence(c.ids);
-                      setView("Insights");
-                    }}
-                  >
-                    {c.text} <ArrowUpRight size={13} />
-                  </button>
+            {!entries.length ? (
+              <section className="brief-empty">
+                <span className="section-kicker">
+                  START WITH YOUR EXPERIENCE
+                </span>
+                <h2>Your words come first.</h2>
+                <p>
+                  Add an entry about what you felt and what it changed about
+                  your day. Then we’ll bring your notes together into a brief
+                  you can review and share.
                 </p>
-              ))}
-              {!brief.claims.length && (
-                <p>No structured symptoms reported yet.</p>
-              )}
-              {brief.patterns.length > 0 && (
-                <>
-                  <h3>Recurring observations</h3>
-                  {brief.patterns.map((p) => (
-                    <p key={p.day}>
-                      <button
-                        className="claim"
-                        onClick={() => {
-                          setEvidence(p.ids);
-                          setView("Insights");
-                        }}
-                      >
-                        {p.text} ↗
-                      </button>
-                    </p>
-                  ))}
+                <Button className="primary" onClick={() => open()}>
+                  Write your first entry <ArrowRight size={16} />
+                </Button>
+                <button className="back-link" onClick={() => tryDemo()}>
+                  Explore a fictional example
+                </button>
+              </section>
+            ) : (
+              <section className="report">
+                <div className="section-kicker">
+                  <BookOpen /> {BRAND} / PATIENT-REPORTED SUMMARY
+                </div>
+                {demo && <b>SYNTHETIC DEMO DATA</b>}
+                <h2>Appointment brief</h2>
+                <p>
+                  {brief.range} · {brief.logged} logged days
+                </p>
+                <p className="muted">
+                  Unlogged days are unknown. Counts describe reports, not a
+                  diagnosis.
+                </p>
+                <div className="appointment-priority">
+                  <span className="section-kicker">
+                    START WITH WHAT YOU WANT HEARD
+                  </span>
+                  <label>
+                    What matters most for this appointment
+                    <textarea
+                      maxLength={600}
+                      value={statement}
+                      onChange={(e) => {
+                        setStatement(e.target.value);
+                        setReviewed(false);
+                      }}
+                      placeholder="For example: I’m missing work every month, and I want help finding a plan that lets me get through my day."
+                    />
+                  </label>
                   <p className="muted">
-                    A description of logged experiences, not a cause or
-                    prediction.
+                    Your words, included at the start of your downloaded brief.
                   </p>
-                </>
-              )}
-              <h3>Menstrual context & observations</h3>
-              {entries
-                .filter((e) =>
-                  e.facts.some((f) =>
-                    [
-                      "Menstrual context",
-                      "What helped",
-                      "Timing",
-                      "Intervention",
-                      "Medication effect",
-                    ].includes(f.kind),
-                  ),
-                )
-                .slice(0, 4)
-                .map((e) => (
-                  <p key={e.id}>
+                </div>
+                <h3>What your entries tell us</h3>
+                {brief.claims.map((c) => (
+                  <p key={c.kind}>
                     <button
                       className="claim"
                       onClick={() => {
-                        setEvidence([e.id]);
+                        setEvidence(c.ids);
                         setView("Insights");
                       }}
                     >
-                      {e.date}:{" "}
-                      {e.facts
-                        .filter((f) =>
-                          [
-                            "Menstrual context",
-                            "What helped",
-                            "Timing",
-                            "Intervention",
-                            "Medication effect",
-                          ].includes(f.kind),
-                        )
-                        .map((f) => `“${f.quote}”`)
-                        .join(" ")}{" "}
-                      ↗
+                      {c.text} <ArrowUpRight size={13} />
                     </button>
                   </p>
                 ))}
-              <label>
-                Your statement, in your own words
-                <textarea
-                  maxLength={600}
-                  value={statement}
-                  onChange={(e) => {
-                    setStatement(e.target.value);
-                    setReviewed(false);
-                  }}
-                  placeholder="What would you most like your clinician to understand?"
-                />
-              </label>
-              <h3>Questions for your clinician</h3>
-              {[
-                ...new Set([...appointmentQuestions(entries), ...questions]),
-              ].map((q) => (
-                <label className="checkbox" key={q}>
-                  <input
-                    type="checkbox"
-                    checked={questions.includes(q)}
-                    onChange={(e) => {
-                      setQuestions(
-                        e.target.checked
-                          ? [...questions, q]
-                          : questions.filter((x) => x !== q),
-                      );
+                {!brief.claims.length && (
+                  <p>No structured symptoms reported yet.</p>
+                )}
+                {brief.patterns.length > 0 && (
+                  <>
+                    <h3>Recurring observations</h3>
+                    {brief.patterns.map((p) => (
+                      <p key={p.day}>
+                        <button
+                          className="claim"
+                          onClick={() => {
+                            setEvidence(p.ids);
+                            setView("Insights");
+                          }}
+                        >
+                          {p.text} ↗
+                        </button>
+                      </p>
+                    ))}
+                    <p className="muted">
+                      A description of logged experiences, not a cause or
+                      prediction.
+                    </p>
+                  </>
+                )}
+                <h3>Menstrual context & observations</h3>
+                {entries
+                  .filter((e) =>
+                    e.facts.some((f) =>
+                      [
+                        "Menstrual context",
+                        "What helped",
+                        "Timing",
+                        "Intervention",
+                        "Medication effect",
+                      ].includes(f.kind),
+                    ),
+                  )
+                  .slice(0, 4)
+                  .map((e) => (
+                    <p key={e.id}>
+                      <button
+                        className="claim"
+                        onClick={() => {
+                          setEvidence([e.id]);
+                          setView("Insights");
+                        }}
+                      >
+                        {e.date}:{" "}
+                        {e.facts
+                          .filter((f) =>
+                            [
+                              "Menstrual context",
+                              "What helped",
+                              "Timing",
+                              "Intervention",
+                              "Medication effect",
+                            ].includes(f.kind),
+                          )
+                          .map((f) => `“${f.quote}”`)
+                          .join(" ")}{" "}
+                        ↗
+                      </button>
+                    </p>
+                  ))}
+                <h3>Questions for your clinician</h3>
+                {[
+                  ...new Set([...appointmentQuestions(entries), ...questions]),
+                ].map((q) => (
+                  <label className="checkbox" key={q}>
+                    <input
+                      type="checkbox"
+                      checked={questions.includes(q)}
+                      onChange={(e) => {
+                        setQuestions(
+                          e.target.checked
+                            ? [...questions, q]
+                            : questions.filter((x) => x !== q),
+                        );
+                        setReviewed(false);
+                      }}
+                    />
+                    {q}
+                  </label>
+                ))}
+                <div className="custom-question">
+                  <label>
+                    Add your own question
+                    <input
+                      maxLength={150}
+                      value={customQuestion}
+                      onChange={(e) => setCustomQuestion(e.target.value)}
+                      placeholder="What would you like to ask?"
+                    />
+                  </label>
+                  <Button
+                    disabled={!customQuestion.trim()}
+                    onClick={() => {
+                      setQuestions([
+                        ...new Set([...questions, customQuestion.trim()]),
+                      ]);
+                      setCustomQuestion("");
                       setReviewed(false);
                     }}
-                  />
-                  {q}
-                </label>
-              ))}
-              <div className="custom-question">
-                <label>
-                  Add your own question
+                  >
+                    Add question
+                  </Button>
+                </div>
+                <label className="checkbox">
                   <input
-                    maxLength={150}
-                    value={customQuestion}
-                    onChange={(e) => setCustomQuestion(e.target.value)}
-                    placeholder="What would you like to ask?"
-                  />
+                    type="checkbox"
+                    checked={appendix}
+                    onChange={(e) => setAppendix(e.target.checked)}
+                  />{" "}
+                  Include dated evidence appendix
+                </label>
+                <label className="checkbox">
+                  <input
+                    type="checkbox"
+                    checked={reviewed}
+                    onChange={(e) => setReviewed(e.target.checked)}
+                  />{" "}
+                  I have reviewed this brief and the supporting entries for
+                  accuracy.
                 </label>
                 <Button
-                  disabled={!customQuestion.trim()}
-                  onClick={() => {
-                    setQuestions([
-                      ...new Set([...questions, customQuestion.trim()]),
-                    ]);
-                    setCustomQuestion("");
-                    setReviewed(false);
-                  }}
+                  disabled={!reviewed || !entries.length}
+                  className="primary"
+                  onClick={pdf}
                 >
-                  Add question
+                  <Download size={16} /> Download PDF
                 </Button>
-              </div>
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={appendix}
-                  onChange={(e) => setAppendix(e.target.checked)}
-                />{" "}
-                Include dated evidence appendix
-              </label>
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={reviewed}
-                  onChange={(e) => setReviewed(e.target.checked)}
-                />{" "}
-                I have reviewed this brief and the supporting entries for
-                accuracy.
-              </label>
-              <Button
-                disabled={!reviewed || !entries.length}
-                className="primary"
-                onClick={pdf}
-              >
-                <Download size={16} /> Download PDF
-              </Button>
-              <Button
-                disabled={!reviewed || !entries.length}
-                onClick={() => window.print()}
-              >
-                Print
-              </Button>
-              <p className="muted">
-                Edit source entries in Your story to correct report claims. Your
-                statement is labeled as user authored.
-              </p>
-            </section>
+                <Button
+                  disabled={!reviewed || !entries.length}
+                  onClick={() => window.print()}
+                >
+                  Print
+                </Button>
+                <p className="muted">
+                  Edit source entries in Your story to correct report claims.
+                  Your statement is labeled as user authored.
+                </p>
+              </section>
+            )}
           </>
         )}
         <SafetySection />
         <footer>
           <span>
-            <Flower2 size={16} /> Your story deserves to be heard.
+            <span className="footer-wordmark">WholeStory</span>{" "}
+            <span>A little less to remember.</span>
           </span>
           <p>{safetyBoundary}</p>
         </footer>
       </main>
+      {showWelcome && (
+        <div className="overlay">
+          <section
+            className="modal welcome-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="welcome-title"
+          >
+            <div className="brand welcome-brand">
+              <span className="brand-mark" aria-hidden="true">
+                w.
+              </span>
+              WholeStory
+            </div>
+            <div className="eyebrow">A SPACE OF YOUR OWN</div>
+            <h2 id="welcome-title">
+              Welcome to
+              <br />
+              <em>your next page.</em>
+            </h2>
+            <p>
+              A few small preferences, then you’re ready. Your journal stays in
+              this browser.
+            </p>
+            <PersonalPreferences
+              value={preferences}
+              onSave={updatePreferences}
+              onboarding
+            />
+          </section>
+        </div>
+      )}
       {editor && (
         <div className="overlay">
           <section
@@ -996,19 +1153,104 @@ export default function Home() {
             >
               <X />
             </button>
-            <div className="eyebrow">A MOMENT FOR YOU</div>
+            <div className="eyebrow">
+              {review ? "CHECK THE DETAILS" : "YOUR JOURNAL"}
+            </div>
             <h2 id="entry-title">
-              {review
-                ? "Make sure this feels right."
-                : "Start wherever you are."}
+              {review ? "Review your entry." : "Today, in your words."}
             </h2>
-            <label>
+            {!review && (
+              <div className="entry-tabs">
+                <button
+                  aria-pressed={entryMode === "write"}
+                  onClick={() => {
+                    stopCapture();
+                    speech.stop();
+                    setEntryMode("write");
+                  }}
+                >
+                  <PenLine size={16} /> Write
+                </button>
+                <button
+                  aria-pressed={entryMode === "voice"}
+                  onClick={() => {
+                    stopCapture();
+                    speech.stop();
+                    setEntryMode("voice");
+                  }}
+                >
+                  <Mic size={16} /> Record
+                </button>
+              </div>
+            )}
+            <label className="entry-date">
               Entry date
               <input
                 type="date"
                 max={today()}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+              />
+            </label>
+            {entryMode === "voice" && (
+              <div className="voice-panel">
+                <div className="toolbar">
+                  <Button
+                    className="primary"
+                    onClick={() =>
+                      recording
+                        ? recognition.current?.stop()
+                        : startMic(review && question ? "answer" : "entry")
+                    }
+                  >
+                    {recording ? <Square size={16} /> : <Mic size={16} />}{" "}
+                    {recording ? "Stop recording" : "Start recording"}
+                  </Button>
+                  {(speech.speaking || speech.preparing) && (
+                    <Button onClick={speech.stop}>
+                      <VolumeX size={16} /> Stop speaking
+                    </Button>
+                  )}
+                </div>
+                <p className="muted">
+                  Recording uses browser speech recognition, which may use an
+                  external service. Spoken replies are optional. The microphone
+                  is off while a reply or preview plays; we do not save raw
+                  audio.
+                </p>
+                <div className="voice-status" role="status">
+                  {recording
+                    ? `Listening to your ${voiceTarget === "answer" ? "follow-up answer" : "entry"}…`
+                    : speech.preparing
+                      ? "Preparing natural voice…"
+                      : speech.speaking
+                        ? "Speaking…"
+                        : speech.enabled
+                          ? "Natural replies on · Microphone off"
+                          : "Microphone off"}
+                </div>
+                {speech.speechError && (
+                  <p role="status" className="muted">
+                    {speech.speechError}
+                  </p>
+                )}
+              </div>
+            )}
+            <label className="journal-input">
+              Your words
+              <textarea
+                autoFocus={entryMode === "write"}
+                value={text}
+                onChange={(e) => {
+                  extractionId.current++;
+                  setBusy(false);
+                  stopCapture();
+                  speech.stop();
+                  setText(e.target.value);
+                  setFacts([]);
+                  setReview(false);
+                }}
+                placeholder="What happened today? How did it feel, and what did it change about your day?"
               />
             </label>
             <StructuredDetails
@@ -1035,95 +1277,39 @@ export default function Home() {
                 );
               }}
             />
-            <label>
-              Your words
-              <textarea
-                autoFocus
-                value={text}
-                onChange={(e) => {
-                  extractionId.current++;
-                  setBusy(false);
-                  stopCapture();
-                  speech.stop();
-                  setText(e.target.value);
-                  setFacts([]);
-                  setReview(false);
-                }}
-                placeholder="What have you been feeling? How did it affect your day?"
-              />
-            </label>
-            <div className="voice-panel">
-              <VoicePicker speech={speech} beforePlay={stopCapture} />
-              <div className="toolbar">
-                <Button
-                  className="primary"
-                  onClick={() =>
-                    recording
-                      ? recognition.current?.stop()
-                      : startMic(review && question ? "answer" : "entry")
-                  }
-                >
-                  {recording ? <Square size={16} /> : <Mic size={16} />}{" "}
-                  {recording ? "Stop recording" : "Start recording"}
-                </Button>
-                {(speech.speaking || speech.preparing) && (
-                  <Button onClick={speech.stop}>
-                    <VolumeX size={16} /> Stop speaking
-                  </Button>
-                )}
-              </div>
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={speech.enabled}
-                  onChange={(e) => {
-                    stopCapture();
-                    speech.setEnabled(e.target.checked);
-                  }}
-                />{" "}
-                Read replies aloud with OpenAI
-              </label>
-              <p className="muted">
-                Recording uses browser speech recognition, which may use an
-                external service. Spoken replies are optional. The microphone is
-                off while a reply or preview plays; we do not save raw audio.
-              </p>
-              <div className="voice-status" role="status">
-                {recording
-                  ? `Listening to your ${voiceTarget === "answer" ? "follow-up answer" : "entry"}…`
-                  : speech.preparing
-                    ? "Preparing natural voice…"
-                    : speech.speaking
-                      ? "Speaking…"
-                      : speech.enabled
-                        ? "Natural replies on · Microphone off"
-                        : "Microphone off"}
-              </div>
-              {speech.speechError && (
-                <p role="status" className="muted">
-                  {speech.speechError}
-                </p>
-              )}
-            </div>
             {!review ? (
               <>
-                <label className="checkbox">
-                  <input
-                    type="checkbox"
-                    checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
-                  />{" "}
-                  Send this entry text to OpenAI for structured extraction.
-                </label>
+                <details className="organize-option">
+                  <summary>
+                    Let AI help organize your words <ArrowRight size={14} />
+                  </summary>
+                  <p>
+                    Turn your entry into editable details with the exact words
+                    behind each one. You decide what stays.
+                  </p>
+                  <label className="checkbox">
+                    <input
+                      type="checkbox"
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                    />{" "}
+                    Send this entry text to OpenAI for structured extraction.
+                  </label>
+                  <Button
+                    disabled={!consent || !text.trim() || busy}
+                    aria-label="Organize details"
+                    onClick={extract}
+                  >
+                    {busy ? "Organizing your entry…" : "Organize details"}
+                  </Button>
+                </details>
                 <Button
-                  disabled={!consent || !text.trim() || busy}
                   className="primary"
-                  onClick={extract}
+                  aria-label="Continue"
+                  disabled={!text.trim()}
+                  onClick={reviewManually}
                 >
-                  {busy ? "Carefully reading your entry…" : "Extract with AI"}
-                </Button>
-                <Button disabled={!text.trim()} onClick={reviewManually}>
-                  Review manually <ArrowRight size={15} />
+                  Continue <ArrowRight size={15} />
                 </Button>
               </>
             ) : (
@@ -1273,12 +1459,47 @@ export default function Home() {
             <button
               className="close"
               aria-label="Close settings"
-              onClick={() => setSettings(false)}
+              onClick={() => {
+                speech.stop();
+                setSettings(false);
+              }}
             >
               <X />
             </button>
             <ShieldCheck />
-            <h2 id="privacy-title">Your story stays yours.</h2>
+            <div className="eyebrow">YOUR SPACE</div>
+            <h2 id="privacy-title">Settings</h2>
+            <section className="settings-section">
+              <h3>Your preferences</h3>
+              <PersonalPreferences
+                value={preferences}
+                onSave={updatePreferences}
+              />
+            </section>
+            <details className="settings-section settings-voices">
+              <summary>Voice & spoken replies</summary>
+              <VoicePicker speech={speech} beforePlay={stopCapture} />
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={speech.enabled}
+                  onChange={(e) => speech.setEnabled(e.target.checked)}
+                />{" "}
+                Read replies aloud with OpenAI
+              </label>
+              {(speech.speaking || speech.preparing) && (
+                <Button onClick={speech.stop}>
+                  <VolumeX size={16} />
+                  Stop speaking
+                </Button>
+              )}
+              {speech.speechError && (
+                <p className="error" role="status">
+                  {speech.speechError}
+                </p>
+              )}
+            </details>
+            <h3 className="settings-subheading">Privacy & your data</h3>
             <p>
               Entries stay in this browser’s IndexedDB. Local browser data is
               not encrypted medical storage. Clearing browser data can erase
@@ -1340,6 +1561,9 @@ export default function Home() {
                   )
                 ) {
                   await storage.clearEntries();
+                  await clearPreferences();
+                  setPreferences(defaultPreferences);
+                  speech.resetPreferences();
                   await refresh();
                   setReviewed(false);
                   setNotice("All local entries deleted.");

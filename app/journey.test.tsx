@@ -5,8 +5,10 @@ import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
 import { clearEntries, loadEntries } from "../lib/storage";
+import { savePreferences, defaultPreferences } from "../lib/preferences";
 beforeEach(async () => {
   await clearEntries();
+  await savePreferences({ ...defaultPreferences, setupComplete: true });
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   vi.stubGlobal(
     "ResizeObserver",
@@ -28,12 +30,12 @@ it("completes a manual entry with attributed fields and skips the optional quest
   await waitFor(() =>
     expect(screen.queryByText("Opening your journal…")).toBeNull(),
   );
-  await user.click(screen.getByRole("button", { name: "I’d rather type" }));
+  await user.click(screen.getByRole("button", { name: "Write an entry" }));
   await user.type(
     screen.getByLabelText("Your words"),
     "My lower abdomen ached this morning.",
   );
-  await user.click(screen.getByRole("button", { name: /Review manually/ }));
+  await user.click(screen.getByRole("button", { name: "Continue" }));
   expect(screen.getByText("ONE OPTIONAL QUESTION")).toBeTruthy();
   await user.click(screen.getByRole("button", { name: "Add a detail" }));
   await user.type(
@@ -62,7 +64,7 @@ it("keeps demo and personal records separate and gates report export behind revi
   );
   await user.click(screen.getByRole("button", { name: "Try demo" }));
   await screen.findByRole("button", { name: "Exit demo" });
-  await user.click(screen.getByRole("button", { name: "Doctor brief" }));
+  await user.click(screen.getByRole("button", { name: "Appointment brief" }));
   const download = screen.getByRole("button", { name: "Download PDF" });
   expect((download as HTMLButtonElement).disabled).toBe(true);
   await user.click(
@@ -72,5 +74,7 @@ it("keeps demo and personal records separate and gates report export behind revi
   );
   expect((download as HTMLButtonElement).disabled).toBe(false);
   await user.click(screen.getByRole("button", { name: "Exit demo" }));
-  expect(screen.getByText("No structured symptoms reported yet.")).toBeTruthy();
+  expect(
+    screen.getByRole("heading", { name: "Your words come first." }),
+  ).toBeTruthy();
 });

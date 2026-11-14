@@ -13,6 +13,9 @@ it("keeps the month-long demo summary to one readable page", async () => {
   const raw = p.output();
   expect(raw).toContain("SYNTHETIC DEMO DATA");
   expect(raw).toContain("Pelvic pain");
+  expect(raw.indexOf("Patient statement")).toBeLessThan(
+    raw.indexOf("Symptoms & everyday impact"),
+  );
   expect(raw).not.toContain("endometriosis diagnosis");
 });
 it("adds an optional evidence appendix with dated source quotations", async () => {

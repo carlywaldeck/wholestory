@@ -5,7 +5,7 @@ WholeStory turns scattered symptoms into a clear, evidence-linked story for a he
 **“These patterns may be worth discussing with a healthcare professional. This tool does not diagnose endometriosis or replace medical care.”**
 
 - [Private live app](https://wholestory-journal.ingeniouscondor8.chatgpt.site)
-- [Intended personal source repository — pending setup](https://github.com/carlywaldeck/wholestory)
+- [Source repository](https://github.com/carlywaldeck/wholestory)
 - [Combined product and source rationale](docs/PRODUCT.md)
 
 ## Run locally
@@ -93,3 +93,12 @@ For Sites, `npm run build:sites` packages Next's actual prerendered single route
 37 automated tests cover counts, missing data, source attribution, numeric/cycle consistency, storage, AI consent/failure, form entry, persona isolation, cycle recurrence, PDF layout, and natural-voice consent, transcript checks, preview/mute/cancellation, and answer routing. TypeScript and production builds are checked. Browser speech recognition and audio quality still need testing on each target device; automated tests mock speech engines, and no live OpenAI extraction was made without a configured key.
 
 Next priorities: patient/clinical and accessibility review, encrypted backups, clinician-reviewed questions, more flexible report date ranges, and testing the natural voice provider on target devices and controlling voice latency/costs.
+
+
+## Focused product experience
+
+WholeStory centers on three steps: capture a moment, review your story, and prepare an appointment brief. The pink journal interface keeps pattern exploration inside Your story, with optional AI organization tucked into the entry flow. First-visit setup is skippable; name and preferred entry method are saved on this device and editable in Settings. Voice selection and pace also live in Settings.
+
+The appointment brief starts with the user’s own priority, then links every reported observation to source entries. Counts describe logged experiences; missing days remain unknown. Synthetic personas are demonstrations, not evidence of real adoption.
+
+Hackathon priorities: a reliable live flow, editable source-attributed AI extraction, everyday-life impact, and a reviewed PDF. AI organization and natural spoken replies require server configuration; neither is simulated as a live model response.
