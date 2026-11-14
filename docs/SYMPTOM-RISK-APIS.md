@@ -1,3 +1,5 @@
+> Backend update: model 0.2.0 now adds local-time replay and an experimental cycle candidate. The current contract and endpoint are in [FORECAST-BACKEND-HANDOFF.md](FORECAST-BACKEND-HANDOFF.md); earlier UTC-only notes below describe version 0.1.
+
 # WholeStory: symptom risk and the APIs we can actually use
 
 Reviewed November 14, 2026. The goal is a next-day probability for each symptom, not certainty, diagnosis, or an untested overall flare score.

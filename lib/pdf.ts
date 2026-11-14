@@ -142,5 +142,5 @@ export async function createBrief(
 
 export async function downloadBrief(...args: Parameters<typeof createBrief>) {
   const p = await createBrief(...args);
-  p.save("wholestory-appointment-brief.pdf");
+  p.save("elya-appointment-brief.pdf");
 }

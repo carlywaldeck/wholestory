@@ -21,6 +21,13 @@ function fixture(n = 96): RiskInput {
   };
 }
 describe("personal symptom risk", () => {
+  it("accepts an evening forecast after UTC midnight when it is still the preceding local day", () => {
+    const f = fixture();
+    f.timeZone = "America/Los_Angeles";
+    f.asOf = f.targetDate + "T03:00:00Z";
+    expect(symptomRisk(f).symptoms[0].probability).not.toBeNull();
+    expect(symptomRisk(f).timeZone).toBe("America/Los_Angeles");
+  });
   it("estimates separate outcomes and withholds unanswered symptoms", () => {
     const r = symptomRisk(fixture());
     expect(r.symptoms[0].probability).toBeLessThan(0.5);
@@ -29,6 +36,18 @@ describe("personal symptom risk", () => {
     expect(r.symptoms[2].outlook).toBe("unavailable");
     expect(r.symptoms[2].trainingPairs).toBe(0);
     expect(r.symptoms[0].validation.evaluatedDays).toBeGreaterThan(0);
+    const v = r.symptoms[0].validation;
+    expect(
+      v.onsetOpportunities.evaluatedDays +
+        v.continuationOpportunities.evaluatedDays,
+    ).toBe(v.evaluatedDays);
+    const onset = v.onsetOpportunities.risk;
+    expect(
+      onset.truePositives +
+        onset.falsePositives +
+        onset.falseNegatives +
+        onset.trueNegatives,
+    ).toBe(v.onsetOpportunities.evaluatedDays);
     expect(r.clinicalValidation).toBe(false);
     expect(r.wearableBenefitEstablished).toBe(false);
   });
@@ -59,6 +78,19 @@ describe("personal symptom risk", () => {
     expect(symptomRisk(f).symptoms[0].reason).toBe("insufficient-history");
     expect(symptomRisk(fixture(10)).symptoms[0].probability).toBeNull();
   });
+  it("resets the current training window after a known hormone-regime change", () => {
+    const f = fixture();
+    f.cycle = {
+      regime: "hormonal",
+      regimeSince: date(76),
+      availableAt: date(76) + "T12:00:00Z",
+      periodStarts: [],
+    };
+    const r = symptomRisk(f);
+    expect(r.symptoms[0].trainingPairs).toBe(19);
+    expect(r.symptoms[0].reason).toBe("insufficient-history");
+    expect(r.symptoms[0].cycle.reason).toBe("hormonal-regime-not-modeled");
+  });
   it("never bridges missing calendar days", () => {
     const f = fixture();
     f.days = f.days.filter((_, i) => i % 2 === 0);
@@ -70,15 +102,17 @@ describe("personal symptom risk", () => {
     expect(() => symptomRisk(f)).toThrow(/one confirmed/);
     expect(() =>
       symptomRisk({ ...fixture(), asOf: date(98) + "T00:00:00Z" }),
-    ).toThrow(/preceding UTC/);
+    ).toThrow(/preceding local/);
     expect(() =>
       symptomRisk({ ...fixture(), asOf: date(93) + "T00:00:00Z" }),
-    ).toThrow(/preceding UTC/);
+    ).toThrow(/preceding local/);
     const bad = fixture();
     (bad.days[0].symptoms as Record<string, unknown>).bloating = "absent";
     expect(() => symptomRisk(bad)).toThrow();
     const premature = fixture();
     premature.days[1].availableAt = date(0) + "T20:00:00Z";
-    expect(() => symptomRisk(premature)).toThrow(/before its UTC symptom day/);
+    expect(() => symptomRisk(premature)).toThrow(
+      /before its local symptom day/,
+    );
   });
 });

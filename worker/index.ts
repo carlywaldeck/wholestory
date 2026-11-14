@@ -1,4 +1,5 @@
 import { benchmarkResponse } from "../lib/research-benchmark";
+import { handleForecast } from "../lib/server-forecast";
 import { handleOura, type OuraEnv } from "../lib/server-oura";
 import assets from "../work/assets.json";
 import { extract } from "../lib/server-extract";
@@ -13,6 +14,7 @@ export default {
     },
   ) {
     const path = new URL(req.url).pathname;
+    if (path === "/api/forecast") return handleForecast(req, env);
     if (path === "/api/research/benchmark")
       return req.method === "GET"
         ? benchmarkResponse()

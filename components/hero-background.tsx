@@ -48,7 +48,7 @@ export function HeroBackground() {
     if (!canvas) return;
     const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
     const report = (path: string, detail?: string) => {
-      console.info("[WholeStory linen]", path, detail ?? "");
+      console.info("[Elya linen]", path, detail ?? "");
       canvas.dataset.renderPath = path;
       setPath(path);
     };

@@ -7,7 +7,7 @@ it("keeps the month-long demo summary to one readable page", async () => {
     "I want to understand how these symptoms affect my daily life.",
     ["What could explain these symptoms?"],
     false,
-    "WholeStory",
+    "Elya",
   );
   expect(p.getNumberOfPages()).toBe(1);
   const raw = p.output();
@@ -20,7 +20,7 @@ it("keeps the month-long demo summary to one readable page", async () => {
 });
 it("adds an optional evidence appendix with dated source quotations", async () => {
   const es = demoEntries();
-  const p = await createBrief(es, "", [], true, "WholeStory");
+  const p = await createBrief(es, "", [], true, "Elya");
   expect(p.getNumberOfPages()).toBeGreaterThan(1);
   expect(p.output()).toContain("Evidence appendix");
   expect(p.output()).toContain(es[1].date);
@@ -34,7 +34,7 @@ it("keeps each fictional persona summary compact and includes source-linked cycl
       "I want to discuss the impact of these symptoms.",
       ["What should I track before our next visit?"],
       false,
-      "WholeStory",
+      "Elya",
     );
     expect(p.getNumberOfPages()).toBe(1);
     expect(p.output()).toContain("Source key");
@@ -47,7 +47,7 @@ it("includes a user-selected wearable observation with its limitations", async (
     "",
     [],
     false,
-    "WholeStory",
+    "Elya",
     "SYNTHETIC DEMO. Sleep comparison; not a prediction.",
   );
   expect(p.output()).toContain("Wearable context");
