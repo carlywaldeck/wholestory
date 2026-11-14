@@ -8,10 +8,15 @@ import numpy as np
 from scipy.io import savemat
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / 'research'))
-from evaluate_cycle_hr import prepare, metrics
+from evaluate_cycle_hr import prepare, metrics, source_date
 
 
 class CycleHRTests(unittest.TestCase):
+    def test_source_date_formats_preserve_the_same_calendar_day(self):
+        self.assertEqual(source_date('01-Jan-2025'), source_date('01-Jan-2025 00:00:00'))
+        with self.assertRaises(ValueError):
+            source_date('01/02/2025')
+
     def source(self, path, future_change=False, mismatch=False):
         n = 220
         hr = 60 + np.sin(np.arange(n)/5)
@@ -38,7 +43,7 @@ class CycleHRTests(unittest.TestCase):
             after, _ = prepare(b)
             self.assertGreater(len(before[0]), 0)
             for x, y in zip(before[0], after[0]):
-                if x['date'] < '2025-06-20':
+                if x['date'] <= '2025-06-20':
                     np.testing.assert_allclose(x['x'], y['x'], equal_nan=True)
                     self.assertEqual(x['y'], y['y'])
 

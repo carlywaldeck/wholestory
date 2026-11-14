@@ -17,6 +17,16 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from threadpoolctl import threadpool_limits
+from cluster_uncertainty import paired_cluster_intervals
+
+
+def source_date(value):
+    for fmt in ['%d-%b-%Y', '%d-%b-%Y %H:%M:%S']:
+        try:
+            return dt.datetime.strptime(str(value), fmt).date()
+        except ValueError:
+            pass
+    raise ValueError('Unrecognized source date format')
 
 
 def prepare(path):
@@ -29,7 +39,7 @@ def prepare(path):
             audit['excludedLengthMismatch'] += 1
             continue
         try:
-            dates = [dt.datetime.strptime(str(d), '%d-%b-%Y').date() for d in dates]
+            dates = [source_date(d) for d in dates]
         except (ValueError, TypeError):
             audit['excludedUnparseableDates'] += 1
             continue
@@ -55,9 +65,10 @@ def prepare(path):
             elapsed = i-past[-1]
             calendar = [elapsed, length, elapsed/length,
                         math.sin(2*math.pi*elapsed/length), math.cos(2*math.pi*elapsed/length)]
-            # Forecast at the end of day i; summaries through i are assumed available.
-            recent = np.asarray(hr[max(0, i-6):i+1], dtype=float)
-            baseline = np.asarray(hr[i-34:i-6], dtype=float)
+            # Source day bins span afternoon-to-afternoon and may label a night by
+            # its starting date. Lag one full source day to avoid incomplete-night leakage.
+            recent = np.array(hr[i-7:i], dtype=float, copy=True)
+            baseline = np.array(hr[i-35:i-7], dtype=float, copy=True)
             recent[(recent < 20) | (recent > 220)] = np.nan
             baseline[(baseline < 20) | (baseline > 220)] = np.nan
             valid, base = np.isfinite(recent), np.isfinite(baseline)
@@ -94,32 +105,46 @@ def benchmark(people, audit):
     cutoff = dates[int(.7*len(dates))]
     predictions = {k: [[], []] for k in ['trainingRate', 'calendar', 'wearable', 'combined']}
     folds = []
+    paired_calendar, paired_rate = [], []
     for fold in range(5):
         train = [r for i, person in enumerate(people) if i % 5 != fold for r in person if r['labelMatures'] < cutoff]
         # Non-overlapping 3-day evaluation windows, anchored separately per participant.
-        test = [r for i, person in enumerate(people) if i % 5 == fold for r in [v for v in person if v['date'] >= cutoff][::3]]
+        test_people = [[v for v in person if v['date'] >= cutoff][::3] for i, person in enumerate(people) if i % 5 == fold]
+        test = [r for person in test_people for r in person]
         if len(train) < 100 or not test or min(sum(r['y'] for r in train), sum(1-r['y'] for r in train)) < 10:
             continue
         predictions['trainingRate'][0].extend(r['y'] for r in test)
-        predictions['trainingRate'][1].extend([(sum(r['y'] for r in train)+1)/(len(train)+2)]*len(test))
+        rate = (sum(r['y'] for r in train)+1)/(len(train)+2)
+        predictions['trainingRate'][1].extend([rate]*len(test))
+        fold_predictions = {}
         for name, cols in [('calendar', list(range(5))), ('wearable', list(range(5, 10))), ('combined', list(range(10)))]:
             model = make_pipeline(SimpleImputer(strategy='median', add_indicator=True), StandardScaler(),
                                   LogisticRegression(C=1, max_iter=1000, random_state=14112026))
             model.fit([[r['x'][j] for j in cols] for r in train], [r['y'] for r in train])
             p = model.predict_proba([[r['x'][j] for j in cols] for r in test])[:, 1]
+            fold_predictions[name] = p
             predictions[name][0].extend(r['y'] for r in test)
             predictions[name][1].extend(p.tolist())
+        offset = 0
+        for person in test_people:
+            if person:
+                indices = range(offset, offset+len(person))
+                paired_calendar.append([(test[j]['y'], float(fold_predictions['combined'][j]), float(fold_predictions['calendar'][j])) for j in indices])
+                paired_rate.append([(test[j]['y'], float(fold_predictions['combined'][j]), rate) for j in indices])
+            offset += len(person)
         folds.append({'fold': fold, 'trainDays': len(train), 'testWindows': len(test)})
     return {'audit': audit, 'cutoff': cutoff, 'folds': folds,
             'models': {k: metrics(*v) for k, v in predictions.items() if v[0]},
+            'combinedVsCalendar': paired_cluster_intervals(paired_calendar),
+            'combinedVsTrainingRate': paired_cluster_intervals(paired_rate),
             'clinicalValidation': False, 'symptomForecastValidated': False,
-            'protocol': 'Fixed logistic regression C=1; five held-person folds and global 70% date cutoff; training labels mature before cutoff; no future HR; no tuning; 3-day-spaced test origins.',
+            'protocol': 'Fixed logistic regression C=1; five held-person folds and global 70% date cutoff; training labels mature before cutoff; HR lagged one full source day; no tuning; 3-day-spaced test origins.',
             'limitations': ['Menstrual onset, not symptom occurrence or endometriosis.',
-                           'Source-derived daily HR, with end-of-day availability assumed; not a raw-signal prospective replay.',
+                           'Source-derived daily HR lagged one full source day because source uses afternoon-to-afternoon night bins; actual receipt remains unknown; not a raw-signal prospective replay.',
                            'Length/date mismatches excluded rather than repaired.',
                            'Absence labels may contain unreported events; only people with at least four recorded onsets retained.',
                            'No clinical threshold calibration; overlapping training labels and limited participants constrain inference.',
-                           'No independent replication or participant uncertainty interval in this exploratory checkpoint.']}
+                           'No independent replication; participant-cluster intervals are exploratory and unadjusted.']}
 
 
 if __name__ == '__main__':
