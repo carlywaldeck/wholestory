@@ -63,17 +63,45 @@ export function fitPersonalLogistic(rows: LearningRow[], columns: number[]) {
   };
 }
 
-export function candidateMetrics(rows: { y: number; p: number; previous: boolean }[]) {
+export function candidateMetrics(rows: { y: number; p: number; previous: boolean }[], threshold = .5) {
+  if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) throw Error("Invalid alert threshold");
   const group = (data: typeof rows) => {
     const events = data.reduce((s, r) => s+r.y, 0);
-    const hits = data.filter(r => r.y && r.p >= .5).length;
-    const falseAlerts = data.filter(r => !r.y && r.p >= .5).length;
+    const hits = data.filter(r => r.y && r.p >= threshold).length;
+    const falseAlerts = data.filter(r => !r.y && r.p >= threshold).length;
     return { n: data.length, events, hits, falseAlerts, missed: events-hits,
       brier: data.length ? mean(data.map(r => (r.p-r.y)**2)) : null,
       recall: events ? hits/events : null,
       precision: hits+falseAlerts ? hits/(hits+falseAlerts) : null };
   };
   return { all: group(rows), newOnset: group(rows.filter(r => !r.previous)), continuation: group(rows.filter(r => r.previous)) };
+}
+
+export const onsetPolicyProtocol = {
+  thresholds: [.05, .1, .15, .2, .25, .3, .4, .5, .6, .7, .8, .9],
+  minimumOpportunities: 14, minimumEvents: 3, minimumPrecision: .5,
+  maxFalseAlertsPer30Opportunities: 3,
+} as const;
+
+/** Optimize validation onset recall under a fixed empirical alert budget. No test outcomes. */
+export function chooseOnsetThreshold(rows: {y:number;p:number}[]) {
+  const events = rows.reduce((s,r)=>s+r.y,0);
+  const base = {threshold:null as number|null,validationOpportunities:rows.length,validationEvents:events,
+    validationRecall:null as number|null,validationPrecision:null as number|null,validationFalseAlertsPer30:null as number|null};
+  if (rows.some(r=>![0,1].includes(r.y)||!Number.isFinite(r.p)||r.p<0||r.p>1)) throw Error("Invalid validation predictions");
+  if(rows.length<onsetPolicyProtocol.minimumOpportunities||events<onsetPolicyProtocol.minimumEvents||rows.length-events<3)
+    return {...base,reason:"insufficient-earlier-onset-validation"};
+  const eligible=onsetPolicyProtocol.thresholds.flatMap(threshold=>{
+    const hits=rows.filter(r=>r.y&&r.p>=threshold).length;
+    const falseAlerts=rows.filter(r=>!r.y&&r.p>=threshold).length;
+    const precision=hits+falseAlerts?hits/(hits+falseAlerts):0;
+    return hits>0&&precision>=onsetPolicyProtocol.minimumPrecision&&30*falseAlerts/rows.length<=onsetPolicyProtocol.maxFalseAlertsPer30Opportunities
+      ?[{threshold,hits,falseAlerts,precision}]:[];
+  }).sort((a,b)=>b.hits-a.hits||a.falseAlerts-b.falseAlerts||b.threshold-a.threshold);
+  if(!eligible.length)return {...base,reason:"no-earlier-policy-meets-budget"};
+  const best=eligible[0];
+  return {...base,threshold:best.threshold,validationRecall:best.hits/events,validationPrecision:best.precision,
+    validationFalseAlertsPer30:30*best.falseAlerts/rows.length,reason:"earlier-validation-policy-selected"};
 }
 
 function enough(rows: LearningRow[]) {
@@ -113,6 +141,18 @@ export function selectPersonalFeatureSet(rows: LearningRow[], origin: (date: str
   const selected = cycleBrier <= historyBrier-.005 ? "cycle" : "history";
   return {...base, selected, historyValidationBrier: historyBrier, cycleValidationBrier: cycleBrier,
     reason: selected === "cycle" ? "earlier-brier-improvement-at-least-0.005" : "earlier-cycle-improvement-not-established"};
+}
+
+function learnOnsetPolicy(rows: LearningRow[], origin: (date:string)=>number|null) {
+  const selection=selectPersonalFeatureSet(rows,origin);
+  const split=Math.floor(rows.length*.7),validation=rows.slice(split),cutoff=validation.length?origin(validation[0].date):null;
+  const training=cutoff===null?[]:rows.slice(0,split).filter(r=>Date.parse(r.availableAt)<=cutoff);
+  const events=training.reduce((s,r)=>s+r.y,0);
+  if(training.length<30||events<5||training.length-events<5)return {...chooseOnsetThreshold([]),reason:"insufficient-inner-training"};
+  const history=fitPersonalLogistic(training,journalOnlyColumns);
+  const cycle=selection.selected==="cycle"?fitPersonalLogistic(training,journalCycleColumns):null;
+  return chooseOnsetThreshold(validation.filter(r=>!r.previous).map(r=>({y:r.y,
+    p:cycle&&r.x.slice(4,9).every(v=>v!==null)?cycle.predict(r.x):history.predict(r.x)})));
 }
 
 export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: CandidatePhysiologyDay[]) {
@@ -199,6 +239,8 @@ export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: Candidat
         const cycleTest = test.filter(cycleKnown);
         const selection = selectPersonalFeatureSet(train, date => schedule.origin(date));
         const adaptive = (r: LearningRow) => selection.selected === "cycle" && cycleKnown(r) ? journal.predict(r.x) : journalOnly.predict(r.x);
+        const policy=learnOnsetPolicy(train,date=>schedule.origin(date));
+        const onsetPredictions=onsetTest.map(r=>({...r,p:adaptive(r)}));
         const prevalence = (train.reduce((s, r) => s+r.y, 0)+1)/(train.length+2);
         return { trainingDays: train.length, testDays: test.length,
           lastTrainingTarget: train.at(-1)!.date, firstTestTarget: test[0].date,
@@ -214,6 +256,11 @@ export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: Candidat
           adaptiveSelection: {selection,
             cycleUsedTestDays: selection.selected === "cycle" ? cycleTest.length : 0,
             metrics: candidateMetrics(test.map(r => ({...r, p: adaptive(r)})))},
+          onsetWarningPolicy: {policy,
+            evaluated:policy.threshold===null?null:{
+              selectedThreshold:candidateMetrics(onsetPredictions,policy.threshold).newOnset,
+              fixedThreshold:candidateMetrics(onsetPredictions).newOnset,
+            }},
           journalCycleAndWearables: candidateMetrics(test.map(r => ({ ...r, p: combined.predict(r.x) }))),
           historicalRate: candidateMetrics(test.map(r => ({ ...r, p: prevalence }))),
           persistence: candidateMetrics(test.map(r => ({ ...r, p: Number(r.previous) }))),
@@ -230,11 +277,15 @@ export function combinedSymptomCandidate(raw: RiskInput, rawPhysiology: Candidat
       const selection = fit ? selectPersonalFeatureSet(rows, date => schedule.origin(date)) : null;
       const adaptiveFit = fit ? fitPersonalLogistic(rows, selection?.selected === "cycle" && x!.slice(4, 9).every(v => v !== null)
         ? journalCycleColumns : journalOnlyColumns) : null;
+      const policy=fit?learnOnsetPolicy(rows,date=>schedule.origin(date)):null;
       return { symptom, status: fit ? "experimental-candidate" : "learning",
         trainingDays: rows.length, candidateEstimate: fit && x ? fit.predict(x) : null,
         journalCycleEstimate: journal && x ? journal.predict(x) : null,
         newOnsetCandidateEstimate: onset && x ? onset.predict(x) : null,
         adaptiveCandidate: {selection, estimate: adaptiveFit && x ? adaptiveFit.predict(x) : null},
+        onsetWarningCandidate: {policy,
+          alert:adaptiveFit&&x&&x[0]===0&&policy?.threshold!=null?adaptiveFit.predict(x)>=policy.threshold:null,
+          limitation:"Experimental policy, not a calibrated risk or guaranteed false-alert limit. Null means unavailable or outside new-onset context."},
         observedTrainingFeatures: fit?.observedFeatures ?? [], evaluation };
     }),
   };

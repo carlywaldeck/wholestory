@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { forecastDemo } from "./forecast-demo";
-import { candidateMetrics, combinedSymptomCandidate, fitPersonalLogistic, selectPersonalFeatureSet, type LearningRow } from "./combined-forecast-candidate";
+import { candidateMetrics, chooseOnsetThreshold, combinedSymptomCandidate, fitPersonalLogistic, selectPersonalFeatureSet, type LearningRow } from "./combined-forecast-candidate";
 import { shiftDate } from "./forecast-time";
 
 it("can learn a predictive sensor signal and ignore a sensor never observed in training", () => {
@@ -108,5 +108,23 @@ it("later test outcomes cannot change the earlier feature selection", () => {
   demo.input.days.slice(-10).forEach(d=>{d.symptoms.pelvicPain=!d.symptoms.pelvicPain;});
   const after=combinedSymptomCandidate(demo.input,[]).symptoms.find(r=>r.symptom==="pelvicPain")!.evaluation!;
   expect(after.adaptiveSelection.selection).toEqual(before.adaptiveSelection.selection);
+  expect(after.onsetWarningPolicy.policy).toEqual(before.onsetWarningPolicy.policy);
   expect(after.adaptiveSelection.metrics).not.toEqual(before.adaptiveSelection.metrics);
+});
+
+it("selects earlier recall under the empirical false-alert budget, with conservative tie breaking",()=>{
+  const rows=[{y:1,p:.4},{y:1,p:.35},{y:1,p:.3},{y:0,p:.45},...Array.from({length:10},()=>({y:0,p:.05}))];
+  const policy=chooseOnsetThreshold(rows);
+  expect(policy.threshold).toBe(.3);
+  expect(policy.validationRecall).toBe(1);
+  expect(policy.validationPrecision).toBe(.75);
+  expect(policy.validationFalseAlertsPer30!).toBeLessThanOrEqual(3);
+});
+
+it("withholds unsupported or unhelpful policies rather than declaring low risk",()=>{
+  expect(chooseOnsetThreshold([]).threshold).toBeNull();
+  const rows=Array.from({length:14},(_,i)=>({y:Number(i<3),p:.2}));
+  expect(chooseOnsetThreshold(rows).reason).toBe("no-earlier-policy-meets-budget");
+  expect(chooseOnsetThreshold(rows.slice(0,5)).reason).toBe("insufficient-earlier-onset-validation");
+  expect(()=>candidateMetrics([],NaN)).toThrow(/threshold/);
 });
