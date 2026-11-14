@@ -53,6 +53,7 @@ import { useSpokenReplies } from "../hooks/use-spoken-replies";
 import { VoicePicker } from "../components/voice-picker";
 import { PersonalPreferences } from "../components/personal-preferences";
 import { JourneyProgress } from "../components/journey-progress";
+import { HeroBackground } from "../components/hero-background";
 import {
   defaultPreferences,
   loadPreferences,
@@ -608,6 +609,7 @@ export default function Home() {
         {view === "Today" ? (
           <>
             <section className="intro">
+              <HeroBackground />
               <div className="eyebrow">
                 {new Date().toLocaleDateString("en-US", {
                   weekday: "long",
