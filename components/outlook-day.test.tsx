@@ -22,3 +22,5 @@ it("shows only model-supported probabilities and allows day/calendar navigation"
  render(<OutlookDay {...p} date="2026-11-15" forecast={forecast}/>);expect(screen.getByText("Estimated likelihood: 70%")).toBeTruthy();expect(screen.queryByText("Fatigue")).toBeNull();
  await user.click(screen.getByRole("button",{name:"Next day"}));expect(p.onDate).toHaveBeenCalledWith("2026-11-16");await user.click(screen.getByRole("button",{name:"Month calendar"}));expect(p.onCalendar).toHaveBeenCalledOnce();
 });
+
+it("opens a date chooser from the day heading and navigates to the selected day",async()=>{const p=props();render(<OutlookDay {...p}/>);await userEvent.click(screen.getByRole("button",{name:/Saturday, November 14/}));const input=screen.getByLabelText("Choose a day");const {fireEvent}=await import("@testing-library/react");fireEvent.change(input,{target:{value:"2026-11-09"}});expect(p.onDate).toHaveBeenCalledWith("2026-11-09");});

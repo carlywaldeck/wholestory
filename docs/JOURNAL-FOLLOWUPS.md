@@ -19,3 +19,9 @@ Settings now stores Speak or Type in `elya.journalMode` (Type is the default). C
 Follow-ups show one Next question action (Finish on the third answer), plus Skip and Finish questions. Type mode never synthesizes speech. The user confirmed hearing the first question in external Chrome.
 
 Add symptom creates a selected custom bubble. Custom names and explicit reports persist in the existing entry text and source-linked contextual facts, using the existing Uncertainty category rather than inventing a backend prediction target. Custom bubbles are restored from saved entries; they do not extend the model's four forecast symptoms. Unselected bubbles remain unknown. Browser checks verified custom bubble save/reload, retained answers, mode visibility, and mobile/desktop rendering without activating microphone or audio. All 165 tests, TypeScript and production/Sites packaging pass.
+
+## Speak and day-navigation follow-up
+
+Speak transcripts remain editable for correction without changing input preference. Speak answer can interrupt question playback instead of waiting for synthesis to finish. The HTTP LAN preview now explains the microphone restriction before capture and links to localhost with the Speak preference explicitly selected; it does not transfer health data between origins. Chrome localhost is the local microphone test surface. Browser checks used simulated recognition and confirmed start/stop and transcript retention; this is not a new live microphone confirmation.
+
+The day-detail heading toggles a date input. Choosing a day updates the displayed records and URL; previous/next arrows continue to navigate across dates. Seven focused tests, TypeScript, production build and Sites packaging passed. Chrome mobile checks verified date picker, next and previous navigation. No backend prediction or wearable files changed.

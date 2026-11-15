@@ -26,6 +26,8 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
   demoControls?:ReactNode; wearableNote?:string; continuous?:boolean; demoDays?:DayMeasurement[]; learning?:LearningOutlook|null; demoToday?:string;
 }) {
   const currentDay=demoToday??localToday();
+  const [secure,setSecure]=useState(true);
+  useEffect(()=>{setSecure(window.isSecureContext);const requested=new URLSearchParams(window.location.search).get("input");if(requested==="speak"){localStorage.setItem("elya.journalMode","speak");window.dispatchEvent(new Event("elya-journal-preferences"));}},[]);
   const [mode,setMode]=useState<"type"|"speak">("type");
   const [custom,setCustom]=useState<string[]>([]);const [adding,setAdding]=useState(false);const [newSymptom,setNewSymptom]=useState("");
   const labels=[...defaultLabels,...custom];
@@ -79,7 +81,8 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
         <label className="linen-date-picker">Entry date<input type="date" value={date} max={currentDay} onChange={e=>changeDate(e.target.value)}/></label>
         {estimates(date).length>0&&<div className="linen-forecast"><strong>{date===currentDay?"Today’s outlook":"Outlook"}</strong><p>{estimates(date).map(s=>s.label).join(", ")}</p><span>Estimate · experimental</span></div>}
         <label className="entry-label" htmlFor="linen-entry">What are you experiencing today?</label>
-        <div className="linen-input-wrap"><textarea id="linen-entry" readOnly={mode==="speak"} placeholder={mode==="speak"?"Press Speak to begin. Your transcript appears here.":"Write what you noticed today."} value={words} maxLength={9000} onChange={e=>{setWords(e.target.value);setDirty(true);}}/>{mode==="speak"&&<button type="button" className="button" disabled={followupBusy} onClick={dictation.active?dictation.stop:dictation.start}>{dictation.active?"Stop recording":"Speak"}</button>}</div>
+        <div className="linen-input-wrap"><textarea id="linen-entry" placeholder={mode==="speak"?"Press Speak to begin. Your transcript appears here.":"Write what you noticed today."} value={words} maxLength={9000} onChange={e=>{setWords(e.target.value);setDirty(true);}}/>{mode==="speak"&&<button type="button" className="button" disabled={followupBusy||nav.settings} onClick={dictation.active?dictation.stop:dictation.start}>{dictation.active?"Stop recording":"Speak"}</button>}</div>
+        {mode==="speak"&&!secure&&<p role="status">The microphone cannot run on this HTTP preview. <a href={`http://localhost:3001/journal?input=speak&date=${date}`} target="_blank" rel="noopener noreferrer">Open Speak on localhost</a> in Chrome. Entries stay in the browser where you saved them.</p>}
         {mode==="speak"&&<p className="voice-processing-note">Your browser may send audio to its speech service. elya does not save raw audio.</p>}
         {dictation.message&&<p role="status">{dictation.message}{dictation.message.includes("localhost")&&<> <a href={`http://localhost:3001/journal?date=${date}`}>Open localhost Journal</a></>}</p>}
         <JournalFollowups mode={mode} key={view+":"+date+":"+(demo?entries[0]?.persona??"demo":"personal")} text={words} sessionKey={view+":"+date} disabled={dictation.active||busy} paused={nav.settings} onActivity={markFollowupActivity} onAnswer={(question,answer,fact)=>{setWords(current=>current+"\n\nelya follow-up: "+question+"\nMy answer: "+answer);if(fact)setFollowupFacts(current=>[...current,fact]);setDirty(true);}}/>
