@@ -238,10 +238,14 @@ function HomeContent() {
   const extractionId = useRef(0);
   const recognition = useRef<Recognition | null>(null);
   const file = useRef<HTMLInputElement>(null);
+  const entryLoadRequest=useRef(0);
   async function refresh() {
+    const request=++entryLoadRequest.current;
     try {
+      const loaded=await storage.loadEntries();
+      if(request!==entryLoadRequest.current)return;
       setEntries(
-        (await storage.loadEntries()).sort((a, b) =>
+        loaded.sort((a, b) =>
           b.date.localeCompare(a.date),
         ),
       );
@@ -631,7 +635,11 @@ function HomeContent() {
             const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:saved.facts.some(f=>f.kind===s.kind&&/^(no|none|absent|not present|false|0)\b/i.test(f.value))?false:null])) as Answers;
             const day=checkinRecord(saved.date,answers,saved.text).day;
             if(demo){applyFictionalBundle(await saveFictionalJournal(persona,saved,day));}
-            else {await storage.putEntry(saved);saveConfirmedDay(day);await refresh();
+            else {await storage.putEntry(saved);
+              ++entryLoadRequest.current;
+              setEntries(current=>[saved,...current.filter(e=>e.id!==saved.id)]);
+              setReady(true);
+              try{saveConfirmedDay(day);}catch{setNotice("Your journal entry is saved. Learning history could not update on this device.");}
               const cleared=Object.entries(day.symptoms).filter(([,v])=>v===null).map(([k])=>k as import("../lib/symptom-risk").RiskSymptom);
               try{const result=await currentPersonalOutlook(loadConfirmedDays(),Intl.DateTimeFormat().resolvedOptions().timeZone,undefined,{entries:[saved,...allEntries.filter(e=>e.id!==saved.id&&!e.demo)],withdraw:{date:day.date,symptoms:cleared}});setLearningBundle(result);}catch(error){setForecastError("Entry saved. "+(error instanceof Error?error.message:"Learning could not update."));}
             }

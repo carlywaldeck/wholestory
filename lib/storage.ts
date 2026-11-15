@@ -10,7 +10,9 @@ export async function loadEntries(): Promise<Entry[]> {
   return (await (await db()).getAll("entries")).map(validateEntry);
 }
 export async function putEntry(e: Entry) {
-  await (await db()).put("entries", validateEntry(e));
+  const tx=(await db()).transaction("entries","readwrite");
+  await tx.store.put(validateEntry(e));
+  await tx.done;
 }
 export async function deleteEntry(id: string) {
   await (await db()).delete("entries", id);
