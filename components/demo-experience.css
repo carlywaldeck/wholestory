@@ -8,3 +8,5 @@
 @media print{.demo-journey,.demo-toolbar,.demo-wearable{display:none!important}}
 
 .demo-journey{display:block}.demo-session-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;color:var(--rose-deep);font-size:12px}.demo-session-heading>button{padding:6px 0;width:auto;min-height:32px}.demo-toolbar{justify-content:flex-end;margin:12px 0 20px}
+
+.demo-wearable dd small{display:block;font-size:11px;letter-spacing:0;color:var(--ink-soft);margin-top:4px}
