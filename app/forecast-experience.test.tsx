@@ -24,7 +24,7 @@ afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
 it("uses matching backend history and isolates a demo check-in from personal records",async()=>{
  await putEntry({id:"private",date:"2026-11-01",text:"Personal private words.",facts:[],symptomFree:false,demo:false});
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Sophie’s demo"}));
- await screen.findByText(/Demo · Sophie/);
+ await screen.findByText(/Sophie’s demo · Fictional profile/);
  expect(screen.getAllByText(/Still learning your pattern/)).toHaveLength(4);
  await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));

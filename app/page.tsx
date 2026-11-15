@@ -622,9 +622,9 @@ function HomeContent() {
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
   }
   const openingMode = view === "Today";
-  const journalExperience = <LinenPages learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
+  const journalExperience = <LinenPages onExitDemo={exitDemo} learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
-          demoControls={<div className="demo-toolbar">{demo?<><span className="demo-mode-label">Demo · Sophie <small>Fictional data</small></span><button className="text-action" onClick={exitDemo}>Exit demo</button><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Simulate tomorrow’s check-in</button><button className="button" disabled={forecastLoading} onClick={()=>void restartDemo()}>Restart Sophie’s demo</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Sophie’s demo</button>}</div>}
+          demoControls={<div className="demo-toolbar">{demo?<><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Simulate tomorrow’s check-in</button><button className="button" disabled={forecastLoading} onClick={()=>void restartDemo()}>Restart Sophie’s demo</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Sophie’s demo</button>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={()=>resetPersonalData()}
           onSave={async entry=>{
             const saved=validateEntry({...entry,...(demo?{persona}: {})});
@@ -666,7 +666,7 @@ function HomeContent() {
               <section className="opening-screen" aria-label="Start your story">
                 <HeroBackground />
                 <div className="opening-copy">
-                  <h1>Welcome{demo?", Sophie":preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
+                  <h1>Welcome{!demo&&preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
                   <p>Learn your symptom patterns with wearable data, and turn your journal into a clear appointment brief.</p>
                 </div>
                 <button
