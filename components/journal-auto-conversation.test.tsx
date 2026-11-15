@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import {useState} from 'react';
 import {afterEach,expect,it,vi} from 'vitest';
 import {act,cleanup,render,screen,waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -28,4 +29,8 @@ it('releases the conversation when speech recognition is unsupported and offers 
 
 it('does not open the microphone after a tapped answer interrupts question playback',async()=>{
  vi.stubGlobal('isSecureContext',true);vi.stubGlobal('SpeechRecognition',Mic);let finish!:()=>void;audio.speak.mockImplementationOnce(()=>new Promise<void>(resolve=>{finish=resolve;}));const user=userEvent.setup();render(<JournalFollowups autoStart mode="speak" text="I have cramps." sessionKey="tap" onUpdate={vi.fn()} onActivity={vi.fn()}/>);await user.click(screen.getByRole('button',{name:'Moderate'}));await act(async()=>finish());expect(Mic.instances).toHaveLength(0);
+});
+
+it('asks about the day first and uses that answer for the first symptom question',async()=>{
+ vi.stubGlobal('isSecureContext',true);vi.stubGlobal('SpeechRecognition',Mic);const opening=vi.fn();const update=vi.fn(),activity=vi.fn();function Session(){const [text,setText]=useState('');return <JournalFollowups autoStart openingFirst mode="speak" text={text} onOpening={value=>{opening(value);setText(value);}} sessionKey="opening" onUpdate={update} onActivity={activity}/>;}render(<Session/>);await waitFor(()=>expect(Mic.instances.length).toBeGreaterThan(0));expect(audio.speak).toHaveBeenCalledWith(["What's been bothering you today?"]);expect(screen.queryByRole('button',{name:'Moderate'})).toBeNull();act(()=>Mic.instances.at(-1)!.onresult({results:[Object.assign([{transcript:'I had a headache today.'}],{isFinal:true})]}));await waitFor(()=>expect(opening).toHaveBeenCalledWith('I had a headache today.'),{timeout:5000});await waitFor(()=>expect(audio.speak).toHaveBeenCalledWith(['How strong is the headache right now?']));
 });
