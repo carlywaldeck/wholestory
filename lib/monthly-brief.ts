@@ -10,10 +10,16 @@ export function monthlySections(entries:Entry[]):BriefSection[] {
     const row=counts.get(f.kind)??{dates:new Set<string>(),ids:new Set<string>()};row.dates.add(e.date);row.ids.add(e.id);counts.set(f.kind,row);
   }
   if(counts.size)sections.push({heading:"Reported symptoms",statements:[...counts].sort((a,b)=>b[1].dates.size-a[1].dates.size).map(([kind,row])=>({text:kind+": reported on "+row.dates.size+(row.dates.size===1?" day.":" days."),sourceIds:[...row.ids]}))});
+  const absences=new Map<string,{dates:Set<string>;ids:Set<string>}>();
+  for(const e of ordered)for(const f of e.facts){
+    if(!categories.includes(f.kind as typeof categories[number])||!e.text.includes(f.quote)||!/^(?:no|none|false|absent|not present|0)$/i.test(f.value.trim()))continue;
+    const row=absences.get(f.kind)??{dates:new Set<string>(),ids:new Set<string>()};row.dates.add(e.date);row.ids.add(e.id);absences.set(f.kind,row);
+  }
+  if(absences.size)sections.push({heading:"Symptoms explicitly reported absent",statements:[...absences].map(([kind,row])=>({text:`${kind}: explicitly absent on ${row.dates.size} logged ${row.dates.size===1?"day":"days"}.`,sourceIds:[...row.ids]}))});
   for(const [heading,kinds] of [["Severity and timing",["Severity","Fatigue score","Timing","Menstrual context"]],["Daily-life impact",["Daily-life impact"]],["What helped or did not help",["Intervention","What helped","Medication effect"]]] as const){
     const quotes=new Map<string,Set<string>>();
     for(const e of ordered)for(const f of e.facts){
-      if(!(kinds as readonly string[]).includes(f.kind)||!e.text.includes(f.quote)||(f.kind==="Daily-life impact"&&!isPresentFact(f)))continue;
+      if(!(kinds as readonly string[]).includes(f.kind)||!e.text.includes(f.quote)||/^unknown$/i.test(f.value.trim()))continue;
       const context=e.journal?.provenance.find(p=>p.quote===f.quote&&p.symptom)?.symptom;const wording=context?context+": “"+f.quote+"”":"“"+f.quote+"”";const ids=quotes.get(wording)??new Set<string>();ids.add(e.id);quotes.set(wording,ids);
     }
     if(quotes.size)sections.push({heading,statements:[...quotes].map(([quote,ids])=>({text:quote,sourceIds:[...ids]}))});

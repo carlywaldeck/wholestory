@@ -10,13 +10,13 @@ const props=()=>({entries:[entry],today:"2026-11-14",onSource:vi.fn(),onJournal:
 
 it("counts distinct reported days and preserves treatment outcomes including no benefit",()=>{
  const text=recordedSummary([entry,{...entry,id:"same-day",facts:[...entry.facts,{kind:"Fatigue",value:"No",quote:"Pain"}]}]);
- expect(text).toContain("Pelvic pain: reported on 1 day.");expect(text).toContain("“Rest helped.”");expect(text).not.toContain("Fatigue:");
+ expect(text).toContain("Pelvic pain: reported on 1 day.");expect(text).toContain("“Rest helped.”");expect(text).not.toContain("Fatigue: reported on");expect(text).toContain("Fatigue: explicitly absent on 1 logged day.");
 });
 it("is read-only, with one month selector and three working export actions",async()=>{
  const user=userEvent.setup();render(<LinenBrief {...props()}/>);
  expect(document.querySelectorAll("textarea")).toHaveLength(0);expect(screen.getByText("AI summary for your doctor")).toBeTruthy();
  expect(screen.getByLabelText("Month")).toBeTruthy();
- await user.click(screen.getByRole("button",{name:"Copy"}));expect(await navigator.clipboard.readText()).toContain(entry.text);
+ await user.click(screen.getByRole("button",{name:"Copy"}));expect(await navigator.clipboard.readText()).toContain("Pelvic pain: reported on 1 day.");expect(await navigator.clipboard.readText()).not.toContain(entry.text);
  const print=vi.spyOn(window,"print").mockImplementation(()=>{});await user.click(screen.getByRole("button",{name:"Print"}));expect(print).toHaveBeenCalledOnce();print.mockRestore();
  expect(screen.getByRole("button",{name:"Download report"})).toBeTruthy();
  expect(screen.getByText(/This report is generated locally/)).toBeTruthy();
