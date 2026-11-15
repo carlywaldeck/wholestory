@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Entry } from "../lib/model";
 import { factKinds, isPresentFact } from "../lib/model";
-import { checkinSymptoms } from "../lib/experience-checkins";
+import { outlookSymptoms,unavailableOutlookLabel } from "../lib/outlook-symptoms";
 import type { ForecastResult } from "./forecast-outlook";
 import {PersonalLearningOutlook} from "./personal-learning-outlook";
 import type {LearningOutlook} from "../lib/learning-types";
@@ -36,7 +36,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
   const count=new Date(first.getFullYear(),first.getMonth()+1,0).getDate();
   const length=Math.ceil((first.getDay()+count)/7)*7;
   const cells=Array.from({length},(_,i)=>i<first.getDay()||i>=first.getDay()+count?null:`${month}-${String(i-first.getDay()+1).padStart(2,"0")}`);
-  const predictions=(date:string)=>learning?.targetDate===date?learning.outlook.filter(s=>s.status==="experimental"&&checkinSymptoms.some(c=>c.key===s.symptom)).map(s=>({label:checkinSymptoms.find(c=>c.key===s.symptom)!.label,riskLabel:s.label,probability:learning.symptoms.find(p=>p.symptom===s.symptom)?.candidateEstimate??0,higher:s.band==="high"})):forecast?.targetDate===date?checkinSymptoms.flatMap(({key,label})=>{
+  const predictions=(date:string)=>learning?.targetDate===date?learning.outlook.filter(s=>s.status==="experimental"&&outlookSymptoms.some(c=>c.key===s.symptom)).map(s=>({label:outlookSymptoms.find(c=>c.key===s.symptom)!.label,riskLabel:s.label,probability:learning.symptoms.find(p=>p.symptom===s.symptom)?.candidateEstimate??0,higher:s.band==="high"})):forecast?.targetDate===date?outlookSymptoms.flatMap(({key,label})=>{
     const s=forecast.symptoms.find(s=>s.symptom===key);
     return s?.state==="experimental-estimate"&&s.probability!==null?[{label,riskLabel:undefined as string|undefined,probability:s.probability,higher:s.outlook==="higher-estimated-likelihood"}]:[];
   }):[];
@@ -58,7 +58,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
         {!learning&&<p className="outlook-summary-line">{higher.length?`${higher[0].label} may be more likely ${target===today?"today":"on "+targetLabel}.`:`No elevated likelihood in the available estimates for ${targetLabel}.`}</p>}
         {!learning&&<span className="outlook-estimate-tag">◇ Estimate · experimental</span>}
       </>:<p className="outlook-summary-line">{target?`No estimate available for ${targetLabel} yet.`:"No outlook available yet."}</p>}
-      {!loading&&!error&&(stage==="outlook"?<IssuedDayOutlook result={learning} date={today}/>:learning!==undefined?<PersonalLearningOutlook result={learning} today={today} sampleDays={demoDays?.length}/>:<><ul className="outlook-forecast-rows">{checkinSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?"○ Still learning":s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>)}
+      {!loading&&!error&&(stage==="outlook"?<IssuedDayOutlook result={learning} date={today}/>:learning!==undefined?<PersonalLearningOutlook result={learning} today={today} sampleDays={demoDays?.length}/>:<><ul className="outlook-forecast-rows">{outlookSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?unavailableOutlookLabel(key):s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>)}
       <div className="outlook-checkin-action"><button className="button primary" onClick={()=>onCheckin?onCheckin():onEdit(today)}>{stage==="outlook"?"Tell Ellie how you’re feeling":demoDays!==undefined?"Start voice conversation":"Check in today"}</button>{demoDays!==undefined&&<><button className="day-back-link demo-type-instead" onClick={()=>onEdit(today)}>Type instead</button><p className="conversation-start-note">Talk with Ellie or type your answers. You choose when to use the microphone.</p></>}</div>
     </section>}
     {!stage&&demoDays!==undefined&&<DemoWearable days={demoDays} onView={()=>openDay(today)}/>}

@@ -1,6 +1,6 @@
 "use client";
 import {useId,useRef,useState} from "react";
-import {checkinSymptoms} from "../lib/experience-checkins";
+import {outlookSymptoms,unavailableOutlookLabel} from "../lib/outlook-symptoms";
 import type {LearningOutlook} from "../lib/learning-types";
 import {symptomRiskOutlook} from "../lib/symptom-risk-outlook";
 import type {ForecastResult} from "./forecast-outlook";
@@ -25,7 +25,7 @@ export function FutureSymptomOutlook({date,learning,forecast}:{date:string;learn
  return <>
   <p className="future-risk-hint">Hover over a symptom or tap it to see what the estimate means.</p>
   <p className="day-estimate-label">Experimental outlook · Symptom likelihood, not severity</p>
-  <ul className="future-risk-list">{checkinSymptoms.map(({key,label})=>{
+  <ul className="future-risk-list">{outlookSymptoms.map(({key,label})=>{
    const snapshot=saved.find(row=>row.symptom===key);
    const progress=learning?.targetDate===date?learning.symptoms.find(row=>row.symptom===key):undefined;
    const legacy=hasLegacy?forecast?.symptoms.find(row=>row.symptom===key):undefined;
@@ -42,7 +42,7 @@ export function FutureSymptomOutlook({date,learning,forecast}:{date:string;learn
     "The model needs enough usable symptom history to issue an estimate; unanswered reports stay unknown.",
     "No risk level is assigned, and missing information does not mean you will be symptom-free.",
    ];
-   return <SymptomExplanation key={date+key} label={label} risk={risk.label} band={risk.band} sentences={sentences}/>;
+   return <SymptomExplanation key={date+key} label={label} risk={risk.band?risk.label:unavailableOutlookLabel(key)} band={risk.band} sentences={sentences}/>;
   })}</ul>
   <p className="day-context-note">These experimental estimates do not diagnose endometriosis or replace medical care. Missing answers stay unknown.</p>
  </>;
