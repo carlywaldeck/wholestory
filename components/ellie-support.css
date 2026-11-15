@@ -23,3 +23,10 @@ body:has(.opening-screen) .ellie-panel{max-height:calc(100dvh - 145px)}
 .ellie-reading-list a{display:block;min-height:44px;align-content:center;font-weight:600;color:var(--rose-deep);text-decoration:underline}
 .ellie-reading-publisher{display:block;color:var(--ink-soft);font-size:12px}
 .ellie-reading-list p{color:var(--ink);margin-bottom:0}
+.ellie-reading-search label{display:block;margin-bottom:8px;font-weight:500;color:var(--ink)}
+.ellie-reading-search input{box-sizing:border-box;width:100%;min-height:48px;border:1px solid var(--ink-soft);border-radius:14px;padding:12px;background:var(--white);color:var(--ink);font:400 16px var(--font-body),sans-serif}
+.ellie-reading-search input::placeholder{color:var(--ink-soft);opacity:1}
+.ellie-reading-search input:focus-visible{outline:3px solid var(--rose-deep);outline-offset:3px}
+.ellie-reading-search .ellie-back{min-height:44px;margin:0;color:var(--rose-deep);text-decoration:underline}
+.ellie-reading-search #ellie-search-note{margin:8px 0 16px;font-size:12px;color:var(--ink-soft)}
+.ellie-search-status{color:var(--ink-soft);font-size:13px}
