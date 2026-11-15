@@ -20,3 +20,10 @@ it("reviews an unanswered follow-up without saving, then confirms provenance and
 it("saves a reviewed demo check-in into the calendar before the appointment brief",async()=>{
  window.history.replaceState(null,"","/journal");const user=userEvent.setup();const p={...props(),demo:true};p.onSave.mockResolvedValue(undefined);render(<AppNavigationProvider><LinenPages {...p}/></AppNavigationProvider>);await user.click(screen.getByRole("button",{name:"Fatigue"}));await user.click(screen.getByRole("button",{name:"Review entry"}));await user.click(screen.getByRole("button",{name:"Save & see my day"}));expect(p.onSave).toHaveBeenCalledTimes(1);expect(window.location.pathname).toBe("/calendar");
 });
+it('clears every Present control when no symptoms is chosen, and clears no symptoms for bubbles and status controls',async()=>{
+ window.history.replaceState(null,'','/journal');const user=userEvent.setup();render(<AppNavigationProvider><LinenPages {...props()}/></AppNavigationProvider>);
+ const none=screen.getByRole('checkbox',{name:'No symptoms today'}) as HTMLInputElement;
+ await user.click(screen.getByRole('button',{name:'Fatigue',exact:true}));await user.click(none);expect(none.checked).toBe(true);for(const button of document.querySelectorAll('.journal-symptom-bubbles button[aria-pressed]'))expect(button.getAttribute('aria-pressed')).toBe('false');
+ await user.click(screen.getByRole('button',{name:/^Headache/}));expect(none.checked).toBe(false);expect(screen.getByRole('button',{name:'Headache',exact:true}).getAttribute('aria-pressed')).toBe('true');
+ await user.click(none);await user.click(screen.getByText('Record a symptom as absent'));await user.selectOptions(screen.getByLabelText('Fatigue status'),'present');expect(none.checked).toBe(false);expect(screen.getByRole('button',{name:'Fatigue',exact:true}).getAttribute('aria-pressed')).toBe('true');
+});

@@ -38,3 +38,8 @@ it('saves Ellie speech in the Sophie profile, highlights its sample date, and su
  await user.click(screen.getByRole('button',{name:'See my appointment brief'}));expect(document.querySelector('.monthly-report-body')?.textContent).toContain('Fatigue: reported on 2 days.');
  view.unmount();render(<Home/>);await screen.findByText('Supporting Journal entries (14)',{}, {timeout:8000});expect(document.querySelector('.monthly-report-body')?.textContent).toContain('Fatigue: reported on 2 days.');expect(await storage.loadEntries()).toEqual([]);
 },15000);
+it('keeps spoken symptoms and the no-symptoms control mutually exclusive in both directions',async()=>{
+ const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole('button',{name:'Try Sophie’s demo'}));await screen.findByText('Sophie’s demo · Fictional profile');await user.click(screen.getByRole('button',{name:'Tell Ellie how you’re feeling'}));await waitFor(()=>expect(Mic.instances.length).toBeGreaterThan(0));transcript('No symptoms today, but I have a headache.');await user.click(screen.getByRole('button',{name:'Done speaking'}));await waitFor(()=>expect(document.querySelector('.journal-symptom-bubbles button[aria-pressed="true"]')?.textContent).toContain('Headache'),{timeout:5000});await user.click(screen.getByRole('button',{name:'Pause conversation'}));await user.click(screen.getByText('Symptoms and additional details'));
+ const none=screen.getByRole('checkbox',{name:'No symptoms today'}) as HTMLInputElement;expect(none.checked).toBe(false);expect(screen.getByRole('button',{name:'Headache',exact:true}).getAttribute('aria-pressed')).toBe('true');
+
+},12000);
