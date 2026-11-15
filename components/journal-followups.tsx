@@ -18,18 +18,18 @@ export function JournalFollowups({text,edits={},selected=[],absent=[],symptomFre
  useEffect(()=>conversationAudio.subscribe(s=>{setAudioState(s);setSpeaking(s.phase!=="idle");}),[]);
  const mic=useJournalDictation(addition=>setAnswer(v=>[v,addition].filter(Boolean).join(" ")),sessionKey+":"+(question?.id??"none"));
  function stopVoice(){conversationAudio.stop();}
- useEffect(()=>{if(paused){talking.current=false;stopVoice();mic.cancel();}},[paused]);
+ useEffect(()=>{if(paused){talking.current=false;stopVoice();mic.cancel(true);}},[paused]);
  useEffect(()=>{
   const changed=previousQuestion.current!==question?.id;previousQuestion.current=question?.id;
   if(changed){setAnswer("");setEditing(false);}
-  stopVoice();mic.cancel();let active=true;
+  stopVoice();mic.cancel(true);let active=true;
   if(automatic&&!paused&&!stopped&&question){
    const last=turns.filter(t=>!t.skipped).at(-1);
    void conversationAudio.speak([...(last?[reflection(last.answer)]:[]),question.spokenText],!!last).then(()=>{
     if(active&&automaticRef.current&&!document.hidden&&!conversationAudio.state.notice)mic.start();
    });
   }else if(!automatic&&talking.current&&mode==="speak"&&!paused&&question&&localStorage.getItem("elya.autoReplies")==="on")read();
-  return()=>{active=false;stopVoice();mic.cancel();};
+  return()=>{active=false;stopVoice();mic.cancel(true);};
  },[question?.id,automatic,paused,stopped]);
  useEffect(()=>{if(automatic&&answer.trim()&&mic.active){const timer=setTimeout(()=>mic.stop(),1400);return()=>clearTimeout(timer);}},[answer,automatic,mic.active]);
  useEffect(()=>{if(automatic&&!paused&&!speaking&&!mic.active&&answer.trim()&&question){const timer=setTimeout(()=>proceed(),650);return()=>clearTimeout(timer);}},[answer,automatic,speaking,mic.active,paused,question?.id]);
@@ -45,7 +45,7 @@ export function JournalFollowups({text,edits={},selected=[],absent=[],symptomFre
  return <section className={"journal-followups"+(mode==="speak"?" followups-spoken":"")} aria-label="Optional follow-up">
  {!stopped&&question?<>
  <div className="ellie-journal-identity"><EllieIcon/><span>With Ellie · optional reflection</span></div>
- <div className="conversation-control"><button type="button" className="text-action" onClick={()=>{if(automatic){setAutomatic(false);talking.current=false;stopVoice();mic.cancel();}else{void conversationAudio.unlock().catch(()=>{});setAutomatic(true);}}}>{automatic?"Pause conversation":"Start voice conversation"}</button><span>{automatic?"Ellie speaks, then listens. Answers advance automatically.":"Optional. You can answer by voice, tap an option, or type."}</span></div>
+ <div className="conversation-control"><button type="button" className="text-action" onClick={()=>{if(automatic){setAutomatic(false);talking.current=false;stopVoice();mic.cancel(true);}else{void conversationAudio.unlock().catch(()=>{});setAutomatic(true);}}}>{automatic?"Pause conversation":"Start voice conversation"}</button><span>{automatic?"Ellie speaks, then listens. Answers advance automatically.":"Optional. You can answer by voice, tap an option, or type."}</span></div>
  <div className="followup-topline"><span>{mode==="speak"?"AI voice · Optional":"Optional detail"}</span></div>
  <p className="followup-question" aria-live="polite">{mode==="speak"?question.spokenText:question.text}</p>
  <div className="journal-symptom-bubbles">{[...question.options,...(!question.options.includes("Prefer not to answer")?["Prefer not to answer"]:[]),"Not applicable"].map(option=><button type="button" key={option} aria-pressed={answer===option} disabled={disabled||mic.active} onClick={()=>setAnswer(option)}>{answer===option?"✓ ":""}{option}</button>)}</div>

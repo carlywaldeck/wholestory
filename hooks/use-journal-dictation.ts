@@ -5,9 +5,9 @@ type Recognition={lang:string;continuous:boolean;interimResults:boolean;start:()
 export function useJournalDictation(append:(text:string)=>void,sessionKey:string){
  const current=useRef<Recognition|null>(null);const appendRef=useRef(append);appendRef.current=append;
  const [state,setState]=useState<"idle"|"starting"|"recording">("idle");const [message,setMessage]=useState("");
- function cancel(){const r=current.current;current.current=null;if(r){r.onresult=null;r.onstart=null;r.onend=null;r.onerror=null;r.abort();}setState("idle");}
+ function cancel(clearMessage=false){const r=current.current;current.current=null;if(r){r.onresult=null;r.onstart=null;r.onend=null;r.onerror=null;r.abort();}setState("idle");if(clearMessage)setMessage("");}
  useEffect(()=>{return()=>{const r=current.current;if(r){r.onresult=null;r.onstart=null;r.onend=null;r.onerror=null;r.abort();current.current=null;}};},[sessionKey]);
- useEffect(()=>{setState("idle");setMessage("");const hide=()=>{if(document.hidden&&current.current){cancel();setMessage("Recording stopped when the page was hidden. Your transcript is still editable.");}};document.addEventListener("visibilitychange",hide);return()=>document.removeEventListener("visibilitychange",hide);},[sessionKey]);
+ useEffect(()=>{setState("idle");setMessage("");const hide=()=>{if(document.hidden&&current.current){cancel();setMessage("Recording stopped when the page was hidden. Your transcript is still editable.");}};const voice=()=>{if(current.current)cancel(true);};document.addEventListener("visibilitychange",hide);window.addEventListener("elya-conversation-voice-start",voice);return()=>{document.removeEventListener("visibilitychange",hide);window.removeEventListener("elya-conversation-voice-start",voice);};},[sessionKey]);
  function stop(){const r=current.current;if(!r)return;try{r.stop();}catch{cancel();}}
  function start(){
   if(current.current)return;

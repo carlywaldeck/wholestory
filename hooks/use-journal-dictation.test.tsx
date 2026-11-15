@@ -20,3 +20,7 @@ it("preserves the draft and explains denied permission",()=>{
 it("aborts when the Journal date or page changes",()=>{
  vi.stubGlobal("isSecureContext",true);vi.stubGlobal("SpeechRecognition",Mic);const {result,rerender}=renderHook(({id})=>useJournalDictation(vi.fn(),id),{initialProps:{id:"2026-11-14"}});act(()=>result.current.start());const mic=Mic.latest;rerender({id:"2026-11-13"});expect(mic.abort).toHaveBeenCalled();expect(mic.onresult).toBeNull();expect(result.current.active).toBe(false);
 });
+
+it("stops microphone capture before Ellie plays a question",()=>{
+ vi.stubGlobal("isSecureContext",true);vi.stubGlobal("SpeechRecognition",Mic);const append=vi.fn();const {result}=renderHook(()=>useJournalDictation(append,"entry"));act(()=>result.current.start());act(()=>window.dispatchEvent(new Event("elya-conversation-voice-start")));expect(Mic.latest.abort).toHaveBeenCalled();expect(result.current.active).toBe(false);expect(result.current.message).toBe("");expect(append).not.toHaveBeenCalled();
+});
