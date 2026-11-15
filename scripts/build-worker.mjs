@@ -11,6 +11,7 @@ const mime = {
   ".woff2": "font/woff2",
   ".json": "application/json",
   ".svg": "image/svg+xml",
+  ".png": "image/png",
   ".mp3": "audio/mpeg",
   ".wav": "audio/wav",
 };

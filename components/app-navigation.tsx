@@ -7,7 +7,7 @@ import { flushSync } from "react-dom";
 import Link from "next/link";
 
 type NavigationState = {
-  view: string; setView: (view: string) => void;
+  view: string; setView: (view: string) => void; navigateTo: (view: string) => void;
   settings: boolean; setSettings: (open: boolean) => void;
   checkinRequest: number;
   setDirty: (dirty: boolean) => void;
@@ -73,7 +73,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
     document.addEventListener("click",outside); document.addEventListener("keydown",escape);
     return () => { document.removeEventListener("click",outside); document.removeEventListener("keydown",escape); };
   }, [open]);
-  return <NavigationContext.Provider value={{view,setView,settings,setSettings,checkinRequest,setDirty}}>
+  return <NavigationContext.Provider value={{view,setView,navigateTo:(next)=>requestLeave(()=>navigate(next)),settings,setSettings,checkinRequest,setDirty}}>
     <div className="app-topbar" data-testid="persistent-topbar">
       <div className="app-menu-anchor" ref={anchor}>
         <button ref={trigger} className="app-menu-trigger" aria-expanded={open} aria-controls="app-menu" onClick={()=>setOpen(v=>!v)}

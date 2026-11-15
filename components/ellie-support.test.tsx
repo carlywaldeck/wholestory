@@ -3,7 +3,7 @@ import {afterEach,expect,it,vi} from 'vitest';
 import {cleanup,render,screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {EllieSupport} from './ellie-support';
-import {AppNavigationProvider} from './app-navigation';
+import {AppNavigationProvider,useAppNavigation} from './app-navigation';
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
 it('stays closed until requested and returns keyboard focus after Escape',async()=>{
  const user=userEvent.setup();render(<AppNavigationProvider><EllieSupport/></AppNavigationProvider>);
@@ -21,4 +21,11 @@ it('opens the journal from preparation without writing an entry',async()=>{
  window.history.replaceState(null,'','/outlook');const user=userEvent.setup();render(<AppNavigationProvider><EllieSupport/></AppNavigationProvider>);
  await user.click(screen.getByRole('button',{name:'Open Ellie support'}));await user.click(screen.getByRole('button',{name:/Find the words/}));await user.click(screen.getByRole('button',{name:'Open my journal'}));
  expect(window.location.pathname).toBe('/journal');expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+it('preserves the unsaved-entry navigation confirmation',async()=>{
+ function Draft(){const nav=useAppNavigation()!;return <button onClick={()=>nav.setDirty(true)}>Mark unsaved draft</button>;}
+ window.history.replaceState(null,'','/journal');const user=userEvent.setup();render(<AppNavigationProvider><Draft/><EllieSupport/></AppNavigationProvider>);
+ await user.click(screen.getByRole('button',{name:'Mark unsaved draft'}));await user.click(screen.getByRole('button',{name:'Open Ellie support'}));await user.click(screen.getByRole('button',{name:/Find the words/}));await user.click(screen.getByRole('button',{name:'View my appointment brief →'}));
+ expect(screen.getByRole('alertdialog')).toBeTruthy();expect(window.location.pathname).toBe('/journal');await user.click(screen.getByRole('button',{name:'Stay'}));expect(window.location.pathname).toBe('/journal');
 });
