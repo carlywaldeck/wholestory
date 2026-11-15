@@ -10,7 +10,7 @@ import type {BriefStatement} from "../lib/monthly-brief";
 import {monthlySections} from "../lib/monthly-brief";
 import {BriefAIHighlights} from "./brief-ai-highlights";
 
-export function LinenBrief({entries,today,onSource,active=true}: {entries:Entry[];today:string;onSource:(entry:Entry)=>void;onJournal?:()=>void;active?:boolean;wearableNote?:string}) {
+export function LinenBrief({entries,today,onSource,active=true,loading=false}: {loading?:boolean;entries:Entry[];today:string;onSource:(entry:Entry)=>void;onJournal?:()=>void;active?:boolean;wearableNote?:string}) {
   const [month,setMonth]=useState(today.slice(0,7));
   const [status,setStatus]=useState("");const [busy,setBusy]=useState(false);
   const valid=/^\d{4}-(0[1-9]|1[0-2])$/.test(month);
@@ -32,7 +32,7 @@ export function LinenBrief({entries,today,onSource,active=true}: {entries:Entry[
   const statementSources=(ids:string[])=>{const links=ids.map(id=>{const entry=chosen.find(e=>e.id===id);return entry?<span key={id}>{sourceLink(entry,"["+ref(id)+"]")}</span>:null;});return ids.length>3?<details className="brief-statement-sources"><summary>{ids.length} source entries</summary>{links}</details>:<span className="brief-statement-sources">{links}</span>;};
   return <section className="linen-panel appointment-document monthly-brief" aria-labelledby="brief-title">
     <div className="brief-heading"><h1 id="brief-title">Appointment Brief</h1><label className="brief-month-selector">Month<input type="month" value={month} onChange={e=>setMonth(e.target.value)}/></label></div>
-    {!valid?<p role="alert">Select a month.</p>:!chosen.length?<p className="monthly-brief-empty">No journal entries for this month.</p>:<>
+    {!valid?<p role="alert">Select a month.</p>:loading&&!chosen.length?<p role="status">Loading saved journal entries…</p>:!chosen.length?<p className="monthly-brief-empty">No journal entries for this month.</p>:<>
       <BriefAIHighlights active={active} onHighlights={items=>setOverview({signature,items})} entries={chosen} month={month} onSource={onSource}/>
       <div className="brief-export-actions"><button className="button" onClick={async()=>{try{await copyText(documentText);setStatus("Brief copied.");}catch{setStatus("Copy is unavailable in this browser. Select the report text to copy it.");}}}>Copy</button><button className="button" onClick={()=>window.print()}>Print</button><button className="button primary" disabled={busy} onClick={pdf}>{busy?"Saving PDF…":"Download report"}</button></div>
       <div className="monthly-report-body">

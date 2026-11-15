@@ -20,8 +20,8 @@ export function loggedLabels(entries: Entry[]) {
   return [...new Set(entries.flatMap(e=>e.symptomFree?["No symptoms"]:e.facts.filter(f=>symptomKinds.has(f.kind)&&isPresentFact(f)).map(f=>f.value)))];
 }
 
-export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry,demoControls,demoDays,onSettings,learning,onCheckin,stage,onBrief,savedDate}: {
-  today:string;selected:string;onSelect:(date:string)=>void;onEdit:(date:string)=>void;
+export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry,demoControls,demoDays,onSettings,learning,onCheckin,stage,onBrief,savedDate,entriesLoading=false}: {
+  entriesLoading?:boolean;today:string;selected:string;onSelect:(date:string)=>void;onEdit:(date:string)=>void;
   entries:Entry[];forecast:ForecastResult|null;loading:boolean;error:string;onRetry:()=>void;
   demoControls?:ReactNode;onCheckin?:()=>void;stage?:"outlook"|"calendar";onBrief?:()=>void;savedDate?:string;
   demoDays?:DayMeasurement[];onSettings?:()=>void;learning?:LearningOutlook|null;
@@ -49,6 +49,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
   const dayEntries=entries.filter(e=>e.date===selected);
   const dayPredictions=predictions(selected);
   function moveMonth(by:number){setMonth(monthKey(new Date(first.getFullYear(),first.getMonth()+by,1,12)));}
+  if(entriesLoading&&(stage==="calendar"||detailDate))return <p role="status">Loading saved journal entries…</p>;
   if(detailDate&&stage!=="outlook")return <OutlookDay onBrief={onBrief} learning={learning} date={detailDate} today={today} entries={entries} forecast={forecast} demoDays={demoDays} onDate={openDay} onCalendar={()=>{setDetailDate(null);window.history.pushState(null,"",stage?"/calendar":"/outlook");}} onEdit={()=>onEdit(detailDate)} onSettings={onSettings??(()=>{window.location.href="/settings";})}/>;
   return <div className="outlook-composition">
     {stage!=="calendar"&&<section className="linen-panel outlook-summary" aria-labelledby="outlook-summary-heading">
@@ -83,7 +84,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
         <div className="outlook-detail-heading"><h3 id="selected-day-heading">{displayDate(selected)}</h3>{selected<=today&&<button className="button" onClick={()=>onEdit(selected)}>{dayEntries.length?"Edit entry":"Add entry"}</button>}</div>
         {dayEntries.length>0&&<div className="outlook-logged-detail"><span className="outlook-detail-label">● Logged</span>{dayEntries.map(e=><div key={e.id}>{e.symptomFree&&<p>None reported · No symptoms</p>}<p className="outlook-entry-words">{e.text}</p></div>)}</div>}
         {dayPredictions.length>0&&<div className="outlook-prediction-detail"><span className="outlook-detail-label">◇ Estimate · experimental</span><ul>{dayPredictions.map(s=><li key={s.label}><strong>{s.label}</strong><span>{s.riskLabel??(s.higher?"Elevated likelihood":"Usual pattern")}</span></li>)}</ul></div>}
-        {!dayEntries.length&&!dayPredictions.length&&<p className="outlook-no-entry">{selected>today?"No outlook available for this day.":"Unknown · No entry recorded."}</p>}
+        {!dayEntries.length&&!dayPredictions.length&&(entriesLoading?<p role="status">Loading saved journal entries…</p>:<p className="outlook-no-entry">{selected>today?"No outlook available for this day.":"Unknown · No entry recorded."}</p>)}
       </div>}
     </section>}
   </div>;

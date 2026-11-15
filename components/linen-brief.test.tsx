@@ -37,3 +37,4 @@ it("does not turn missing days into symptom-free days or include future observat
  render(<LinenBrief {...props()} entries={[entry,{...entry,id:"future",date:"2026-11-28",text:"Future record"}]}/>);
  expect(screen.getByText("1 logged day · Missing entries are unknown.")).toBeTruthy();expect(screen.queryByText("Explicitly symptom-free days")).toBeNull();expect(screen.queryByText("Future record")).toBeNull();
 });
+it('does not call a profile empty while its saved entries are restoring',()=>{render(<LinenBrief {...props()} entries={[]} loading/>);expect(screen.getByRole('status').textContent).toBe('Loading saved journal entries…');expect(screen.queryByText('No journal entries for this month.')).toBeNull();});

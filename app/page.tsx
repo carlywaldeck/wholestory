@@ -251,6 +251,7 @@ function HomeContent() {
       );
       setReady(true);
     } catch {
+      if(request!==entryLoadRequest.current)return;
       setError(
         "Browser storage is unavailable. Enable local storage to save your journal.",
       );
@@ -551,8 +552,8 @@ function HomeContent() {
     catch(error){setForecastError(error instanceof Error?error.message:"Demo could not advance.");}
     finally{if(request===forecastRequest.current)setForecastLoading(false);}
   }
-  const demoRestored=useRef(false);
-  useEffect(()=>{if(!ready||demoRestored.current)return;demoRestored.current=true;try{if(sessionStorage.getItem("elya-active-demo")==="maya")void tryDemo("maya",true);}catch{}},[ready]);
+  const demoRestored=useRef(false);const [restoringDemo,setRestoringDemo]=useState(true);
+  useEffect(()=>{if(!ready||demoRestored.current)return;demoRestored.current=true;try{if(sessionStorage.getItem("elya-active-demo")==="maya"){void tryDemo("maya",true).finally(()=>setRestoringDemo(false));return;}}catch{}setRestoringDemo(false);},[ready]);
   async function tryDemo(chosen: PersonaId = persona, preservePage=false) {
     profileIntent.current=chosen;
     const request = ++forecastRequest.current;
@@ -626,7 +627,7 @@ function HomeContent() {
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
   }
   const openingMode = view === "Today";
-  const journalExperience = <LinenPages onExitDemo={exitDemo} learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
+  const journalExperience = <LinenPages entriesLoading={!ready||restoringDemo} onExitDemo={exitDemo} learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
           demoControls={<div className="demo-toolbar">{demo?<><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Simulate tomorrow’s check-in</button><button className="button" disabled={forecastLoading} onClick={()=>void restartDemo()}>Restart Sophie’s demo</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Sophie’s demo</button>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={()=>resetPersonalData()}

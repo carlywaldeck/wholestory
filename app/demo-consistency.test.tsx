@@ -20,14 +20,14 @@ function transcript(words:string){const mic=Mic.instances.at(-1)!;act(()=>mic.on
 it('keeps a fresh saved entry in Journal, My days, and November after UTC rolls to December, even if the learning cache fails',async()=>{
  const initial=vi.spyOn(storage,'loadEntries');let resolveInitial!:(entries:any[])=>void;initial.mockImplementationOnce(()=>new Promise(resolve=>{resolveInitial=resolve;}));
  const write=Storage.prototype.setItem;vi.spyOn(Storage.prototype,'setItem').mockImplementation(function(this:Storage,key,value){if(key==='elya-confirmed-checkins-v1')throw Error('check-in cache blocked');return write.call(this,key,value);});
- const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole('button',{name:'Check in today'}));
+ const user=userEvent.setup();const view=render(<Home/>);await user.click(screen.getByRole('button',{name:'Check in today'}));
  expect((screen.getByLabelText('Entry date') as HTMLInputElement).value).toBe('2026-11-30');
- await user.click(screen.getByRole('button',{name:'Speak',exact:true}));transcript('A fictional tired day.');await user.click(screen.getByRole('button',{name:'Stop recording'}));await user.click(screen.getByRole('button',{name:'Fatigue',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Speak'}));transcript('A fictional tired day.');await user.click(screen.getByRole('button',{name:'Stop recording'}));await user.click(screen.getByRole('button',{name:'Fatigue'}));
  expect(screen.getByText(/Unsaved entry/)).toBeTruthy();await user.click(screen.getByRole('button',{name:'Review entry'}));await user.click(screen.getByRole('button',{name:'Confirm and save'}));
  await waitFor(()=>expect(window.location.pathname).toBe('/outlook'));await act(async()=>resolveInitial([]));
  expect((await storage.loadEntries())[0].date).toBe('2026-11-30');await navigate(user,'Journal');expect((screen.getByLabelText('What are you experiencing today?') as HTMLTextAreaElement).value).toBe('A fictional tired day.');
  await navigate(user,'My days');await user.click(screen.getByRole('button',{name:/November 30, 2026, today, Logged: Fatigue/}));expect(screen.getByText('A fictional tired day.')).toBeTruthy();
- await navigate(user,'Appointment Brief');expect(document.querySelector('.monthly-report-body')?.textContent).toContain('Fatigue: reported on 1 day.');expect((screen.getByLabelText('Month') as HTMLInputElement).value).toBe('2026-11');
+ await navigate(user,'Appointment Brief');expect(document.querySelector('.monthly-report-body')?.textContent).toContain('Fatigue: reported on 1 day.');expect((screen.getByLabelText('Month') as HTMLInputElement).value).toBe('2026-11');view.unmount();render(<Home/>);await screen.findByText('Supporting Journal entries (1)');expect(document.querySelector('.brief-sources')?.textContent).toContain('A fictional tired day.');
 });
 it('saves Ellie speech in the Sophie profile, highlights its sample date, and survives a report refresh',async()=>{
  const user=userEvent.setup();const view=render(<Home/>);await user.click(screen.getByRole('button',{name:'Try Sophie’s demo'}));await screen.findByText('Sophie’s demo · Fictional profile');
@@ -36,10 +36,10 @@ it('saves Ellie speech in the Sophie profile, highlights its sample date, and su
  await screen.findByRole('heading',{name:'Review your entry'});await user.click(screen.getByRole('button',{name:'Save & see my day'}));await screen.findByRole('heading',{name:'Your days, connected'}, {timeout:8000});
  const date=screen.getByRole('button',{name:/November 14, 2026, today, Logged: Fatigue/});expect(date.getAttribute('aria-pressed')).toBe('true');await user.click(date);expect(screen.getByText('I had fatigue today.')).toBeTruthy();
  await user.click(screen.getByRole('button',{name:'See my appointment brief'}));expect(document.querySelector('.monthly-report-body')?.textContent).toContain('Fatigue: reported on 2 days.');
- view.unmount();render(<Home/>);await screen.findByText('Supporting Journal entries (14)',{}, {timeout:8000});expect(document.querySelector('.monthly-report-body')?.textContent).toContain('Fatigue: reported on 2 days.');expect(await storage.loadEntries()).toEqual([]);
+ view.unmount();render(<Home/>);expect(screen.queryByText('No journal entries for this month.')).toBeNull();await screen.findByText('Supporting Journal entries (14)',{}, {timeout:8000});expect(document.querySelector('.monthly-report-body')?.textContent).toContain('Fatigue: reported on 2 days.');expect(document.querySelector('.brief-sources')?.textContent).toContain('I had fatigue today.');expect(await storage.loadEntries()).toEqual([]);
 },15000);
 it('keeps spoken symptoms and the no-symptoms control mutually exclusive in both directions',async()=>{
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole('button',{name:'Try Sophie’s demo'}));await screen.findByText('Sophie’s demo · Fictional profile');await user.click(screen.getByRole('button',{name:'Tell Ellie how you’re feeling'}));await waitFor(()=>expect(Mic.instances.length).toBeGreaterThan(0));transcript('No symptoms today, but I have a headache.');await user.click(screen.getByRole('button',{name:'Done speaking'}));await waitFor(()=>expect(document.querySelector('.journal-symptom-bubbles button[aria-pressed="true"]')?.textContent).toContain('Headache'),{timeout:5000});await user.click(screen.getByRole('button',{name:'Pause conversation'}));await user.click(screen.getByText('Symptoms and additional details'));
- const none=screen.getByRole('checkbox',{name:'No symptoms today'}) as HTMLInputElement;expect(none.checked).toBe(false);expect(screen.getByRole('button',{name:'Headache',exact:true}).getAttribute('aria-pressed')).toBe('true');
+ const none=screen.getByRole('checkbox',{name:'No symptoms today'}) as HTMLInputElement;expect(none.checked).toBe(false);expect(screen.getByRole('button',{name:'Headache'}).getAttribute('aria-pressed')).toBe('true');
 
 },12000);
