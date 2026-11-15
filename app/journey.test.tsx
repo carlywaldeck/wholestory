@@ -44,7 +44,7 @@ it("saves a confirmed entry, reviews it on the calendar, and edits without dupli
 });
 it("exports the selected fictional month as a read-only brief",async()=>{
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Sophie’s demo"}));
- await screen.findByText(/Demo · Sophie/);
+ await screen.findByText(/Sophie’s demo · Fictional profile/);
  await navigate(user,"Appointment Brief");const print=screen.getByRole("button",{name:"Print"}) as HTMLButtonElement;
  expect(print.disabled).toBe(false);expect(document.querySelector("textarea")).toBeNull();
  expect(await loadEntries()).toHaveLength(0);

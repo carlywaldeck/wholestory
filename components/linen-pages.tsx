@@ -23,10 +23,10 @@ const defaultLabels = ["Pelvic pain / cramps", "Fatigue", "Bloating", "Bowel sym
 const kindFor = (label: string): Fact["kind"] => label === "Pelvic pain / cramps" ? "Pelvic pain" : label === "Bowel symptoms" ? "Bowel discomfort" : label === "Headache" ? "Pain" : defaultLabels.includes(label) ? label as Fact["kind"] : "Uncertainty";
 const pretty = (date: string) => new Date(date+"T12:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
 
-export function LinenPages({view, entries, forecast, loading, forecastError, onSave, onSettings, onDelete, demo, onRetry, demoControls, wearableNote, continuous=false, demoDays, learning, demoToday}: {
+export function LinenPages({view, entries, forecast, loading, forecastError, onSave, onSettings, onDelete, demo, onRetry, demoControls, wearableNote, continuous=false, demoDays, learning, demoToday, onExitDemo}: {
   view:string; entries:Entry[]; forecast:ForecastResult|null; loading:boolean; forecastError:string;
   onSave:(entry:Entry)=>Promise<void>; onSettings:()=>void; onDelete:()=>Promise<void>; demo:boolean; onRetry:()=>void;
-  demoControls?:ReactNode; wearableNote?:string; continuous?:boolean; demoDays?:DayMeasurement[]; learning?:LearningOutlook|null; demoToday?:string;
+  demoControls?:ReactNode; wearableNote?:string; continuous?:boolean; demoDays?:DayMeasurement[]; learning?:LearningOutlook|null; demoToday?:string;onExitDemo?:()=>void;
 }) {
   const currentDay=demoToday??localToday();
   const [secure,setSecure]=useState(true);
@@ -89,7 +89,7 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
   return <div className="linen-experience">
     <div className="linen-static"><HeroBackground frozen /></div>
     <div className="linen-content">
-      {demo&&!continuous&&<div className="demo-journey"><span>Sophie’s demo · Fictional profile</span><div role="navigation" aria-label="Demo walkthrough">{[{label:"1 · Outlook",view:"Outlook"},{label:"2 · Journal",view:"Your story"},{label:"3 · Appointment brief",view:"Appointment brief"}].map(step=><button key={step.view} aria-current={view===step.view?"step":undefined} onClick={()=>nav.navigateTo(step.view)}>{step.label}</button>)}</div></div>}
+      {demo&&!continuous&&<div className="demo-journey"><div className="demo-session-heading"><span>Sophie’s demo · Fictional profile</span>{onExitDemo&&<button className="text-action" onClick={()=>{if(!dirty||window.confirm("Leave without saving? Your entry isn’t saved yet."))onExitDemo();}}>Exit demo</button>}</div><div role="navigation" aria-label="Demo walkthrough">{[{label:"1 · Outlook",view:"Outlook"},{label:"2 · Journal",view:"Your story"},{label:"3 · Appointment brief",view:"Appointment brief"}].map(step=><button key={step.view} aria-current={view===step.view?"step":undefined} onClick={()=>nav.navigateTo(step.view)}>{step.label}</button>)}</div></div>}
       {(continuous||view==="Your story")&&<section className="linen-panel journal-panel" aria-labelledby="journal-heading">
         <div className="linen-date-heading"><button aria-label="Previous day" onClick={()=>changeDate(shiftDate(date,-1))}>←</button><h1 id="journal-heading">Journal <span>— {pretty(date)}</span></h1><button aria-label="Next day" disabled={date>=currentDay} onClick={()=>changeDate(shiftDate(date,1))}>→</button></div>
         <label className="linen-date-picker">Entry date<input type="date" value={date} max={currentDay} onChange={e=>changeDate(e.target.value)}/></label>
