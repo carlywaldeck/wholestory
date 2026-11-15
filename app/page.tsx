@@ -557,7 +557,7 @@ function HomeContent() {
     setCheckin(false);
     if(!preservePage){setView("Outlook");window.scrollTo(0,0);}
     try {
-      const bundle=await loadFictionalLearning(chosen,shiftDate(today(),1));
+      const bundle=await (preservePage?loadFictionalLearning(chosen,shiftDate(today(),1)):restartFictionalLearning(chosen,shiftDate(today(),1)));
       if(request!==forecastRequest.current)return;
       applyFictionalBundle(bundle);
       setPersona(chosen);

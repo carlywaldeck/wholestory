@@ -26,7 +26,8 @@ it("uses matching backend history and isolates a demo check-in from personal rec
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Sophie’s demo"}));
  await screen.findByText(/Sophie’s demo · Fictional profile/);
  expect(screen.getAllByText(/Still learning your pattern/)).toHaveLength(4);
- await user.click(screen.getByRole("button",{name:"Check in today"}));
+ await user.click(screen.getByRole("button",{name:"Start voice conversation"}));
+ await user.click(await screen.findByRole("button",{name:"Pause conversation"}));
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
  await user.click(screen.getByText("Record a symptom as absent"));await user.selectOptions(screen.getByLabelText("Fatigue status"),"absent");
  await user.type(screen.getByLabelText("What are you experiencing today?")," I missed a fictional rehearsal.");

@@ -1,0 +1,19 @@
+// @vitest-environment jsdom
+import {afterEach,expect,it,vi} from 'vitest';
+import {act,cleanup,render,screen,waitFor} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+const audio=vi.hoisted(()=>({state:{phase:'idle',caption:'',notice:''},speak:vi.fn(async(_lines:string[],_acknowledge=false)=>{}),stop:vi.fn(),unlock:vi.fn(async()=>{}),subscribe:vi.fn((fn:any)=>{fn({phase:'idle',caption:'',notice:''});return()=>{};})}));
+vi.mock('../lib/conversation-audio',()=>({conversationAudio:audio}));
+import {JournalFollowups} from './journal-followups';
+class Mic{static instances:Mic[]=[];lang='';continuous=false;interimResults=false;onstart:any=null;onend:any=null;onerror:any=null;onresult:any=null;constructor(){Mic.instances.push(this);}start=vi.fn(()=>this.onstart?.());stop=vi.fn(()=>this.onend?.());abort=vi.fn();}
+afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.clearAllMocks();Mic.instances=[];});
+it('speaks and listens once started, then advances from a final transcript without Hear question',async()=>{
+ vi.stubGlobal('isSecureContext',true);vi.stubGlobal('SpeechRecognition',Mic);const update=vi.fn();render(<JournalFollowups autoStart mode="speak" text="I have cramps." sessionKey="test" onUpdate={update} onActivity={vi.fn()}/>);
+ await waitFor(()=>expect(Mic.instances.length).toBeGreaterThan(0));expect(audio.speak).toHaveBeenCalledWith(['How strong is the pain right now?'],false);
+ act(()=>Mic.instances.at(-1)!.onresult({results:[Object.assign([{transcript:'Moderate'}],{isFinal:true})]}));
+ await waitFor(()=>expect(audio.speak.mock.calls.length).toBeGreaterThanOrEqual(2),{timeout:4000});expect(update.mock.calls.some(c=>c[0].some((t:any)=>t.answer==='Moderate'))).toBe(true);expect(audio.speak.mock.calls[1][0].at(-1)).not.toBe('How strong is the pain right now?');
+});
+it('pauses recording and preserves the stop control instead of requesting another question',async()=>{
+ vi.stubGlobal('isSecureContext',true);vi.stubGlobal('SpeechRecognition',Mic);const user=userEvent.setup();render(<JournalFollowups autoStart mode="speak" text="I have cramps." sessionKey="test" onUpdate={vi.fn()} onActivity={vi.fn()}/>);
+ await waitFor(()=>expect(Mic.instances.length).toBeGreaterThan(0));await user.click(screen.getByRole('button',{name:'Pause conversation'}));expect(Mic.instances.at(-1)!.abort).toHaveBeenCalled();expect(screen.getByRole('button',{name:'Start voice conversation'})).toBeTruthy();
+});

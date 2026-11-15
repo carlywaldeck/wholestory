@@ -18,10 +18,10 @@ export function loggedLabels(entries: Entry[]) {
   return [...new Set(entries.flatMap(e=>e.symptomFree?["No symptoms"]:e.facts.filter(f=>symptomKinds.has(f.kind)&&isPresentFact(f)).map(f=>f.value)))];
 }
 
-export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry,demoControls,demoDays,onSettings,learning}: {
+export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,loading,error,onRetry,demoControls,demoDays,onSettings,learning,onCheckin}: {
   today:string;selected:string;onSelect:(date:string)=>void;onEdit:(date:string)=>void;
   entries:Entry[];forecast:ForecastResult|null;loading:boolean;error:string;onRetry:()=>void;
-  demoControls?:ReactNode;
+  demoControls?:ReactNode;onCheckin?:()=>void;
   demoDays?:DayMeasurement[];onSettings?:()=>void;learning?:LearningOutlook|null;
 }) {
   const navigation=useAppNavigation();
@@ -55,7 +55,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
         {!learning&&<span className="outlook-estimate-tag">◇ Estimate · experimental</span>}
       </>:<p className="outlook-summary-line">{target?`No estimate available for ${targetLabel} yet.`:"No outlook available yet."}</p>}
       {!loading&&!error&&(learning!==undefined?<PersonalLearningOutlook result={learning} sampleDays={demoDays?.length}/>:<><ul className="outlook-forecast-rows">{checkinSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?"○ Still learning":s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>)}
-      <div className="outlook-checkin-action"><button className="button primary" onClick={()=>onEdit(today)}>Check in today</button></div>
+      <div className="outlook-checkin-action"><button className="button primary" onClick={()=>onCheckin?onCheckin():onEdit(today)}>{demoDays!==undefined?"Start voice conversation":"Check in today"}</button>{demoDays!==undefined&&<p className="conversation-start-note">Ellie asks aloud, then listens for your answer. You can pause at any time.</p>}</div>
     </section>
     {demoDays!==undefined&&<DemoWearable days={demoDays} onView={()=>openDay(today)}/>}
     <section className="linen-panel outlook-calendar-panel" aria-labelledby="calendar-month">
