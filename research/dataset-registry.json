@@ -78,6 +78,20 @@
       "clinicalValidation": false,
       "endometriosisPopulation": false,
       "cannotEstablish": "Clinically calibrated multi-symptom risk, wearable benefit or endometriosis-specific forecasting"
+    },
+    {
+      "id": "cyclebench-fem-state-audit",
+      "url": "https://huggingface.co/datasets/haammar/fem-state",
+      "access": "Public CSV files; declared openrail; original study provenance and reuse basis not verified",
+      "actualAudit": {
+        "files": 43,
+        "rows": 5665,
+        "timeColumnsPresent": false
+      },
+      "clinicalValidation": false,
+      "forecastEvaluationAllowed": false,
+      "appTrainingAllowed": false,
+      "cannotEstablish": "Next-day wearable symptom forecasting; chronology, observed versus imputed values, source study and symptom coding not established"
     }
   ]
 }
