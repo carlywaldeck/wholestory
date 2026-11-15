@@ -51,6 +51,12 @@ export const entrySchema = z
     symptomFree: z.boolean(),
     demo: z.boolean(),
     persona: z.enum(["maya", "alex", "jules"]).optional(),
+    journal: z.object({
+      originalText:z.string().max(9000),createdAt:z.iso.datetime(),updatedAt:z.iso.datetime(),
+      bankVersion:z.string(),policyVersion:z.string(),
+      provenance:z.array(z.object({quote:z.string(),source:z.enum(["user-selection","follow-up-answer","user-confirmed-extraction"]),questionId:z.string().optional(),symptom:z.string().optional()})),
+      selection:z.array(z.object({questionId:z.string(),status:z.enum(["answered","skipped","declined","not-applicable","unknown"])})),
+    }).optional(),
   })
   .strict();
 export type Fact = z.infer<typeof factSchema>;

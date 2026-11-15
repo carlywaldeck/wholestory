@@ -235,3 +235,5 @@
 }
 
 .day-date-picker{text-align:center;min-width:0}.day-date-button{font:inherit;color:var(--ink);background:transparent;border:0;border-radius:12px;padding:6px;cursor:pointer}.day-date-button:focus-visible{outline:2px solid var(--rose-deep);outline-offset:3px}.day-date-picker label{display:grid;gap:8px;font:400 14px var(--font-body);margin-top:12px}.day-date-picker input{max-width:100%;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--white);color:var(--ink)}
+
+.journal-confirmation{border-top:1px solid var(--line);margin-top:24px;padding-top:24px}.journal-confirmation h2{margin-bottom:20px}.journal-confirmation h3{font-size:16px;margin-top:20px}.journal-confirmation>div{display:flex;align-items:end;gap:12px;margin:12px 0}.journal-confirmation label{display:grid;gap:8px;flex:1}.journal-confirmation input{width:100%;min-width:0;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--ink);background:var(--white)}
