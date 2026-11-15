@@ -677,7 +677,7 @@ function HomeContent() {
                   <span>Start my journal</span>
                   <ArrowDown size={18} aria-hidden="true" />
                 </button>
-                <button className="opening-demo button" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading?"Preparing outlook…":"Try Sophie’s demo"}</button>
+                <button className="opening-demo button" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading?"Preparing outlook…":"Try Sophie’s demo"}</button><p className="demo-entry-help">A practice run with made-up entries. No account or wearable needed.</p>
                 <button className="visually-hidden" onClick={() => voice()}>
                   Record instead
                 </button>

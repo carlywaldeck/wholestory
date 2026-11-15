@@ -1,12 +1,15 @@
 import type {Entry} from './model';
+import {appointmentOverview,verifiedHighlights} from './appointment-overview';
+import type {BriefStatement} from './monthly-brief';
 import {monthlySections} from './monthly-brief';
 const ink=[84,55,45] as const, muted=[115,88,76] as const, rose=[158,90,104] as const;
 const clean=(text:string)=>text.replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[–—]/g,'-').replace(/…/g,'...');
 const shortDate=(date:string)=>new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
 /** Patient-reported summary only. Forecasts and wearable readings are not counted as symptoms. */
-export async function createMonthlyBriefPdf(entries:Entry[],month:string){
+export async function createMonthlyBriefPdf(entries:Entry[],month:string,highlights:BriefStatement[]=[]){
  const {jsPDF}=await import('jspdf');const pdf=new jsPDF();
  const chosen=entries.filter(e=>e.date.startsWith(month+'-')).sort((a,b)=>a.date.localeCompare(b.date));
+ const overview=verifiedHighlights(chosen,month,highlights);
  const sections=monthlySections(chosen),days=new Set(chosen.map(e=>e.date)).size;
  const label=new Date(month+'-01T12:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'});
  let y=20;
@@ -21,17 +24,17 @@ export async function createMonthlyBriefPdf(entries:Entry[],month:string){
  y=59;
  para(`${days} logged ${days===1?'day':'days'}${chosen.length?` | ${shortDate(chosen[0].date)} - ${shortDate(chosen.at(-1)!.date)}`:''}. Missing days are unknown, not symptom-free.`,10,muted);
  const symptoms=sections.find(s=>s.heading==='Reported symptoms');
- heading('At a glance');
- const positiveIds=new Set(symptoms?.statements.flatMap(s=>s.sourceIds)??[]);const positiveDays=new Set(chosen.filter(e=>positiveIds.has(e.id)).map(e=>e.date)).size;const impactIds=new Set(sections.find(s=>s.heading==='Daily-life impact')?.statements.flatMap(s=>s.sourceIds)??[]);const impactDays=new Set(chosen.filter(e=>impactIds.has(e.id)).map(e=>e.date)).size;
- para(positiveDays?`Symptoms were explicitly reported on ${positiveDays} logged ${positiveDays===1?'day':'days'}.${impactDays?` Daily-life impact was recorded on ${impactDays} ${impactDays===1?'day':'days'}.`:''}`:'No confirmed symptom details were recorded for this month.');
+ heading('Visit overview');
+ para(appointmentOverview(chosen,month),10);
+ if(overview.length){heading('AI-selected key points');for(const item of overview){para(item.text,10);para('Reported '+dates(item.sourceIds),8,muted);}}
+
  if(symptoms){
-  y+=3;pdf.setFillColor(246,241,238);pdf.roundedRect(18,y-4,174,9,2,2,'F');text('Reported symptom',21,y+2,9,true);text('Reported days / dates',103,y+2,9,true);y+=13;
-  for(const statement of symptoms.statements.slice(0,6)){
-   const split=statement.text.split(':');const sourceDates=dates(statement.sourceIds);pdf.setFontSize(9);const lines=pdf.splitTextToSize(clean(split.slice(1).join(':').trim()+' '+sourceDates),85);ensure(Math.max(8,lines.length*4+3));text(split[0],21,y,10);text(lines.join('\n'),103,y,9,false,muted);y+=Math.max(9,lines.length*4+3);
+  y+=3;pdf.setFillColor(246,241,238);pdf.roundedRect(18,y-4,174,9,2,2,'F');text('Symptom',21,y+2,9,true);text('Days',100,y+2,9,true);text('Reported dates',120,y+2,9,true);y+=13;
+  for(const statement of symptoms.statements){
+   const name=statement.text.split(':')[0];const source=chosen.filter(e=>statement.sourceIds.includes(e.id));const count=new Set(source.map(e=>e.date)).size;pdf.setFontSize(9);const lines=pdf.splitTextToSize(clean(dates(statement.sourceIds)),70);ensure(Math.max(9,lines.length*4+3));text(name,21,y,10);text(String(count),100,y,10,true);text(lines.join('\n'),120,y,9,false,muted);y+=Math.max(9,lines.length*4+3);
   }
-  if(symptoms.statements.length>6)para(`${symptoms.statements.length-6} additional symptom categories are available in the journal.`,9,muted);
  }
- for(const name of ['Severity and timing','Daily-life impact','What helped or did not help']){
+ for(const name of (overview.length?[]:['Severity and timing','Daily-life impact','What helped or did not help'])){
   const section=sections.find(s=>s.heading===name);heading(name);
   if(!section){para('Not recorded in confirmed details.',9,muted);continue;}
   for(const statement of section.statements.slice(0,2)){para(statement.text,10);para('Reported '+dates(statement.sourceIds),8,muted);}
@@ -42,4 +45,4 @@ export async function createMonthlyBriefPdf(entries:Entry[],month:string){
  const pages=pdf.getNumberOfPages();for(let n=1;n<=pages;n++){pdf.setPage(n);pdf.setDrawColor(232,221,217);pdf.line(18,279,192,279);text('Patient-reported information. Not a diagnosis or a replacement for medical care.',18,285,8,false,muted);text(`${n} / ${pages}`,181,291,8,false,muted);}
  return pdf;
 }
-export async function downloadMonthlyBrief(entries:Entry[],month:string){const pdf=await createMonthlyBriefPdf(entries,month);pdf.save(`elya-appointment-summary-${month}.pdf`);}
+export async function downloadMonthlyBrief(entries:Entry[],month:string,highlights:BriefStatement[]=[]){const pdf=await createMonthlyBriefPdf(entries,month,highlights);pdf.save(`elya-appointment-summary-${month}.pdf`);}

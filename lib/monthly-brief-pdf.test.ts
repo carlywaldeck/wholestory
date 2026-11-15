@@ -8,3 +8,9 @@ it('creates a concise one-page summary with source dates without dumping the raw
 it('keeps an unrecorded detail unknown instead of calling it absent',async()=>{
  const pdf=await createMonthlyBriefPdf([{...entry,facts:[],text:'Original unstructured words.'}],'2026-11');const output=pdf.output();expect(output).toContain('Not recorded in confirmed details.');expect(output).not.toContain('No daily-life impact');expect(output).toContain('Missing days are unknown');
 });
+it('includes only verified AI-selected statements in the doctor overview',async()=>{
+ const items=[{text:'“Missed activities.”',sourceIds:['sample']}];const pdf=await createMonthlyBriefPdf([entry],'2026-11',items);expect(pdf.output()).toContain('AI-selected key points');expect(pdf.output()).toContain('Missed activities');
+});
+it('rejects stale or invented AI summaries rather than exporting unsupported medical claims',async()=>{
+ await expect(createMonthlyBriefPdf([entry],'2026-11',[{text:'Diagnosed endometriosis.',sourceIds:['sample']}])).rejects.toThrow('no longer matches');
+});
