@@ -45,11 +45,12 @@ import {
 } from "../lib/model";
 import * as storage from "../lib/storage";
 import {MicrophoneStatus} from "../components/microphone-status";
+import {DemoWearable} from "../components/demo-wearable";
 import {SettingsShell} from "../components/settings-shell";
 import {CloudJournal} from "../components/cloud-journal";
 import {BrowserVoicePreferences} from "../components/browser-voice-preferences";
 import {LearningImport} from "../components/learning-import";
-import {currentPersonalOutlook,loadFictionalLearning,saveFictionalJournal,advanceFictionalLearning,rememberLegacyWearables,clearLearningData,exportLearningData,REAL_PROFILE} from "../lib/learning-store";
+import {currentPersonalOutlook,loadFictionalLearning,restartFictionalLearning,saveFictionalJournal,advanceFictionalLearning,rememberLegacyWearables,clearLearningData,exportLearningData,REAL_PROFILE} from "../lib/learning-store";
 import type {LearningBundle} from "../lib/learning-types";
 import {loadWearables} from "../lib/wearables";
 import type { ForecastPersona as PersonaId } from "../lib/forecast-demo";
@@ -534,6 +535,12 @@ function HomeContent() {
     setLearningBundle(bundle);
     setForecastDemo({demo:{persona:bundle.persona!,label:bundle.label??"Fictional learner",disclosure:bundle.disclosure??""},forecast:null as unknown as ForecastResult,demoInput:bundle.input,demoPhysiology:bundle.physiology,demoJournalEntries:bundle.entries??[]});
   }
+  async function restartDemo(){
+    const request=++forecastRequest.current;setForecastLoading(true);setForecastError("");
+    try{const bundle=await restartFictionalLearning(persona,shiftDate(today(),1));if(request===forecastRequest.current){applyFictionalBundle(bundle);setView("Outlook");setNotice("");}}
+    catch(error){setForecastError(error instanceof Error?error.message:"Demo could not restart.");}
+    finally{if(request===forecastRequest.current)setForecastLoading(false);}
+  }
   async function advanceDemo(){
     const request=++forecastRequest.current;setForecastLoading(true);setForecastError("");
     try{const bundle=await advanceFictionalLearning(persona);if(request===forecastRequest.current)applyFictionalBundle(bundle);}
@@ -617,7 +624,7 @@ function HomeContent() {
   const openingMode = view === "Today";
   const journalExperience = <LinenPages learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
-          demoControls={<div className="demo-toolbar">{demo?<><span className="demo-mode-label">Demo · Sophie <small>Fictional data</small></span><button className="text-action" onClick={exitDemo}>Exit demo</button><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Next demo day</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Sophie’s demo</button>}</div>}
+          demoControls={<div className="demo-toolbar">{demo?<><span className="demo-mode-label">Demo · Sophie <small>Fictional data</small></span><button className="text-action" onClick={exitDemo}>Exit demo</button><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Simulate tomorrow’s check-in</button><button className="button" disabled={forecastLoading} onClick={()=>void restartDemo()}>Restart Sophie’s demo</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Sophie’s demo</button>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={()=>resetPersonalData()}
           onSave={async entry=>{
             const saved=validateEntry({...entry,...(demo?{persona}: {})});
@@ -1633,7 +1640,7 @@ function HomeContent() {
             <SettingsShell
               preferences={<PersonalPreferences value={preferences} onSave={async value=>{await savePreferences(value);setPreferences(value);localStorage.setItem("elya.journalMode",value.inputMode==="voice"?"speak":"type");window.dispatchEvent(new Event("elya-journal-preferences"));}}/>}
               voice={<BrowserVoicePreferences/>}
-              connections={<>
+              connections={demo ? <DemoWearable days={forecastDemo?.demoPhysiology??[]} onView={()=>{setSettings(false);setView("Outlook");const day=learningBundle?shiftDate(learningBundle.result.targetDate,-1):today();window.history.replaceState(null,"","/outlook?day="+day);window.dispatchEvent(new PopStateEvent("popstate"));}}/> : <>
                 <p>Connect Oura or import a daily file. Nothing connects automatically.</p>
                 <WearableConnections onImported={async record=>{await saveWearables(record);await rememberLegacyWearables(record);setCheckinVersion(n=>n+1);setNotice("Wearable measurements imported on this device.");}}/>
                 <LearningImport onSaved={bundle=>{if(!demoMode)setLearningBundle(bundle);setNotice("Wearable measurements imported on this device.");}}/>

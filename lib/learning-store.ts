@@ -40,6 +40,17 @@ export function loadFictionalLearning(persona:ForecastPersona,targetDate:string,
  }
  return persist(await executor({op:"demo",persona,targetDate}));
 });}
+/** Restart only a fictional profile, archiving its previous run for recovery. */
+export function restartFictionalLearning(persona:ForecastPersona,targetDate:string,executor:Executor=runLearningTask){return serializeLearning(async()=>{
+ const id="demo-"+persona;
+ const existing=await loadPersonalLearner(learnerStorage,id);
+ if(existing&&existing.kind!=="synthetic")throw Error("Only fictional profiles can restart.");
+ const fresh=await executor({op:"demo",persona,targetDate});
+ if(fresh.result.state.kind!=="synthetic"||fresh.result.state.profileId!==id||fresh.persona!==persona)throw Error("Fictional restart profile mismatch.");
+ const previous=await learnerStorage.getItem(bundleKey(id));
+ if(previous)await learnerStorage.setItem("archived-demo-run:"+id+":"+Date.now(),previous);
+ return persist(fresh);
+});}
 export function saveFictionalJournal(persona:ForecastPersona,entry:import("./model").Entry,day:RiskInput["days"][number],executor:Executor=runLearningTask){return serializeLearning(async()=>{
  const id="demo-"+persona;const raw=await learnerStorage.getItem(bundleKey(id));if(!raw)throw Error("Load this fictional profile first.");const old=JSON.parse(raw) as LearningBundle;
  const lastTime=Math.max(...old.result.state.records.map(r=>Date.parse(r.issuedAt)),Date.parse(old.input.asOf));

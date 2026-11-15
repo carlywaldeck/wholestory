@@ -1,0 +1,7 @@
+import type {DayMeasurement} from './outlook-day';
+export function DemoWearable({days,onView}:{days:DayMeasurement[];onView:()=>void}){
+ const latest=[...days].sort((a,b)=>b.date.localeCompare(a.date))[0];
+ const date=latest?new Date(latest.date+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}):'';
+ const metrics=[['Sleep',latest?.sleepHours==null?'—':`${latest.sleepHours.toFixed(1)} h`],['Night heart rate',latest?.nightHeartRateBpm==null?'—':`${Math.round(latest.nightHeartRateBpm)} bpm`],['HRV',latest?.hrvRmssdMs==null?'—':`${Math.round(latest.hrvRmssdMs)} ms`],['Temperature',latest?.temperatureDeviationC==null?'—':`${latest.temperatureDeviationC>=0?'+':''}${latest.temperatureDeviationC.toFixed(2)} °C`]];
+ return <section className="demo-wearable" aria-labelledby="demo-wearable-title"><div className="demo-wearable-heading"><div><p className="demo-eyebrow">SOPHIE’S WEARABLE</p><h2 id="demo-wearable-title">{latest?"Already part of her outlook":"Sample readings unavailable"}</h2></div><span className="demo-connected"><span aria-hidden="true">{latest?"✓":"○"}</span> {latest?"Sample data loaded":"No sample data"}</span></div><p>Her fictional wearable history is ready to explore—no account or device needed.</p><dl>{metrics.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><div className="demo-wearable-footer"><span>{days.length} sample days{date?` · Latest reading ${date}`:''}</span><button className="text-action" disabled={!latest} onClick={onView}>View daily readings →</button></div></section>;
+}
