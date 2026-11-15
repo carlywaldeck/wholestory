@@ -37,14 +37,14 @@ it("saves a confirmed entry, reviews it on the calendar, and edits without dupli
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.type(screen.getByLabelText("What are you experiencing today?"),"My lower abdomen ached this morning.");
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
- await user.click(screen.getByRole("button",{name:"Add to calendar"}));await screen.findByRole("heading",{name:"Today’s summary"});
+ await user.click(screen.getByRole("button",{name:"Add to calendar"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  await user.click(screen.getByRole("button",{name:"Edit entry"}));await user.type(screen.getByLabelText("What are you experiencing today?")," I missed a walk.");
- await user.click(screen.getByRole("button",{name:"Save changes"}));await screen.findByRole("heading",{name:"Today’s summary"});
+ await user.click(screen.getByRole("button",{name:"Save changes"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  const saved=await loadEntries();expect(saved).toHaveLength(1);expect(saved[0].text).toContain("I missed a walk.");expect(saved[0].facts[0].quote).toBe("I reported pelvic pain / cramps.");
 });
 it("exports the selected fictional month as a read-only brief",async()=>{
- const user=userEvent.setup();render(<Home/>);await user.selectOptions(screen.getByLabelText("Fictional history"),"maya");
- await screen.findByText("Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.");
+ const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Maya’s demo"}));
+ await screen.findByText(/Demo · Maya/);
  await navigate(user,"Appointment Brief");const print=screen.getByRole("button",{name:"Print"}) as HTMLButtonElement;
  expect(print.disabled).toBe(false);expect(document.querySelector("textarea")).toBeNull();
  expect(await loadEntries()).toHaveLength(0);

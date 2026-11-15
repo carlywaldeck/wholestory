@@ -235,3 +235,28 @@
 }
 
 .day-date-picker{text-align:center;min-width:0}.day-date-button{font:inherit;color:var(--ink);background:transparent;border:0;border-radius:12px;padding:6px;cursor:pointer}.day-date-button:focus-visible{outline:2px solid var(--rose-deep);outline-offset:3px}.day-date-picker label{display:grid;gap:8px;font:400 14px var(--font-body);margin-top:12px}.day-date-picker input{max-width:100%;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--white);color:var(--ink)}
+/* One concise outlook, with technical evidence available on demand. */
+.demo-toolbar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin:.75rem 0 1.25rem;font-size:.85rem;color:#766766}
+.demo-mode-label{font-weight:600;color:#8f4e61}.demo-mode-label small{font-weight:400;margin-left:.6rem;color:#766766}
+.text-action{border:0;background:none;color:#8f4e61;text-decoration:underline;text-underline-offset:4px;padding:.35rem 0;cursor:pointer;font:inherit}
+.demo-toolbar details{margin-left:auto}.demo-toolbar details p{max-width:30rem}
+.outlook-reading .outlook-forecast-title{font-size:1.55rem;margin:1rem 0 .75rem;letter-spacing:-.035em}
+.outlook-narrative{font-size:1.08rem;line-height:1.65;max-width:43rem;margin:0 0 1.3rem;color:#514441}
+.symptom-risk-list{list-style:none;padding:0;margin:0;border-top:1px solid #e7dedb}
+.symptom-risk-list li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0;border-bottom:1px solid #e7dedb;font-size:.96rem}
+.risk-pill{font-size:.8rem;padding:.3rem .65rem;border-radius:999px;white-space:nowrap;background:#f0ebe7;color:#625855}
+.risk-pill.high{background:#f0dce2;color:#824158}.risk-pill.medium{background:#f4e8dd;color:#815e3e}.risk-pill.low{background:#e7ede6;color:#4b644c}.risk-pill.learning{white-space:normal;text-align:right;background:transparent;color:#877974}
+.outlook-caption{font-size:.78rem!important;color:#82746e;margin:1rem 0!important}
+.outlook-method{border-top:1px solid #e7dedb;padding-top:1rem;margin-top:.5rem;font-size:.85rem;color:#766762}.outlook-method summary{cursor:pointer;color:#70575d}.outlook-method p{line-height:1.6}
+.linen-content>.demo-chip{display:none}
+@media(max-width:600px){.symptom-risk-list li{padding:.9rem 0}.outlook-narrative{font-size:1rem}.demo-toolbar{gap:.65rem}.demo-toolbar details{margin-left:0}}
+.brief-overview{font-size:1.05rem;line-height:1.7;max-width:42rem;color:#514441}
+.brief-method{font-size:.82rem;color:#82746e;margin:1rem 0 1.6rem}.brief-method summary{cursor:pointer}
+.outlook-summary-top h1{font-size:.9rem!important;text-transform:uppercase;letter-spacing:.09em!important;color:#8b7772!important;font-weight:500!important}
+.outlook-summary-line{font-size:.9rem!important;color:#8b7772!important;margin-bottom:.4rem!important}
+.outlook-checkin-action{margin-top:1.5rem}
+.demo-chip{border:0!important;background:#f2e7e9!important;font-size:.75rem!important;padding:.3rem .6rem!important}
+
+.outlook-summary-top h1{font-size:1.55rem!important;text-transform:none;letter-spacing:-.035em!important;color:#352d2a!important;font-weight:600!important}.outlook-summary-top{align-items:baseline;flex-wrap:wrap;gap:.4rem 1rem}.outlook-summary-top>span{font-size:.85rem}.outlook-narrative{margin-top:1.3rem}
+
+.outlook-basis{font-size:.82rem;color:#8b6572;margin:-.5rem 0 1.2rem;line-height:1.5}

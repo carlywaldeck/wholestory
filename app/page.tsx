@@ -81,7 +81,7 @@ import {
   type Preferences,
 } from "../lib/preferences";
 const BRAND = "elya";
-const forecastPeople = [{id:"maya",name:"Maya"},{id:"alex",name:"Alex"},{id:"jules",name:"Jules"}] as const;
+const forecastPeople = [{id:"maya",name:"Maya"}] as const;
 type ForecastDemo = {
   demo: { persona: PersonaId; label: string; disclosure: string };
   forecast: ForecastResult;
@@ -544,7 +544,7 @@ function HomeContent() {
     setForecastLoading(true);
     setForecastError("");
     setCheckin(false);
-    if(view!=="Today")setView("Outlook");
+    setView("Outlook");
     try {
       const bundle=await loadFictionalLearning(chosen,shiftDate(today(),1));
       if(request!==forecastRequest.current)return;
@@ -553,9 +553,7 @@ function HomeContent() {
       setJournalLimit(14);
       setDemoMode(true);
       setQuestions([]); setStatement(""); setEvidence(null); setSelected(""); setReviewed(false); setWearableNote("");
-      setNotice(
-        "Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.",
-      );
+      setNotice("");
       setSettings(false);
     } catch (e) {
       if (request === forecastRequest.current) {profileIntent.current=demoMode?persona:"real";setForecastError((e as Error).message);}
@@ -613,7 +611,7 @@ function HomeContent() {
   const openingMode = view === "Today";
   const journalExperience = <LinenPages learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
-          demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Next demo day</button></details>}</div>}
+          demoControls={<div className="demo-toolbar">{demo?<><span className="demo-mode-label">Demo · Maya <small>Fictional data</small></span><button className="text-action" onClick={exitDemo}>Exit demo</button><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Next demo day</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Maya’s demo</button>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={()=>resetPersonalData()}
           onSave={async entry=>{
             const saved=validateEntry({...entry,...(demo?{persona}: {})});
@@ -628,12 +626,6 @@ function HomeContent() {
   return (
     <div className={`shell persistent-nav-shell${openingMode ? " opening-mode" : ""}`}>
       <main className={openingMode ? undefined : "page-content-transition"}>
-        {demo && openingMode && (
-          <div className="demo-banner">
-            <span className="demo-chip">Fictional demo history</span>{" "}
-            <span>Fictional entries for exploring elya.</span>
-          </div>
-        )}
         {(speech.speaking || speech.preparing) && <button className="stop-reply" onClick={speech.stop}><VolumeX size={14}/>Stop speaking</button>}
         {notice && (
           <div role="status" className="notice">
@@ -1639,13 +1631,10 @@ function HomeContent() {
             <p className="brand-boundary">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
             <section className="settings-section">
               <h3>Demo history</h3>
-              <label htmlFor="forecast-persona">Explore a fictional outlook</label>
-              <select id="forecast-persona" aria-label="Demo persona" value={demo ? persona : ""} disabled={forecastLoading} onChange={e=>{if(e.target.value)void tryDemo(e.target.value as PersonaId);}}>
-                <option value="" disabled>Choose a fictional person</option>
-                {forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
+              <p>Maya’s fictional history includes model-computed forecasts, journal entries and an appointment brief.</p>
+
               <p>No wearable or API account needed. Personal records stay separate.</p>
-              {demo ? <Button onClick={exitDemo}>Exit demo</Button> : <Button disabled={forecastLoading} onClick={()=>void tryDemo()}>{forecastLoading ? "Loading demo…" : "Try demo"}</Button>}
+              {demo ? <Button onClick={exitDemo}>Exit demo</Button> : <Button disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading ? "Loading demo…" : "Explore Maya’s demo"}</Button>}
               {forecastError && <p role="alert">{forecastError}</p>}
             </section>
             <section className="settings-section">

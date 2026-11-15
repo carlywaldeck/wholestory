@@ -94,7 +94,7 @@ it("records only after Speak, keeps the transcript editable, and saves without a
  expect((screen.getByLabelText("What are you experiencing today?") as HTMLTextAreaElement).value).toContain("Fictional cramping");
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
  await user.click(screen.getByRole("button",{name:"Add to calendar"}));
- await screen.findByRole("heading",{name:"Today’s summary"});
+ await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  expect((await loadEntries())[0].text).toContain("Fictional cramping interrupted my walk.");
  expect((await loadEntries())[0].text).toContain("My original note.");expect((await loadEntries())[0].text).toContain("My correction.");expect((await loadEntries())[0].text.match(/Fictional cramping/g)).toHaveLength(1);
  expect(voiceFetch.mock.calls.filter(c=>c[1]?.method==="POST")).toHaveLength(0);
