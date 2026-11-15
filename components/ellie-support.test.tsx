@@ -34,3 +34,4 @@ it('lets people stop wandering and remembers the choice on this device',async()=
  const user=userEvent.setup();render(<AppNavigationProvider><EllieSupport/></AppNavigationProvider>);await user.click(screen.getByRole('button',{name:'Open Ellie support'}));await user.click(screen.getByRole('button',{name:'Pause Ellie’s wandering'}));
  expect(localStorage.getItem('elya.ellieMotion')).toBe('off');await user.click(screen.getByRole('button',{name:'Close Ellie'}));expect(document.querySelector('.ellie-wanders')).toBeNull();
 });
+it('defines Ellie when the assistant is first opened',async()=>{render(<AppNavigationProvider><EllieSupport/></AppNavigationProvider>);await userEvent.click(screen.getByRole('button',{name:'Open Ellie support'}));expect(screen.getByText("Ellie is Elya's voice journal assistant.")).toBeTruthy();});

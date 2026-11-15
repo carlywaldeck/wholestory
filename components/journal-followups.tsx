@@ -49,6 +49,7 @@ export function JournalFollowups({text,edits={},selected=[],absent=[],symptomFre
  return <section className={"journal-followups"+(mode==="speak"?" followups-spoken":"")} aria-label="Optional follow-up">
  {!stopped&&question?<>
  <div className="ellie-journal-identity"><EllieIcon/><span>With Ellie · optional reflection</span></div>
+ <p className="followup-note">Ellie is Elya's voice journal assistant.</p>
  <div className="conversation-control"><button type="button" className="text-action" onClick={()=>{if(automatic){listenAllowed.current=false;setAutomatic(false);talking.current=false;stopVoice();mic.cancel(true);}else{setNotice("");void conversationAudio.unlock().catch(()=>{});setAutomatic(true);}}}>{automatic?"Pause conversation":"Start voice conversation"}</button><span>{automatic?"Ellie speaks, then listens. Answers advance automatically.":"Optional. You can answer by voice, tap an option, or type."}</span></div>
  <div className="followup-topline"><span>{mode==="speak"?"AI voice · Optional":"Optional detail"}</span></div>
  <p className="followup-question" aria-live="polite">{mode==="speak"?question.spokenText:question.text}</p>

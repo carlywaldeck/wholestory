@@ -31,7 +31,7 @@ export function EllieSupport(){
  const link=(url:string,label:string)=><a href={url} target="_blank" rel="noopener noreferrer">{label} <span aria-hidden="true">↗</span></a>;
  return <div role="region" className={"ellie-root"+(!open&&wandering?" ellie-wanders":"")} aria-label="Ellie support" hidden={navigation?.settings}>
  {open&&<section id="ellie-panel" className="ellie-panel" role="dialog" aria-modal="false" aria-labelledby="ellie-title">
-  <header><div className="ellie-avatar"><EllieIcon/></div><div><h2 id="ellie-title">A little support, with Ellie</h2><p>Your guide to resources and reflection</p></div><button ref={closeButton} className="ellie-close" aria-label="Close Ellie" onClick={close}>×</button></header>
+  <header><div className="ellie-avatar"><EllieIcon/></div><div><h2 id="ellie-title">A little support, with Ellie</h2><p>Ellie is Elya's voice journal assistant.</p></div><button ref={closeButton} className="ellie-close" aria-label="Close Ellie" onClick={close}>×</button></header>
   <div className="ellie-body">
   {topic!=="home"&&<button className="ellie-back" onClick={()=>setTopic("home")}>← All support</button>}
   {topic==="home"&&<><p className="ellie-intro">You don’t have to find all the words at once. Where would you like to start?</p><div className="ellie-options"><button onClick={()=>setTopic("support")}><strong>Find your people</strong><span>Support groups and patient communities</span></button><button onClick={()=>setTopic("learn")}><strong>Understand your body</strong><span>Short reads about endometriosis and periods</span></button><button onClick={()=>setTopic("prepare")}><strong>Find the words</strong><span>Prepare for your journal or an appointment</span></button></div></>}
