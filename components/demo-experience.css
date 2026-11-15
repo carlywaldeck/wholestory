@@ -16,3 +16,7 @@
 .brief-download-note{font-size:12px!important;line-height:1.6;color:var(--ink-soft);padding-top:16px;border-top:1px solid var(--line)}
 
 .conversation-start-note{font-size:12px!important;color:var(--ink-soft);line-height:1.6;margin:10px 0 0}
+
+.journal-original-entry,.journal-extra-details{border-bottom:1px solid var(--line);padding:16px 0;margin-bottom:18px}.journal-original-entry>summary,.journal-extra-details>summary{cursor:pointer;font-size:13px;color:var(--ink-soft);padding:4px 0}.journal-original-entry[open]>summary,.journal-extra-details[open]>summary{margin-bottom:18px}.journal-confirmation .button{margin:16px 12px 0 0}.journal-followups .followup-question{font-size:22px;line-height:1.5;max-width:32ch}.journal-followups .followup-actions{border-top:1px solid var(--line);padding-top:16px;margin-top:20px}.conversation-control>span{max-width:34ch}.journal-panel:has(.journal-confirmation) .linen-date-picker{display:none}
+
+.demo-saved-connection{padding:18px 22px;margin:0 0 20px;background:#f6ecef;border-radius:18px;color:var(--ink)}.demo-saved-connection strong{font-size:14px;font-weight:500}.demo-saved-connection p{font-size:13px;line-height:1.6;color:var(--ink-soft);margin:6px 0 0}
