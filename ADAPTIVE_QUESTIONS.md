@@ -45,3 +45,9 @@ Clinical review must assess wording, eligibility, sensitivity, omissions, negati
 ## Verification performed
 
 175 automated tests passed during implementation, including question eligibility, unknown/absence, contradiction, total cap, skip/decline, review-gated saving and monthly confirmed content. TypeScript, webpack production build and Sites packaging passed. A Chrome fictional-data journey verified inline questions, saving with an unanswered prompt, correcting severity in review, unchanged original text after reload, confirmed content in the monthly report, PDF action and mobile layout, without health-data POSTs or audio/microphone activation. Automated checks are software checks, not clinical validation. Real microphone/read-aloud was not re-tested during this pass; it uses the existing browser integration.
+
+## Voice-first presentation refinement
+
+Speak mode now hides answer choices and the large text field. It shows the short spoken question and one primary action: Answer, Done speaking, Continue or Stop speaking. A transcript preview appears only after an answer; Edit answer reveals a correction field. Hear question, Skip and Finish questions remain quieter controls. The compact AI voice label remains visible and detailed processing disclosure stays in Settings and the main microphone notice. Type mode retains its answer choices. The approved prepared voice, bank, policy, three-question cap and confirmation-before-save behavior are unchanged. Recording still starts explicitly; this is not a native Apple Watch app or automatic/background microphone session.
+
+185 tests and the production/Sites build passed. Chrome mobile/desktop checks used simulated recognition to verify control states, hidden choices/editing, transcript correction and next-question behavior; no real microphone or audio was activated.
