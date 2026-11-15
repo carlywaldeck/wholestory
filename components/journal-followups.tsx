@@ -1,4 +1,5 @@
 "use client";
+import {EllieIcon} from "./ellie-support";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {conversationAudio,type AudioState} from "../lib/conversation-audio";
 import {reflection} from "../lib/conversation-voice-config";
@@ -25,6 +26,7 @@ export function JournalFollowups({text,edits={},selected=[],absent=[],symptomFre
  if(!question&&!turns.length)return null;
  return <section className={"journal-followups"+(mode==="speak"?" followups-spoken":"")} aria-label="Optional follow-up">
  {!stopped&&question?<>
+ <div className="ellie-journal-identity"><EllieIcon/><span>With Ellie · optional reflection</span></div>
  <div className="followup-topline"><span>{mode==="speak"?"AI voice · Optional":"Optional detail"}</span></div>
  <p className="followup-question" aria-live="polite">{mode==="speak"?question.spokenText:question.text}</p>
  {mode==="type"?<>
