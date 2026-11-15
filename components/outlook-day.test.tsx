@@ -11,7 +11,7 @@ it("shows the two sibling panels with honest missing Journal and wearable states
 });
 it("uses the reported units and preserves missing measurements",()=>{
  render(<OutlookDay {...props()} demoDays={[{date:"2026-11-14",sleepHours:7.2,steps:null,temperatureDeviationC:.25}]}/>);
- expect(screen.getByText("7.2 hours")).toBeTruthy();expect(screen.getByText("+0.25 °C from baseline")).toBeTruthy();expect(screen.getByText("Not available")).toBeTruthy();expect(screen.queryByText("Oura connected")).toBeNull();
+ expect(screen.getByText("7.2 hours")).toBeTruthy();expect(screen.getByText("0.25 °C above your usual level")).toBeTruthy();expect(screen.getByText("Not available")).toBeTruthy();expect(screen.queryByText("Oura connected")).toBeNull();
 });
 it("does not fabricate estimates outside the supported date",()=>{
  render(<OutlookDay {...props()} date="2026-11-20"/>);expect(screen.getByRole("heading",{name:"Symptoms you may experience"})).toBeTruthy();expect(screen.getByText("No symptom outlook available for this date.")).toBeTruthy();expect(screen.queryByRole("heading",{name:"Wearable data"})).toBeNull();expect(screen.queryByRole("button",{name:"Open Journal"})).toBeNull();

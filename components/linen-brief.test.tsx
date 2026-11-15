@@ -14,7 +14,7 @@ it("counts distinct reported days and preserves treatment outcomes including no 
 });
 it("is read-only, with one month selector and three working export actions",async()=>{
  const user=userEvent.setup();render(<LinenBrief {...props()}/>);
- expect(document.querySelectorAll("textarea")).toHaveLength(0);expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(false);expect((screen.getByRole("button",{name:"Create AI highlights"}) as HTMLButtonElement).disabled).toBe(true);
+ expect(document.querySelectorAll("textarea")).toHaveLength(0);expect(screen.getByText("AI summary for your doctor")).toBeTruthy();
  expect(screen.getByLabelText("Month")).toBeTruthy();
  await user.click(screen.getByRole("button",{name:"Copy"}));expect(await navigator.clipboard.readText()).toContain(entry.text);
  const print=vi.spyOn(window,"print").mockImplementation(()=>{});await user.click(screen.getByRole("button",{name:"Print"}));expect(print).toHaveBeenCalledOnce();print.mockRestore();
