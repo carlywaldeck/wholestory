@@ -1,4 +1,4 @@
-// The app has one prerendered route. Package Next's real HTML/client chunks,
+// Package Next's prerendered routes, public demo assets and real client chunks,
 // plus the same extraction handler, as a portable Sites Worker.
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -28,6 +28,12 @@ async function walk(dir, prefix) {
 }
 await add(".next/server/app/index.html", "/");
 await walk(".next/static", "/_next/static");
+await walk("public", "");
+// Section routes need their own HTML for direct visits and auth redirects.
+for(const section of ["outlook","journal","appointment-brief","privacy","settings","welcome"]){
+ const html=path.join(".next/server/app",section+".html");
+ try{await add(html,"/"+section);}catch(error){if(error.code!=="ENOENT")throw error;}
+}
 await fs.mkdir("work", { recursive: true });
 await fs.writeFile("work/assets.json", JSON.stringify(assets));
 await fs.mkdir("dist/server", { recursive: true });

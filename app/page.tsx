@@ -1,9 +1,11 @@
 "use client";
+import {newEntryId} from "../lib/entry-id";
 import { useEffect, useRef, useState } from "react";
 import {
   Mic,
   ArrowUpRight,
   ArrowRight,
+  ArrowDown,
   BookOpen,
   ChartNoAxesCombined,
   FileText,
@@ -39,12 +41,20 @@ import {
   manualExtraction,
   report,
   validateEntry,
+  isPresentFact,
 } from "../lib/model";
 import * as storage from "../lib/storage";
-import { personas, personaEntries, PersonaId } from "../lib/demo";
+import {CloudJournal} from "../components/cloud-journal";
+import {BrowserVoicePreferences} from "../components/browser-voice-preferences";
+import {LearningImport} from "../components/learning-import";
+import {currentPersonalOutlook,loadFictionalLearning,saveFictionalJournal,advanceFictionalLearning,rememberLegacyWearables,clearLearningData,exportLearningData,REAL_PROFILE} from "../lib/learning-store";
+import type {LearningBundle} from "../lib/learning-types";
+import {loadWearables} from "../lib/wearables";
+import type { ForecastPersona as PersonaId } from "../lib/forecast-demo";
 import { StructuredDetails } from "../components/structured-details";
 import { WearableExplorer } from "../components/wearable-explorer";
-import { clearWearables } from "../lib/wearables";
+import { clearWearables, saveWearables } from "../lib/wearables";
+import { WearableConnections } from "../components/wearable-connections";
 import { CycleInsights } from "../components/cycle-insights";
 import { SafetySection } from "../components/safety-section";
 import { safetyBoundary } from "../lib/clinical-context";
@@ -54,6 +64,15 @@ import { VoicePicker } from "../components/voice-picker";
 import { PersonalPreferences } from "../components/personal-preferences";
 import { JourneyProgress } from "../components/journey-progress";
 import { HeroBackground } from "../components/hero-background";
+import { LinenPages } from "../components/linen-pages";
+import { DataLegend, SymptomOutlook } from "../components/brand-states";
+import { ForecastOutlook, type ForecastResult } from "../components/forecast-outlook";
+import { QuickCheckin } from "../components/quick-checkin";
+import { Wordmark } from "../components/wordmark";
+import { AppNavigationProvider, useAppNavigation } from "../components/app-navigation";
+import { symptomRisk, type RiskInput } from "../lib/symptom-risk";
+import { shiftDate } from "../lib/forecast-time";
+import { checkinRecord, checkinSymptoms, loadConfirmedDays, saveConfirmedDay, forgetConfirmedDay, clearConfirmedDays, type Answers } from "../lib/experience-checkins";
 import {
   defaultPreferences,
   loadPreferences,
@@ -61,7 +80,15 @@ import {
   clearPreferences,
   type Preferences,
 } from "../lib/preferences";
-const BRAND = "Elya";
+const BRAND = "elya";
+const forecastPeople = [{id:"maya",name:"Maya"}] as const;
+type ForecastDemo = {
+  demo: { persona: PersonaId; label: string; disclosure: string };
+  forecast: ForecastResult;
+  demoInput: RiskInput;
+  demoPhysiology: { date: string; sleepHours: number | null; steps: number | null }[];
+  demoJournalEntries: Entry[];
+};
 const today = () => {
   const d = new Date();
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
@@ -82,6 +109,11 @@ type Recognition = {
   abort?: () => void;
 };
 export default function Home() {
+  const navigation = useAppNavigation();
+  return navigation ? <HomeContent /> : <AppNavigationProvider><HomeContent /></AppNavigationProvider>;
+}
+function HomeContent() {
+  const { view, setView, settings, setSettings, checkinRequest, setDirty } = useAppNavigation()!;
   const speech = useSpokenReplies();
   const [preferences, setPreferences] =
     useState<Preferences>(defaultPreferences);
@@ -93,7 +125,7 @@ export default function Home() {
       .then((p) => {
         if (active) {
           setPreferences(p);
-          setShowWelcome(!p.setupComplete);
+          setShowWelcome(false);
         }
       })
       .catch(() => {});
@@ -105,14 +137,25 @@ export default function Home() {
     await savePreferences(value);
     setPreferences(value);
     setShowWelcome(false);
+    setView("Outlook");
   }
+  const [learningBundle,setLearningBundle]=useState<LearningBundle|null>(null);
   const [persona, setPersona] = useState<PersonaId>("maya");
+  const [forecastDemo, setForecastDemo] = useState<ForecastDemo | null>(null);
+  const [personalForecast, setPersonalForecast] = useState<ForecastResult | null>(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [forecastError, setForecastError] = useState("");
+  const [checkin, setCheckin] = useState(false);
+  const [checkinVersion, setCheckinVersion] = useState(0);
+  const [journalLimit, setJournalLimit] = useState(14);
+  const forecastRequest = useRef(0);
+  const profileIntent=useRef<string>("real");
+  const resettingLearning=useRef(false);
   const [customQuestion, setCustomQuestion] = useState("");
   const [entryMode, setEntryMode] = useState<"write" | "voice">("write");
   const [voiceTarget, setVoiceTarget] = useState<"entry" | "answer">("entry");
   const [allEntries, setEntries] = useState<Entry[]>([]),
     [demoMode, setDemoMode] = useState(false),
-    [view, setView] = useState("Today"),
     [ready, setReady] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -130,14 +173,15 @@ export default function Home() {
     [recording, setRecording] = useState(false),
     [filter, setFilter] = useState("All symptoms"),
     [evidence, setEvidence] = useState<string[] | null>(null),
-    [settings, setSettings] = useState(false),
     [reviewed, setReviewed] = useState(false),
     [appendix, setAppendix] = useState(false),
     [statement, setStatement] = useState(""),
     [questions, setQuestions] = useState<string[]>([]),
     [selected, setSelected] = useState(""),
-    [calendar, setCalendar] = useState(false),
-    [openingMenu, setOpeningMenu] = useState(false);
+    [calendar, setCalendar] = useState(false);
+  useEffect(() => {
+    if (checkinRequest) { setCheckin(true); setEditor(false); }
+  }, [checkinRequest]);
   useEffect(() => {
     if (!editor && !settings && !showWelcome) return;
     const previous = document.activeElement as HTMLElement;
@@ -222,18 +266,35 @@ export default function Home() {
     setReviewed(false);
     setWearableNote("");
   }, [allEntries, demoMode, persona]);
+  useEffect(()=>{
+    if(demoMode||!ready||profileIntent.current!=="real"||resettingLearning.current)return;
+    const request=++forecastRequest.current;
+    setForecastLoading(true);setForecastError("");
+    void (async()=>{const imported=await loadWearables();if(request!==forecastRequest.current||resettingLearning.current)return null;await rememberLegacyWearables(imported);if(request!==forecastRequest.current||resettingLearning.current)return null;return currentPersonalOutlook(loadConfirmedDays(),Intl.DateTimeFormat().resolvedOptions().timeZone,undefined,{entries:allEntries.filter(e=>!e.demo)});})()
+      .then(bundle=>{if(bundle&&request===forecastRequest.current)setLearningBundle(bundle);})
+      .catch(error=>{if(request===forecastRequest.current)setForecastError(error instanceof Error?error.message:"Local learning could not be loaded.");})
+      .finally(()=>{if(request===forecastRequest.current)setForecastLoading(false);});
+  },[demoMode,ready,checkinVersion,allEntries]);
   useEffect(() => {
     window.scrollTo(0, 0);
+    setSelected("");
+    setEditor(false);
   }, [view]);
+  useEffect(() => {
+    setDirty(editor && (review || !!text.trim() || !!answer.trim()));
+  }, [editor, review, text, answer, setDirty]);
+  useEffect(()=>{
+    const home=()=>{setEditor(false);setCheckin(false);setSelected("");};
+    window.addEventListener("elya-home",home);
+    return ()=>window.removeEventListener("elya-home",home);
+  },[]);
   useEffect(() => {
     if (evidence)
       document
         .getElementById("supporting-entries")
         ?.scrollIntoView({ block: "start" });
   }, [evidence, view]);
-  const entries = allEntries.filter((e) =>
-    demoMode ? e.demo && e.persona === persona : !e.demo,
-  );
+  const entries = demoMode ? (forecastDemo?.demoJournalEntries ?? []).slice().sort((a,b)=>b.date.localeCompare(a.date)) : allEntries.filter(e=>!e.demo);
   const demo = demoMode;
   const data = insights(entries);
   const brief = report(entries);
@@ -292,21 +353,30 @@ export default function Home() {
       const combined =
         text +
         (answer.trim() ? `\nFollow-up: ${question}\n${answer.trim()}` : "");
-      await storage.putEntry(
-        validateEntry({
-          id: id || crypto.randomUUID(),
+      const updatedEntry = validateEntry({
+          id: id || newEntryId(),
           date,
           text: combined,
           facts,
           symptomFree: free,
           demo,
           ...(demo ? { persona } : {}),
-        }),
-      );
+        });
+      const sourceDate = entries.find(e=>e.id===id)?.date;
+      if (demo) {
+        setForecastDemo(current => {
+          if (!current) return current;
+          const input = {...current.demoInput, days: current.demoInput.days.filter(d=>d.date!==updatedEntry.date && d.date!==sourceDate)};
+          return { ...current, demoInput: input, forecast: symptomRisk(input,{evaluate:false}), demoJournalEntries: [updatedEntry, ...current.demoJournalEntries.filter(e=>e.id!==updatedEntry.id)] };
+        });
+      } else {
+        await storage.putEntry(updatedEntry);
+        if(id.startsWith("checkin-personal-")) { forgetConfirmedDay(sourceDate ?? date); setCheckinVersion(n=>n+1); }
+      }
       setEditor(false);
       await refresh();
       setView("Your story");
-      setNotice("Your entry is saved on this device.");
+      setNotice(demo ? "Your fictional entry is saved for this demo session." : "Your entry is saved on this device.");
       speech.speak(
         "Your entry is saved on this device. Thank you for making a little space for yourself today.",
       );
@@ -458,18 +528,64 @@ export default function Home() {
     );
   }
 
-  async function tryDemo(chosen: PersonaId = persona) {
+  function applyFictionalBundle(bundle:LearningBundle){
+    setLearningBundle(bundle);
+    setForecastDemo({demo:{persona:bundle.persona!,label:bundle.label??"Fictional learner",disclosure:bundle.disclosure??""},forecast:null as unknown as ForecastResult,demoInput:bundle.input,demoPhysiology:bundle.physiology,demoJournalEntries:bundle.entries??[]});
+  }
+  async function advanceDemo(){
+    const request=++forecastRequest.current;setForecastLoading(true);setForecastError("");
+    try{const bundle=await advanceFictionalLearning(persona);if(request===forecastRequest.current)applyFictionalBundle(bundle);}
+    catch(error){setForecastError(error instanceof Error?error.message:"Demo could not advance.");}
+    finally{if(request===forecastRequest.current)setForecastLoading(false);}
+  }
+  const demoRestored=useRef(false);
+  useEffect(()=>{if(!ready||demoRestored.current)return;demoRestored.current=true;try{if(sessionStorage.getItem("elya-active-demo")==="maya")void tryDemo("maya",true);}catch{}},[ready]);
+  async function tryDemo(chosen: PersonaId = persona, preservePage=false) {
+    profileIntent.current=chosen;
+    const request = ++forecastRequest.current;
+    setForecastLoading(true);
+    setForecastError("");
+    setCheckin(false);
+    if(!preservePage)setView("Outlook");
     try {
-      await storage.replaceDemoEntries(personaEntries(chosen));
+      const bundle=await loadFictionalLearning(chosen,shiftDate(today(),1));
+      if(request!==forecastRequest.current)return;
+      applyFictionalBundle(bundle);
       setPersona(chosen);
-      await refresh();
+      setJournalLimit(14);
       setDemoMode(true);
-      setNotice(
-        "Synthetic demo history loaded. Entries added in demo mode are also synthetic; your personal journal stays separate.",
-      );
+      try{sessionStorage.setItem("elya-active-demo","maya");}catch{}
+      setQuestions([]); setStatement(""); setEvidence(null); setSelected(""); setReviewed(false); setWearableNote("");
+      setNotice("");
+      setSettings(false);
     } catch (e) {
-      setError((e as Error).message);
+      if (request === forecastRequest.current) {profileIntent.current=demoMode?persona:"real";setForecastError((e as Error).message);}
+    } finally {
+      if (request === forecastRequest.current) setForecastLoading(false);
     }
+  }
+  async function saveCheckin(answers: Answers, note: string) {
+    const { day, entry } = checkinRecord(today(), answers, note, demo ? persona : undefined);
+    if (demo && forecastDemo) {
+      const input: RiskInput = { ...forecastDemo.demoInput, asOf: new Date().toISOString(), days: [...forecastDemo.demoInput.days.filter(d=>d.date!==day.date),day] };
+      const result = symptomRisk(input, {evaluate:false});
+      setForecastDemo({ ...forecastDemo, demoInput: input, forecast: result, demoJournalEntries: [entry,...forecastDemo.demoJournalEntries.filter(e=>e.date!==entry.date)] });
+    } else {
+      await storage.putEntry(entry);
+      saveConfirmedDay(day);
+      await refresh();
+      setCheckinVersion(n=>n+1);
+    }
+    setCheckin(false); setReviewed(false); setView("Your story");
+    setNotice(demo ? "Fictional check-in saved. Review it in your journal." : "Check-in saved on this device. Review it in your journal.");
+  }
+  function exitDemo() {
+    try{sessionStorage.removeItem("elya-active-demo");}catch{}
+    profileIntent.current="real";
+    forecastRequest.current++;
+    setForecastLoading(false); setForecastError(""); setForecastDemo(null);setLearningBundle(null); setCheckin(false);
+    setDemoMode(false);
+    setNotice("Back to your personal journal. Demo entries are kept separately.");
   }
   async function pdf() {
     if (!reviewed) return;
@@ -487,114 +603,34 @@ export default function Home() {
       setError("The PDF could not be generated. Please try again.");
     }
   }
-  const openingMode = view === "Today" && entries.length === 0 && !demo;
+  async function resetPersonalData(all=false){
+    resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
+    try{
+      await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
+      if(all){try{sessionStorage.removeItem("elya-active-demo");}catch{}await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all||!demoMode)setLearningBundle(null);
+      await refresh();setReviewed(false);
+    }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
+  }
+  const openingMode = view === "Today";
+  const journalExperience = <LinenPages learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
+          wearableNote={wearableNote}
+          demoControls={<div className="demo-toolbar">{demo?<><span className="demo-mode-label">Demo · Maya <small>Fictional data</small></span><button className="text-action" onClick={exitDemo}>Exit demo</button><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Next demo day</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Maya’s demo</button>}</div>}
+          onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={()=>resetPersonalData()}
+          onSave={async entry=>{
+            const saved=validateEntry({...entry,...(demo?{persona}: {})});
+            const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:saved.facts.some(f=>f.kind===s.kind&&/^(no|none|absent|not present|false|0)\b/i.test(f.value))?false:null])) as Answers;
+            const day=checkinRecord(saved.date,answers,saved.text).day;
+            if(demo){applyFictionalBundle(await saveFictionalJournal(persona,saved,day));}
+            else {await storage.putEntry(saved);saveConfirmedDay(day);await refresh();
+              const cleared=Object.entries(day.symptoms).filter(([,v])=>v===null).map(([k])=>k as import("../lib/symptom-risk").RiskSymptom);
+              try{const result=await currentPersonalOutlook(loadConfirmedDays(),Intl.DateTimeFormat().resolvedOptions().timeZone,undefined,{entries:[saved,...allEntries.filter(e=>e.id!==saved.id&&!e.demo)],withdraw:{date:day.date,symptoms:cleared}});setLearningBundle(result);}catch(error){setForecastError("Entry saved. "+(error instanceof Error?error.message:"Learning could not update."));}
+            }
+          }}/>;
   return (
-    <div className={`shell${openingMode ? " opening-mode" : ""}`}>
-      <aside>
-        <a className="brand" href="#" onClick={() => setView("Today")}>
-          <span className="brand-mark" aria-hidden="true">
-            e.
-          </span>
-          {BRAND}
-        </a>
-        <div className="navlabel">YOUR JOURNAL</div>
-        <nav>
-          {[
-            ["Today", CalendarDays],
-            ["Your story", BookOpen],
-            ["Appointment brief", FileText],
-          ].map(([label, Icon]) => (
-            <button
-              className={
-                view === label ||
-                (label === "Your story" && view === "Insights")
-                  ? "active"
-                  : ""
-              }
-              key={String(label)}
-              onClick={() => {
-                setView(String(label));
-                setEvidence(null);
-                setSelected("");
-              }}
-            >
-              {typeof Icon !== "string" && <Icon size={20} />}
-              <span>{String(label)}</span>
-              {view === label && <span className="dot" />}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <p className="sidebar-note">
-            Your entries stay on this device.
-            <br />Review them when you need them.
-          </p>
-          <button onClick={() => setSettings(true)}>
-            <Settings size={16} /> Privacy & settings
-          </button>
-          <span>
-            <LockKeyhole size={13} /> Kept on this device
-          </span>
-        </div>
-      </aside>
-      <main>
-        <header>
-          <span className="header-location">
-            {preferences.name
-              ? `${preferences.name}’s journal`
-              : "Your journal"}{" "}
-            <span>/</span> {view}
-          </span>
-          {(speech.speaking || speech.preparing) && (
-            <button className="stop-reply" onClick={speech.stop}>
-              <VolumeX size={14} /> Stop speaking
-            </button>
-          )}
-          <button className="demo-link" onClick={() => tryDemo()}>
-            Try demo <ArrowUpRight size={14} />
-          </button>
-          <button
-            className="header-settings"
-            aria-label="Privacy settings"
-            onClick={() => setSettings(true)}
-          >
-            <Settings size={18} />
-          </button>
-        </header>
-        {demo && (
-          <div className="demo-banner">
-            SYNTHETIC DEMO DATA{" "}
-            <span>Fictional entries for exploring Elya.</span>
-            <select
-              aria-label="Demo persona"
-              value={persona}
-              onChange={(e) => {
-                setEvidence(null);
-                setSelected("");
-                setQuestions([]);
-                setStatement("");
-                setReviewed(false);
-                tryDemo(e.target.value as PersonaId);
-              }}
-            >
-              {personas.map((p) => (
-                <option value={p.id} key={p.id}>
-                  {p.name} · {p.description}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={async () => {
-                setDemoMode(false);
-                setNotice(
-                  "Back to your personal journal. Demo entries are kept separately.",
-                );
-              }}
-            >
-              Exit demo
-            </button>
-          </div>
-        )}
+    <div className={`shell persistent-nav-shell${openingMode ? " opening-mode" : ""}`}>
+      <main className={openingMode ? undefined : "page-content-transition"}>
+        {(speech.speaking || speech.preparing) && <button className="stop-reply" onClick={speech.stop}><VolumeX size={14}/>Stop speaking</button>}
         {notice && (
           <div role="status" className="notice">
             {notice}
@@ -608,47 +644,32 @@ export default function Home() {
             {error}
           </p>
         )}
-        {view === "Today" ? (
+        {demo && openingMode && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
+        {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
+        {!openingMode && view!=="Insights" ? journalExperience:String(view) === "Outlook" ? (
+          <>
+          <ForecastOutlook result={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} error={settings ? "" : forecastError}
+            onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)}
+            onCheckin={()=>{setView("Your story");setCheckin(true); window.scrollTo(0,0);}} onWrite={()=>open()} onRecord={()=>voice()} />
+          </>
+        ) : view === "Today" ? (
           <>
             {openingMode ? (
               <section className="opening-screen" aria-label="Start your story">
                 <HeroBackground />
                 <div className="opening-copy">
-                  <h1>Your life with endometriosis deserves to be understood.</h1>
+                  <h1>Welcome{preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
                   <p>Bring Oura data and your symptom notes together to prepare for care.</p>
                 </div>
                 <button
-                  className="opening-menu-trigger"
-                  aria-expanded={openingMenu}
-                  aria-controls="opening-menu"
-                  onClick={() => setOpeningMenu((open) => !open)}
-                >
-                  Menu
-                </button>
-                {openingMenu && (
-                  <div className="opening-menu" id="opening-menu">
-                    <button onClick={() => { setOpeningMenu(false); setView("Your story"); }}>
-                      Your story
-                    </button>
-                    <button onClick={() => { setOpeningMenu(false); setView("Appointment brief"); }}>
-                      Appointment brief
-                    </button>
-                    <button onClick={() => { setOpeningMenu(false); setSettings(true); }}>
-                      Privacy & settings
-                    </button>
-                    <button onClick={() => { setOpeningMenu(false); void tryDemo(); }}>
-                      Try demo
-                    </button>
-                  </div>
-                )}
-                <button
                   className="opening-start"
-                  aria-label="Write an entry"
-                  onClick={() => open()}
+                  aria-label="Start your story, go to Journal"
+                  onClick={() => document.getElementById("home-journal")?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"})}
                 >
                   <span>Start your story</span>
-                  <ArrowRight size={18} aria-hidden="true" />
+                  <ArrowDown size={18} aria-hidden="true" />
                 </button>
+                <button className="opening-demo button" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading?"Preparing outlook…":"Explore Maya’s demo"}</button>
                 <button className="visually-hidden" onClick={() => voice()}>
                   Record instead
                 </button>
@@ -669,6 +690,7 @@ export default function Home() {
                     Write or record what happened and how it affected your day.
                   </p>
                 </section>
+                <SymptomOutlook />
                 <JourneyProgress
                   current="capture"
                   hasEntries={entries.length > 0}
@@ -739,7 +761,8 @@ export default function Home() {
                 </section>
               </>
             )}
-            {entries.length > 0 && (
+            {openingMode && <div id="home-journal">{journalExperience}</div>}
+            {!openingMode && entries.length > 0 && (
               <section className="next-step">
                 <div>
                   <span className="section-kicker">APPOINTMENT PREPARATION</span>
@@ -754,7 +777,7 @@ export default function Home() {
                 </Button>
               </section>
             )}
-            <section className="recent">
+            {!openingMode && <section className="recent">
               <div className="section-heading">
                 <h2>
                   Your recent entries <span>{entries.length}</span>
@@ -779,13 +802,13 @@ export default function Home() {
               ) : (
                 entries.slice(0, 3).map((e) => entryCard(e))
               )}
-            </section>
+            </section>}
           </>
-        ) : view === "Your story" ? (
+        ) : String(view) === "Your story" ? (
           <>
             <section className="page-title">
               <div className="eyebrow">YOUR JOURNAL</div>
-              <h1>Your story</h1>
+              <h1>Journal</h1>
               <p>Edit entries and review the details you want to bring to care.</p>
             </section>
             <JourneyProgress
@@ -797,6 +820,7 @@ export default function Home() {
               }}
             />
             <div className="toolbar">
+              <Button className="primary" onClick={()=>setCheckin(true)}>Check in today</Button>
               <select
                 aria-label="Filter symptoms"
                 value={filter}
@@ -813,16 +837,16 @@ export default function Home() {
               <Button onClick={() => setCalendar(!calendar)}>
                 <CalendarDays size={17} /> Calendar
               </Button>
-              <Button className="primary" onClick={() => open()}>
+              <Button onClick={() => open()}>
                 <Plus size={17} /> Add entry
               </Button>
             </div>
             {calendar && (
               <section className="calendar">
                 <p>
-                  Last 30 days · ● symptoms · ○ explicitly symptom-free · —
-                  unlogged
+                  Last 30 days · Only your explicit reports are observations.
                 </p>
+                <DataLegend />
                 <div>
                   {Array.from({ length: 30 }, (_, i) => {
                     const d = new Date();
@@ -836,17 +860,17 @@ export default function Home() {
                     return (
                       <button
                         key={day}
-                        className={es.length ? "logged" : ""}
-                        aria-label={`${day}: ${es.length ? (es.every((e) => e.symptomFree) ? "symptom-free" : "logged") : "unlogged"}`}
+                        className={es.length ? (es.every((e) => e.symptomFree) ? "none-reported" : "logged") : "unknown-day"}
+                        aria-label={`${day}: ${es.length ? (es.every((e) => e.symptomFree) ? "None reported" : "Observation") : "Unknown"}`}
                         onClick={() => setSelected(selected === day ? "" : day)}
                       >
                         {d.getDate()}
                         <span>
                           {es.length
                             ? es.every((e) => e.symptomFree)
-                              ? "○"
+                              ? "◯✓"
                               : "●"
-                            : "—"}
+                            : "Unknown"}
                         </span>
                       </button>
                     );
@@ -859,7 +883,9 @@ export default function Home() {
                 Clear date filter: {selected} ×
               </button>
             )}
-            {visible.map((e) => entryCard(e))}
+            <DataLegend />
+            {visible.slice(0,journalLimit).map((e) => entryCard(e))}
+            {visible.length > journalLimit && <Button onClick={()=>setJournalLimit(n=>n+14)}>Show more entries ({visible.length-journalLimit} remaining)</Button>}
             {!visible.length && (
               <div className="empty">No entries here yet.</div>
             )}
@@ -879,7 +905,11 @@ export default function Home() {
                 Compare imported daily measurements with logged daily-life impact.
               </p>
             </section>
-            <WearableExplorer
+            {demo && forecastDemo ? <section className="wearable-explorer"><h2>Fictional wearable context</h2>
+              <span className="demo-chip">Fictional demo history</span>
+              <p>These readings come from the same fictional history as the outlook. They are not used in symptom forecasts.</p>
+              <details><summary>See matching context</summary><table><thead><tr><th>Date</th><th>Sleep hours</th><th>Steps</th></tr></thead><tbody>{forecastDemo.demoPhysiology.slice(-7).map(d=><tr key={d.date}><td>{d.date}</td><td>{d.sleepHours ?? "Unknown"}</td><td>{d.steps ?? "Unknown"}</td></tr>)}</tbody></table></details>
+            </section> : <WearableExplorer
               entries={entries}
               demo={demo}
               onDemo={() => tryDemo()}
@@ -889,7 +919,7 @@ export default function Home() {
                 setReviewed(false);
                 if (text) setView("Appointment brief");
               }}
-            />
+            />}
             <details className="existing-patterns">
               <summary>Explore symptoms & cycle patterns</summary>
               <div className="stats">
@@ -934,11 +964,11 @@ export default function Home() {
                     <YAxis
                       type="category"
                       dataKey="kind"
-                      tick={{ fontSize: 10 }}
+                      tick={{ fontSize: "var(--type-label)" }}
                       width={135}
                     />
                     <Tooltip />
-                    <Bar dataKey="days" fill="#b97191" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="days" fill="var(--ink)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </section>
@@ -1007,9 +1037,10 @@ export default function Home() {
             ) : (
               <section className="report">
                 <div className="section-kicker">
-                  <BookOpen /> {BRAND} / PATIENT-REPORTED SUMMARY
+                  <BookOpen /> <Wordmark size="sm" /> / PATIENT-REPORTED SUMMARY
                 </div>
-                {demo && <b>SYNTHETIC DEMO DATA</b>}
+                {demo && <b className="demo-chip">Fictional demo history</b>}
+                <DataLegend />
                 <h2>Appointment brief</h2>
                 <p>
                   {brief.range} · {brief.logged} logged days
@@ -1231,14 +1262,15 @@ export default function Home() {
             )}
           </>
         )}
-        <SafetySection />
-        <footer>
+        {openingMode && <SafetySection />}
+        {openingMode && <footer>
           <span>
-            <span className="footer-wordmark">Elya</span>{" "}
+            <Wordmark size="sm" />{" "}
             <span>Private journal. Saved on this device.</span>
           </span>
           <p>{safetyBoundary}</p>
-        </footer>
+          <p>Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
+        </footer>}
       </main>
       {showWelcome && (
         <div className="overlay">
@@ -1249,13 +1281,10 @@ export default function Home() {
             aria-labelledby="welcome-title"
           >
             <div className="brand welcome-brand">
-              <span className="brand-mark" aria-hidden="true">
-                e.
-              </span>
-              Elya
+              <Wordmark size="lg" />
             </div>
             <div className="eyebrow">SET UP YOUR JOURNAL</div>
-            <h2 id="welcome-title">Set up Elya.</h2>
+            <h2 id="welcome-title">Set up elya.</h2>
             <p>
               Choose a name and a default way to add entries. You can change
               these later in Settings. Your journal stays in this browser.
@@ -1289,6 +1318,8 @@ export default function Home() {
             <h2 id="entry-title">
               {review ? "Review your entry." : "Today, in your words."}
             </h2>
+            {id.startsWith("checkin-") || id.startsWith("forecast-demo-") ? <p className="muted">Editing this entry removes that day’s old forecast answers. Confirm them again with a check-in; writing alone does not update symptom labels.</p> : null}
+            {demo && <span className="demo-chip">Fictional demo history</span>}
             {!review && (
               <div className="entry-tabs">
                 <button
@@ -1599,6 +1630,17 @@ export default function Home() {
             <ShieldCheck />
             <div className="eyebrow">YOUR SPACE</div>
             <h2 id="privacy-title">Settings</h2>
+            <Button onClick={()=>{setSettings(false);setView("Today");}}>View the fabric welcome screen</Button>
+            {demo && <span className="demo-chip">Fictional demo history</span>}
+            <p className="brand-boundary">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
+            <section className="settings-section">
+              <h3>Demo history</h3>
+              <p>Maya’s fictional history includes model-computed forecasts, journal entries and an appointment brief.</p>
+
+              <p>No wearable or API account needed. Personal records stay separate.</p>
+              {demo ? <Button onClick={exitDemo}>Exit demo</Button> : <Button disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading ? "Loading demo…" : "Explore Maya’s demo"}</Button>}
+              {forecastError && <p role="alert">{forecastError}</p>}
+            </section>
             <section className="settings-section">
               <h3>Your preferences</h3>
               <PersonalPreferences
@@ -1608,6 +1650,7 @@ export default function Home() {
             </section>
             <details className="settings-section settings-voices">
               <summary>Voice & spoken replies</summary>
+              <BrowserVoicePreferences/>
               <VoicePicker speech={speech} beforePlay={stopCapture} />
               <label className="checkbox">
                 <input
@@ -1630,7 +1673,8 @@ export default function Home() {
               )}
             </details>
             <details className="settings-section">
-              <summary>Wearable data</summary>
+              <summary>Wearable connections</summary>
+              <WearableConnections onImported={async record=>{await saveWearables(record);await rememberLegacyWearables(record);setCheckinVersion(n=>n+1);setNotice("Wearable measurements imported on this device.");}} />
               <p>
                 Explore sleep and activity using a local daily CSV import or
                 fictional demo. No device is connected automatically. Imports
@@ -1645,11 +1689,15 @@ export default function Home() {
                 Manage wearable data <ArrowRight size={15} />
               </Button>
             </details>
+            <CloudJournal onImported={async()=>{await refresh();setCheckinVersion(n=>n+1);}}/>
+            <LearningImport onSaved={bundle=>{if(!demoMode)setLearningBundle(bundle);setNotice("Normalized wearable observations imported locally.");}}/>
             <h3 className="settings-subheading">Privacy & your data</h3>
+            <p>Personal-learning snapshots, wearable receipt times, and later outcome revisions are stored separately on this device. They are not encrypted or synchronized across devices. More observations do not guarantee more accurate forecasts.</p>
+            <Button onClick={async()=>{const data=await exportLearningData();const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));const link=document.createElement("a");link.href=url;link.download="elya-local-learning.json";link.click();URL.revokeObjectURL(url);}}>Export local learning data</Button>
             <p>
               Entries stay in this browser’s IndexedDB. Local browser data is
               not encrypted medical storage. Clearing browser data can erase
-              your journal. No accounts, analytics, or raw audio storage.
+              your journal. Optional accounts and cloud journal backup are available when Supabase is configured. Upload requires a separate action. No analytics or raw audio storage.
             </p>
             <p>
               AI extraction requires your explicit consent per session. Only the
@@ -1706,13 +1754,7 @@ export default function Home() {
                     "Permanently delete all journal entries on this device?",
                   )
                 ) {
-                  await storage.clearEntries();
-                  await clearPreferences();
-                  await clearWearables();
-                  setPreferences(defaultPreferences);
-                  speech.resetPreferences();
-                  await refresh();
-                  setReviewed(false);
+                  await resetPersonalData(true);
                   setNotice("All local entries deleted.");
                 }
               }}
@@ -1769,12 +1811,12 @@ export default function Home() {
               <span className="cycle-tag">Cycle day {cycleContext(e).day}</span>
             )}
             {e.symptomFree ? (
-              <span className="free">Symptom-free · explicitly reported</span>
+              <span className="free"><span aria-hidden="true">◯✓ </span>None reported · explicitly confirmed</span>
             ) : (
               [
                 ...new Set(
                   e.facts
-                    .filter((f) =>
+                    .filter((f) => isPresentFact(f) &&
                       categories.includes(
                         f.kind as (typeof categories)[number],
                       ),
@@ -1786,6 +1828,11 @@ export default function Home() {
             {e.demo && <small>SYNTHETIC</small>}
           </div>
           <p>{e.text}</p>
+          <div className="journal-symptoms">{checkinSymptoms.map(s=>{
+            const fact=e.facts.find(f=>f.kind===s.kind);
+            const state=!fact?"Unknown":isPresentFact(fact)?"Present":"None reported";
+            return <span key={s.key} className={!fact?"unknown-label":""}><b>{s.label}:</b> {state}</span>;
+          })}</div>
           {e.facts.some((f) => f.kind === "Daily-life impact") && (
             <div className="impact">
               Daily-life impact ·{" "}
@@ -1806,8 +1853,12 @@ export default function Home() {
           aria-label={`Delete entry ${e.date}`}
           onClick={async () => {
             if (confirm("Delete this entry?")) {
-              await storage.deleteEntry(e.id);
-              await refresh();
+              if (demo) setForecastDemo(current=>{
+                if(!current)return current;
+                const input={...current.demoInput,days:current.demoInput.days.filter(d=>d.date!==e.date)};
+                return {...current,demoInput:input,forecast:symptomRisk(input,{evaluate:false}),demoJournalEntries:current.demoJournalEntries.filter(row=>row.id!==e.id)};
+              });
+              else { await storage.deleteEntry(e.id); if(e.id.startsWith("checkin-personal-")) {forgetConfirmedDay(e.date);setCheckinVersion(n=>n+1);} await refresh(); }
               setReviewed(false);
             }
           }}

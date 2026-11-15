@@ -1,0 +1,2491 @@
+{
+  "disclosure": "Fictional chronological demo. Shows learning behavior, not clinical accuracy or guaranteed improvement.",
+  "kind": "synthetic",
+  "persona": "maya",
+  "modelVersion": "personal-prospective-1",
+  "outlook": [
+    {
+      "symptom": "pelvicPain",
+      "targetDate": "2026-11-15",
+      "status": "experimental",
+      "band": "high",
+      "label": "High risk",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Experimental risk band. These boundaries have not been validated; symptoms may occur at any level.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    },
+    {
+      "symptom": "fatigue",
+      "targetDate": "2026-11-15",
+      "status": "experimental",
+      "band": "high",
+      "label": "High risk",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Experimental risk band. These boundaries have not been validated; symptoms may occur at any level.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    },
+    {
+      "symptom": "bloating",
+      "targetDate": "2026-11-15",
+      "status": "experimental",
+      "band": "high",
+      "label": "High risk",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Experimental risk band. These boundaries have not been validated; symptoms may occur at any level.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    },
+    {
+      "symptom": "headache",
+      "targetDate": "2026-11-15",
+      "status": "learning",
+      "band": null,
+      "label": "Still learning your pattern",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Not enough usable history or a valid estimate to show a risk band.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    },
+    {
+      "symptom": "bowelSymptoms",
+      "targetDate": "2026-11-15",
+      "status": "experimental",
+      "band": "high",
+      "label": "High risk",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Experimental risk band. These boundaries have not been validated; symptoms may occur at any level.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    },
+    {
+      "symptom": "urinarySymptoms",
+      "targetDate": "2026-11-15",
+      "status": "learning",
+      "band": null,
+      "label": "Still learning your pattern",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Not enough usable history or a valid estimate to show a risk band.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    },
+    {
+      "symptom": "nausea",
+      "targetDate": "2026-11-15",
+      "status": "learning",
+      "band": null,
+      "label": "Still learning your pattern",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Not enough usable history or a valid estimate to show a risk band.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    },
+    {
+      "symptom": "dailyLifeImpact",
+      "targetDate": "2026-11-15",
+      "status": "experimental",
+      "band": "high",
+      "label": "High risk",
+      "probabilityPercent": null,
+      "interpretation": "Estimated symptom occurrence, not severity or risk of endometriosis.",
+      "disclosure": "Experimental risk band. These boundaries have not been validated; symptoms may occur at any level.",
+      "thresholdVersion": "experimental-bands-1",
+      "clinicallyValidated": false
+    }
+  ],
+  "finalLearningStatus": [
+    {
+      "symptom": "pelvicPain",
+      "trainingPairs": 166,
+      "matchedWearablePairs": 166,
+      "positivePairs": 27,
+      "negativePairs": 139,
+      "candidateEstimate": 0.8313660283613133,
+      "usedWearables": false,
+      "stage": "learning-wearable-relationship",
+      "wearableLearningReason": "no-earlier-validation-gain",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": {
+        "days": 50,
+        "baseline": {
+          "all": {
+            "n": 50,
+            "events": 7,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.06506875823692854,
+            "recall": 0.7142857142857143,
+            "precision": 0.8333333333333334
+          },
+          "newOnset": {
+            "n": 44,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.05961521009549306,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 6,
+            "events": 5,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.10506144460745542,
+            "recall": 1,
+            "precision": 0.8333333333333334
+          }
+        },
+        "wearable": {
+          "all": {
+            "n": 50,
+            "events": 7,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.06446693305091082,
+            "recall": 0.7142857142857143,
+            "precision": 0.8333333333333334
+          },
+          "newOnset": {
+            "n": 44,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.06014763849698134,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 6,
+            "events": 5,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.09614175977972687,
+            "recall": 1,
+            "precision": 0.8333333333333334
+          }
+        },
+        "selectedWearables": false,
+        "interpretation": "Earlier personal validation only; not clinical proof or guaranteed future improvement."
+      },
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": 1
+        },
+        {
+          "name": "recent3DayRate",
+          "value": 1
+        },
+        {
+          "name": "recent7DayRate",
+          "value": 0.42857142857142855
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 7
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 135,
+          "events": 22,
+          "hits": 17,
+          "falseAlerts": 4,
+          "missed": 5,
+          "brier": 0.06461994536550139,
+          "recall": 0.7727272727272727,
+          "precision": 0.8095238095238095
+        },
+        "newOnset": {
+          "n": 114,
+          "events": 5,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 5,
+          "brier": 0.044603226462098966,
+          "recall": 0,
+          "precision": null
+        },
+        "continuation": {
+          "n": 21,
+          "events": 17,
+          "hits": 17,
+          "falseAlerts": 4,
+          "missed": 0,
+          "brier": 0.1732821336982574,
+          "recall": 1,
+          "precision": 0.8095238095238095
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 22,
+        "wearableBrier": 0.05392030518121438,
+        "baselineBrier": 0.06128888353547676,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    },
+    {
+      "symptom": "fatigue",
+      "trainingPairs": 166,
+      "matchedWearablePairs": 166,
+      "positivePairs": 64,
+      "negativePairs": 102,
+      "candidateEstimate": 0.9249026856588247,
+      "usedWearables": true,
+      "stage": "personal-wearable-outlook",
+      "wearableLearningReason": "selected-on-earlier-personal-validation",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": {
+        "days": 50,
+        "baseline": {
+          "all": {
+            "n": 50,
+            "events": 18,
+            "hits": 16,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.056530676035756046,
+            "recall": 0.8888888888888888,
+            "precision": 0.9411764705882353
+          },
+          "newOnset": {
+            "n": 33,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.058674704781075004,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 17,
+            "events": 16,
+            "hits": 16,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.05236873788307808,
+            "recall": 1,
+            "precision": 0.9411764705882353
+          }
+        },
+        "wearable": {
+          "all": {
+            "n": 50,
+            "events": 18,
+            "hits": 16,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.04950057028299692,
+            "recall": 0.8888888888888888,
+            "precision": 0.9411764705882353
+          },
+          "newOnset": {
+            "n": 33,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.05431086832101897,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 17,
+            "events": 16,
+            "hits": 16,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.040162932915071704,
+            "recall": 1,
+            "precision": 0.9411764705882353
+          }
+        },
+        "selectedWearables": true,
+        "interpretation": "Earlier personal validation only; not clinical proof or guaranteed future improvement."
+      },
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": 1
+        },
+        {
+          "name": "recent3DayRate",
+          "value": 1
+        },
+        {
+          "name": "recent7DayRate",
+          "value": 1
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 7
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 135,
+          "events": 50,
+          "hits": 45,
+          "falseAlerts": 5,
+          "missed": 5,
+          "brier": 0.07035521397121958,
+          "recall": 0.9,
+          "precision": 0.9
+        },
+        "newOnset": {
+          "n": 85,
+          "events": 5,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 5,
+          "brier": 0.05508792922632177,
+          "recall": 0,
+          "precision": null
+        },
+        "continuation": {
+          "n": 50,
+          "events": 45,
+          "hits": 45,
+          "falseAlerts": 5,
+          "missed": 0,
+          "brier": 0.09630959803754585,
+          "recall": 1,
+          "precision": 0.9
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 108,
+        "wearableBrier": 0.05740564429374114,
+        "baselineBrier": 0.06734227593191719,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    },
+    {
+      "symptom": "bloating",
+      "trainingPairs": 166,
+      "matchedWearablePairs": 166,
+      "positivePairs": 52,
+      "negativePairs": 114,
+      "candidateEstimate": 0.8318169751473597,
+      "usedWearables": false,
+      "stage": "learning-wearable-relationship",
+      "wearableLearningReason": "no-earlier-validation-gain",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": {
+        "days": 50,
+        "baseline": {
+          "all": {
+            "n": 50,
+            "events": 16,
+            "hits": 14,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.0565915371767179,
+            "recall": 0.875,
+            "precision": 0.9333333333333333
+          },
+          "newOnset": {
+            "n": 35,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.05684843536955894,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 15,
+            "events": 14,
+            "hits": 14,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.055992108060088905,
+            "recall": 1,
+            "precision": 0.9333333333333333
+          }
+        },
+        "wearable": {
+          "all": {
+            "n": 50,
+            "events": 16,
+            "hits": 15,
+            "falseAlerts": 2,
+            "missed": 1,
+            "brier": 0.055661680948526186,
+            "recall": 0.9375,
+            "precision": 0.8823529411764706
+          },
+          "newOnset": {
+            "n": 35,
+            "events": 2,
+            "hits": 1,
+            "falseAlerts": 1,
+            "missed": 1,
+            "brier": 0.06295734703124393,
+            "recall": 0.5,
+            "precision": 0.5
+          },
+          "continuation": {
+            "n": 15,
+            "events": 14,
+            "hits": 14,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.03863846008885145,
+            "recall": 1,
+            "precision": 0.9333333333333333
+          }
+        },
+        "selectedWearables": false,
+        "interpretation": "Earlier personal validation only; not clinical proof or guaranteed future improvement."
+      },
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": 1
+        },
+        {
+          "name": "recent3DayRate",
+          "value": 1
+        },
+        {
+          "name": "recent7DayRate",
+          "value": 1
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 7
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 135,
+          "events": 42,
+          "hits": 37,
+          "falseAlerts": 4,
+          "missed": 5,
+          "brier": 0.05443443006858042,
+          "recall": 0.8809523809523809,
+          "precision": 0.9024390243902439
+        },
+        "newOnset": {
+          "n": 94,
+          "events": 5,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 5,
+          "brier": 0.0449279372811032,
+          "recall": 0,
+          "precision": null
+        },
+        "continuation": {
+          "n": 41,
+          "events": 37,
+          "hits": 37,
+          "falseAlerts": 4,
+          "missed": 0,
+          "brier": 0.07622980377645497,
+          "recall": 1,
+          "precision": 0.9024390243902439
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 112,
+        "wearableBrier": 0.052680088357765255,
+        "baselineBrier": 0.0718745302049919,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    },
+    {
+      "symptom": "headache",
+      "trainingPairs": 0,
+      "matchedWearablePairs": 0,
+      "positivePairs": 0,
+      "negativePairs": 0,
+      "candidateEstimate": null,
+      "usedWearables": false,
+      "stage": "learning-history",
+      "wearableLearningReason": "collecting-paired-wearable-and-symptom-observations",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": null,
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": null
+        },
+        {
+          "name": "recent3DayRate",
+          "value": null
+        },
+        {
+          "name": "recent7DayRate",
+          "value": null
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 0
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        },
+        "newOnset": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        },
+        "continuation": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 0,
+        "wearableBrier": null,
+        "baselineBrier": null,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    },
+    {
+      "symptom": "bowelSymptoms",
+      "trainingPairs": 166,
+      "matchedWearablePairs": 166,
+      "positivePairs": 22,
+      "negativePairs": 144,
+      "candidateEstimate": 0.7529028997159972,
+      "usedWearables": false,
+      "stage": "learning-wearable-relationship",
+      "wearableLearningReason": "no-earlier-validation-gain",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": {
+        "days": 50,
+        "baseline": {
+          "all": {
+            "n": 50,
+            "events": 6,
+            "hits": 4,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.06372809520073024,
+            "recall": 0.6666666666666666,
+            "precision": 0.8
+          },
+          "newOnset": {
+            "n": 45,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.05632148275490108,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 5,
+            "events": 4,
+            "hits": 4,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.13038760721319273,
+            "recall": 1,
+            "precision": 0.8
+          }
+        },
+        "wearable": {
+          "all": {
+            "n": 50,
+            "events": 6,
+            "hits": 4,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.06570620736678684,
+            "recall": 0.6666666666666666,
+            "precision": 1
+          },
+          "newOnset": {
+            "n": 45,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.06455807712261552,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 5,
+            "events": 4,
+            "hits": 4,
+            "falseAlerts": 0,
+            "missed": 0,
+            "brier": 0.07603937956432877,
+            "recall": 1,
+            "precision": 1
+          }
+        },
+        "selectedWearables": false,
+        "interpretation": "Earlier personal validation only; not clinical proof or guaranteed future improvement."
+      },
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": 1
+        },
+        {
+          "name": "recent3DayRate",
+          "value": 1
+        },
+        {
+          "name": "recent7DayRate",
+          "value": 0.42857142857142855
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 7
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 112,
+          "events": 16,
+          "hits": 12,
+          "falseAlerts": 4,
+          "missed": 4,
+          "brier": 0.07077695424829279,
+          "recall": 0.75,
+          "precision": 0.75
+        },
+        "newOnset": {
+          "n": 96,
+          "events": 4,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 4,
+          "brier": 0.04283631785567909,
+          "recall": 0,
+          "precision": null
+        },
+        "continuation": {
+          "n": 16,
+          "events": 12,
+          "hits": 12,
+          "falseAlerts": 4,
+          "missed": 0,
+          "brier": 0.23842077260397496,
+          "recall": 1,
+          "precision": 0.75
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 30,
+        "wearableBrier": 0.07446297834474976,
+        "baselineBrier": 0.06339825404814774,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    },
+    {
+      "symptom": "urinarySymptoms",
+      "trainingPairs": 0,
+      "matchedWearablePairs": 0,
+      "positivePairs": 0,
+      "negativePairs": 0,
+      "candidateEstimate": null,
+      "usedWearables": false,
+      "stage": "learning-history",
+      "wearableLearningReason": "collecting-paired-wearable-and-symptom-observations",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": null,
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": null
+        },
+        {
+          "name": "recent3DayRate",
+          "value": null
+        },
+        {
+          "name": "recent7DayRate",
+          "value": null
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 0
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        },
+        "newOnset": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        },
+        "continuation": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 0,
+        "wearableBrier": null,
+        "baselineBrier": null,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    },
+    {
+      "symptom": "nausea",
+      "trainingPairs": 0,
+      "matchedWearablePairs": 0,
+      "positivePairs": 0,
+      "negativePairs": 0,
+      "candidateEstimate": null,
+      "usedWearables": false,
+      "stage": "learning-history",
+      "wearableLearningReason": "collecting-paired-wearable-and-symptom-observations",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": null,
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": null
+        },
+        {
+          "name": "recent3DayRate",
+          "value": null
+        },
+        {
+          "name": "recent7DayRate",
+          "value": null
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 0
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        },
+        "newOnset": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        },
+        "continuation": {
+          "n": 0,
+          "events": 0,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 0,
+          "brier": null,
+          "recall": null,
+          "precision": null
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 0,
+        "wearableBrier": null,
+        "baselineBrier": null,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    },
+    {
+      "symptom": "dailyLifeImpact",
+      "trainingPairs": 166,
+      "matchedWearablePairs": 166,
+      "positivePairs": 27,
+      "negativePairs": 139,
+      "candidateEstimate": 0.8313660283613133,
+      "usedWearables": false,
+      "stage": "learning-wearable-relationship",
+      "wearableLearningReason": "no-earlier-validation-gain",
+      "issuedAt": "2026-11-14T23:00:00Z",
+      "frozen": false,
+      "validation": {
+        "days": 50,
+        "baseline": {
+          "all": {
+            "n": 50,
+            "events": 7,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.06506875823692854,
+            "recall": 0.7142857142857143,
+            "precision": 0.8333333333333334
+          },
+          "newOnset": {
+            "n": 44,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.05961521009549306,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 6,
+            "events": 5,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.10506144460745542,
+            "recall": 1,
+            "precision": 0.8333333333333334
+          }
+        },
+        "wearable": {
+          "all": {
+            "n": 50,
+            "events": 7,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 2,
+            "brier": 0.06446693305091082,
+            "recall": 0.7142857142857143,
+            "precision": 0.8333333333333334
+          },
+          "newOnset": {
+            "n": 44,
+            "events": 2,
+            "hits": 0,
+            "falseAlerts": 0,
+            "missed": 2,
+            "brier": 0.06014763849698134,
+            "recall": 0,
+            "precision": null
+          },
+          "continuation": {
+            "n": 6,
+            "events": 5,
+            "hits": 5,
+            "falseAlerts": 1,
+            "missed": 0,
+            "brier": 0.09614175977972687,
+            "recall": 1,
+            "precision": 0.8333333333333334
+          }
+        },
+        "selectedWearables": false,
+        "interpretation": "Earlier personal validation only; not clinical proof or guaranteed future improvement."
+      },
+      "observedInputs": [
+        {
+          "name": "previousSymptom",
+          "value": 1
+        },
+        {
+          "name": "recent3DayRate",
+          "value": 1
+        },
+        {
+          "name": "recent7DayRate",
+          "value": 0.42857142857142855
+        },
+        {
+          "name": "recent7DayReports",
+          "value": 7
+        },
+        {
+          "name": "cycleSin",
+          "value": 0.623686246091301
+        },
+        {
+          "name": "cycleCos",
+          "value": 0.7815263912457422
+        },
+        {
+          "name": "cycleSin2",
+          "value": 0.9746282964153803
+        },
+        {
+          "name": "cycleCos2",
+          "value": 0.22174786361301893
+        },
+        {
+          "name": "cycleLengthSpread",
+          "value": 2
+        },
+        {
+          "name": "sleepHours:value",
+          "value": 7.3
+        },
+        {
+          "name": "sleepHours:changeFromPersonalMedian",
+          "value": 0
+        },
+        {
+          "name": "nightHeartRateBpm:value",
+          "value": 62.17557050458495
+        },
+        {
+          "name": "nightHeartRateBpm:changeFromPersonalMedian",
+          "value": 0.9676588137671871
+        },
+        {
+          "name": "hrvRmssdMs:value",
+          "value": 46.64885899083011
+        },
+        {
+          "name": "hrvRmssdMs:changeFromPersonalMedian",
+          "value": -1.9353176275343742
+        },
+        {
+          "name": "temperatureDeviationC:value",
+          "value": 0.08816778784387097
+        },
+        {
+          "name": "temperatureDeviationC:changeFromPersonalMedian",
+          "value": 0.07257441103253902
+        },
+        {
+          "name": "respiratoryRateBpm:value",
+          "value": 14.117557050458494
+        },
+        {
+          "name": "respiratoryRateBpm:changeFromPersonalMedian",
+          "value": 0.09676588137671871
+        },
+        {
+          "name": "steps:value",
+          "value": 7500
+        },
+        {
+          "name": "steps:changeFromPersonalMedian",
+          "value": 1500
+        },
+        {
+          "name": "restingHeartRateBpm:value",
+          "value": null
+        },
+        {
+          "name": "restingHeartRateBpm:changeFromPersonalMedian",
+          "value": null
+        }
+      ],
+      "prospectivePerformance": {
+        "all": {
+          "n": 135,
+          "events": 22,
+          "hits": 17,
+          "falseAlerts": 4,
+          "missed": 5,
+          "brier": 0.06461994536550139,
+          "recall": 0.7727272727272727,
+          "precision": 0.8095238095238095
+        },
+        "newOnset": {
+          "n": 114,
+          "events": 5,
+          "hits": 0,
+          "falseAlerts": 0,
+          "missed": 5,
+          "brier": 0.044603226462098966,
+          "recall": 0,
+          "precision": null
+        },
+        "continuation": {
+          "n": 21,
+          "events": 17,
+          "hits": 17,
+          "falseAlerts": 4,
+          "missed": 0,
+          "brier": 0.1732821336982574,
+          "recall": 1,
+          "precision": 0.8095238095238095
+        }
+      },
+      "prospectiveWearableComparison": {
+        "days": 22,
+        "wearableBrier": 0.05392030518121438,
+        "baselineBrier": 0.06128888353547676,
+        "interpretation": "Comparison of frozen forecasts with later outcomes; descriptive personal feedback, not clinical validation."
+      },
+      "minimumHistory": {
+        "pairs": 30,
+        "positive": 5,
+        "negative": 5
+      },
+      "minimumWearableHistory": {
+        "pairs": 45,
+        "positive": 8,
+        "negative": 8
+      }
+    }
+  ],
+  "progress": [
+    {
+      "date": "2026-05-31",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-06-14",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 12,
+          "matchedWearablePairs": 12,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 12,
+          "matchedWearablePairs": 12,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 12,
+          "matchedWearablePairs": 12,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 12,
+          "matchedWearablePairs": 12,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 12,
+          "matchedWearablePairs": 12,
+          "stage": "learning-history",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-06-28",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 26,
+          "matchedWearablePairs": 26,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 26,
+          "matchedWearablePairs": 26,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 26,
+          "matchedWearablePairs": 26,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 26,
+          "matchedWearablePairs": 26,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 26,
+          "matchedWearablePairs": 26,
+          "stage": "learning-history",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-07-12",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 40,
+          "matchedWearablePairs": 40,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 40,
+          "matchedWearablePairs": 40,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 40,
+          "matchedWearablePairs": 40,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 40,
+          "matchedWearablePairs": 40,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 40,
+          "matchedWearablePairs": 40,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-07-26",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 54,
+          "matchedWearablePairs": 54,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 54,
+          "matchedWearablePairs": 54,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 54,
+          "matchedWearablePairs": 54,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 54,
+          "matchedWearablePairs": 54,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 54,
+          "matchedWearablePairs": 54,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-08-09",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 68,
+          "matchedWearablePairs": 68,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 68,
+          "matchedWearablePairs": 68,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 68,
+          "matchedWearablePairs": 68,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 68,
+          "matchedWearablePairs": 68,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 68,
+          "matchedWearablePairs": 68,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-08-23",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 82,
+          "matchedWearablePairs": 82,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 82,
+          "matchedWearablePairs": 82,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 82,
+          "matchedWearablePairs": 82,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 82,
+          "matchedWearablePairs": 82,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 82,
+          "matchedWearablePairs": 82,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-09-06",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 96,
+          "matchedWearablePairs": 96,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 96,
+          "matchedWearablePairs": 96,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 96,
+          "matchedWearablePairs": 96,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 96,
+          "matchedWearablePairs": 96,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 96,
+          "matchedWearablePairs": 96,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 110,
+          "matchedWearablePairs": 110,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 110,
+          "matchedWearablePairs": 110,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 110,
+          "matchedWearablePairs": 110,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 110,
+          "matchedWearablePairs": 110,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 110,
+          "matchedWearablePairs": 110,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-10-04",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 124,
+          "matchedWearablePairs": 124,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 124,
+          "matchedWearablePairs": 124,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 124,
+          "matchedWearablePairs": 124,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 124,
+          "matchedWearablePairs": 124,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 124,
+          "matchedWearablePairs": 124,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 138,
+          "matchedWearablePairs": 138,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 138,
+          "matchedWearablePairs": 138,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 138,
+          "matchedWearablePairs": 138,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 138,
+          "matchedWearablePairs": 138,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 138,
+          "matchedWearablePairs": 138,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        }
+      ]
+    },
+    {
+      "date": "2026-11-01",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 152,
+          "matchedWearablePairs": 152,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 152,
+          "matchedWearablePairs": 152,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 152,
+          "matchedWearablePairs": 152,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 152,
+          "matchedWearablePairs": 152,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 152,
+          "matchedWearablePairs": 152,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        }
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "symptoms": [
+        {
+          "symptom": "pelvicPain",
+          "trainingPairs": 166,
+          "matchedWearablePairs": 166,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "fatigue",
+          "trainingPairs": 166,
+          "matchedWearablePairs": 166,
+          "stage": "personal-wearable-outlook",
+          "usedWearables": true
+        },
+        {
+          "symptom": "bloating",
+          "trainingPairs": 166,
+          "matchedWearablePairs": 166,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "headache",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "bowelSymptoms",
+          "trainingPairs": 166,
+          "matchedWearablePairs": 166,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        },
+        {
+          "symptom": "urinarySymptoms",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "nausea",
+          "trainingPairs": 0,
+          "matchedWearablePairs": 0,
+          "stage": "learning-history",
+          "usedWearables": false
+        },
+        {
+          "symptom": "dailyLifeImpact",
+          "trainingPairs": 166,
+          "matchedWearablePairs": 166,
+          "stage": "learning-wearable-relationship",
+          "usedWearables": false
+        }
+      ]
+    }
+  ],
+  "clinicalValidation": false,
+  "activeInPublicApp": false
+}

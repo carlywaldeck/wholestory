@@ -4,6 +4,11 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, cleanup, act, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import {clearLearningData} from "../lib/learning-store";
+import {runLearningTask} from "../lib/learning-client";
+import {executeTestLearning} from "../tests/learning-executor";
+vi.mock("../lib/learning-client",async()=>{const {executeTestLearning}=await import("../tests/learning-executor");return {runLearningTask:vi.fn(executeTestLearning)};});
+import { navigate } from "./test-navigation";
 import { clearEntries, loadEntries } from "../lib/storage";
 import { savePreferences, defaultPreferences } from "../lib/preferences";
 class Recognition {
@@ -12,9 +17,10 @@ class Recognition {
   continuous = false;
   interimResults = false;
   onresult: ((e: unknown) => void) | null = null;
+  onstart: (() => void) | null = null;
   onend: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  start = vi.fn();
+  start = vi.fn(()=>this.onstart?.());
   stop = () => this.onend?.();
   abort = vi.fn();
   constructor() {
@@ -42,13 +48,15 @@ class AudioMock {
 }
 const OriginalURL = URL;
 let voiceFetch: ReturnType<typeof vi.fn>;
-beforeEach(async () => {
+beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockImplementation(executeTestLearning);
+  window.history.replaceState(null, "", "/outlook");
   await clearEntries();
   await savePreferences({ ...defaultPreferences, setupComplete: true });
-  localStorage.clear();
+  localStorage.clear(); sessionStorage.clear();
   Recognition.instances = [];
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   vi.stubGlobal("SpeechRecognition", Recognition);
+  vi.stubGlobal("isSecureContext", true);
   vi.stubGlobal("Audio", AudioMock);
   vi.stubGlobal(
     "URL",
@@ -69,65 +77,25 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
-it("reads one follow-up aloud, records its answer, and saves both without feedback", async () => {
-  const user = userEvent.setup();
-  render(<Home />);
-  await waitFor(() =>
-    expect(screen.queryByText("Opening your journal…")).toBeNull(),
-  );
-  await user.click(screen.getByRole("button", { name: "Privacy settings" }));
-  await user.click(screen.getByText("Voice & spoken replies", { exact: true }));
-  await user.click(screen.getByRole("button", { name: "Preview Coral" }));
-  await user.click(
-    screen.getByLabelText(
-      "Allow OpenAI to turn the app’s reply text into natural speech. This sends reply text to OpenAI, separately from journal extraction.",
-    ),
-  );
-  await user.click(screen.getByRole("button", { name: "Use this voice" }));
-  await user.click(screen.getByRole("button", { name: "Close settings" }));
-  await user.click(screen.getByRole("button", { name: "Record instead" }));
-  await user.click(screen.getByRole("button", { name: "Start recording" }));
-  expect(screen.getByText("Listening to your entry…")).toBeTruthy();
-  const entryMic = Recognition.instances[0];
-  expect(entryMic.start).toHaveBeenCalled();
+it("records only after Speak, keeps the transcript editable, and saves without automatic replies", async () => {
+ const user=userEvent.setup();render(<Home/>);await navigate(user,"Journal");
+ expect(Recognition.instances).toHaveLength(0);
+ await user.type(screen.getByLabelText("What are you experiencing today?"),"My original note.");
+ act(()=>{localStorage.setItem("elya.journalMode","speak");window.dispatchEvent(new Event("elya-journal-preferences"));});
+ await user.click(screen.getByRole("button",{name:"Speak"}));
+ expect(Recognition.instances).toHaveLength(1);expect(Recognition.instances[0].start).toHaveBeenCalledOnce();
+ act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}]]}));
 
-  act(() =>
-    entryMic.onresult?.({
-      results: [[{ transcript: "My lower abdomen hurt this morning." }]],
-    }),
-  );
-  await user.click(screen.getByRole("button", { name: "Stop recording" }));
-  await user.click(screen.getByRole("button", { name: "Continue" }));
-  const spoken = voiceFetch.mock.calls
-    .filter((c) => c[1]?.method === "POST")
-    .map((c) => JSON.parse(c[1].body as string).text as string);
-  expect(
-    spoken.filter((t) => t.includes("Did the symptoms interfere")),
-  ).toHaveLength(1);
-  await user.click(screen.getByRole("button", { name: "Answer by voice" }));
-  const answerMic = Recognition.instances[1];
-
-  act(() =>
-    answerMic.onresult?.({
-      results: [[{ transcript: "I missed my first class." }]],
-    }),
-  );
-  await user.click(
-    screen.getByRole("button", { name: "Stop answer recording" }),
-  );
-  expect(
-    (
-      screen.getByPlaceholderText(
-        "A few words, if you’d like…",
-      ) as HTMLTextAreaElement
-    ).value,
-  ).toBe("I missed my first class.");
-  expect(
-    (screen.getByLabelText("Your words") as HTMLTextAreaElement).value,
-  ).toBe("My lower abdomen hurt this morning.");
-  await user.click(screen.getByRole("button", { name: "Save entry" }));
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  const [saved] = await loadEntries();
-  expect(saved.text).toContain("I missed my first class.");
-  expect(saved.text).toContain("Follow-up: Did the symptoms interfere");
+ act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}],[{transcript:"Second dictated sentence."}]]}));
+ await user.click(screen.getByRole("button",{name:"Stop recording"}));
+ act(()=>{localStorage.setItem("elya.journalMode","type");window.dispatchEvent(new Event("elya-journal-preferences"));});
+ expect(screen.queryByRole("button",{name:"Speak"})).toBeNull();
+ await user.type(screen.getByLabelText("What are you experiencing today?")," My correction.");
+ expect((screen.getByLabelText("What are you experiencing today?") as HTMLTextAreaElement).value).toContain("Fictional cramping");
+ await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
+ await user.click(screen.getByRole("button",{name:"Add to calendar"}));
+ await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
+ expect((await loadEntries())[0].text).toContain("Fictional cramping interrupted my walk.");
+ expect((await loadEntries())[0].text).toContain("My original note.");expect((await loadEntries())[0].text).toContain("My correction.");expect((await loadEntries())[0].text.match(/Fictional cramping/g)).toHaveLength(1);
+ expect(voiceFetch.mock.calls.filter(c=>c[1]?.method==="POST")).toHaveLength(0);
 });

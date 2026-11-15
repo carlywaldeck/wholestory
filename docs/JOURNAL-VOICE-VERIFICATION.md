@@ -1,0 +1,9 @@
+# Journal dictation and calendar save verification
+
+Journal uses the browser's actual SpeechRecognition or webkitSpeechRecognition API. No external transcription service or simulated production transcript was added. Recording is user-initiated, final results append to the current editable draft once, and microphone sessions abort on page/date changes or when the page is hidden. Browser speech services may process audio externally; the disclosure appears before Speak. elya does not store raw audio.
+
+The HTTP LAN preview is not a secure microphone context. It now explains this and links to localhost. Localhost capability detection in Chrome confirmed a secure context and an available speech-recognition constructor. The user reported microphone permission blocked in the Codex built-in preview, then successfully dictated the requested fictional test entry in external Chrome on localhost and confirmed that the transcript appeared. Unit tests separately simulate recognition events; the live-audio confirmation came from the user. Browser storage is scoped to the browser and origin, so use the same localhost browser for recording, saving and viewing the calendar during local testing.
+
+Browser verification on the actual HTTP LAN origin confirmed dated Journal save → calendar detail → refresh persistence → edit of the same record, with no duplicate entry. This also found crypto.randomUUID unavailable on that origin; entry IDs now use a cryptographic getRandomValues fallback. Save uses a stable draft ID and an in-flight lock. Failed saves preserve text and stay on Journal. Missing symptoms remain unknown.
+
+161 tests pass, covering recognition result appending, permission denial, lifecycle cleanup, failed saves and symptom-only entries. Production build/type checking and Sites worker packaging pass. The design and scrolling Home are preserved.

@@ -15,7 +15,7 @@ export function JourneyProgress({ current, hasEntries, onNavigate }: {
 }) {
   const currentIndex = steps.findIndex((step) => step.id === current);
   return (
-    <nav className="journey-progress" aria-label="Elya journey">
+    <nav className="journey-progress" aria-label="elya journey">
       {steps.map((step, index) => {
         const complete = index < currentIndex || (step.id === "capture" && hasEntries && current !== "capture");
         const Icon = complete ? Check : step.icon;

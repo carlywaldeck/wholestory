@@ -1,0 +1,77 @@
+{
+  "source": "PMData (Simula/OSF vx4bk)",
+  "dataKind": "real-world-observational",
+  "outcome": "Next-calendar-day reported fatigue score (source scale 1\u20135)",
+  "status": "external-domain-research-benchmark",
+  "endometriosisValidated": false,
+  "appForecastEnabled": false,
+  "participantsDownloaded": 16,
+  "participantsEvaluated": 13,
+  "heldOutDates": 353,
+  "method": "Per-person first 70% chronological training; final 30% test; fixed ridge regression; same complete-wearable test dates for all models; no test tuning.",
+  "models": {
+    "training_mean": {
+      "n": 353,
+      "mae": 0.4413344845944354,
+      "rmse": 0.5592119603079412
+    },
+    "previous_fatigue": {
+      "n": 353,
+      "mae": 0.41359773371104813,
+      "rmse": 0.7297793527380173
+    },
+    "journal_only": {
+      "n": 353,
+      "mae": 0.4209255643083937,
+      "rmse": 0.5484914595754411
+    },
+    "wearable_only": {
+      "n": 353,
+      "mae": 0.4331069573146517,
+      "rmse": 0.5615118243213051
+    },
+    "journal_and_wearable": {
+      "n": 353,
+      "mae": 0.41849102065107147,
+      "rmse": 0.5551197470463136
+    }
+  },
+  "macroParticipantMAE": {
+    "training_mean": 0.4422590874615343,
+    "previous_fatigue": 0.45123130737544376,
+    "journal_only": 0.4231365242520352,
+    "wearable_only": 0.4361225873217498,
+    "journal_and_wearable": 0.42188366526577636
+  },
+  "excludedParticipants": [
+    {
+      "participant": "p03",
+      "reason": "fewer than 30 training or 10 held-out targets",
+      "eligibleDates": 40
+    },
+    {
+      "participant": "p12",
+      "reason": "fewer than 10 held-out dates with both wearable features",
+      "eligibleDates": 53
+    },
+    {
+      "participant": "p13",
+      "reason": "fewer than 30 training or 10 held-out targets",
+      "eligibleDates": 36
+    }
+  ],
+  "limitations": [
+    "Participants are not an endometriosis cohort; fatigue is not pelvic pain or daily-life interference.",
+    "Retrospective export dates do not prove wearable measurements were available in real time.",
+    "Complete-wearable test dates can select a nonrepresentative subset; missing outcomes are not imputed.",
+    "No confidence intervals or external participant-held-out evaluation; small model differences are not established benefit.",
+    "No diagnosis, clinical validation, prospective symptom forecast, or proof of earlier diagnosis."
+  ],
+  "retrievedAt": "2026-11-14T19:01:53.856656+00:00",
+  "sourceApi": "https://api.osf.io/v2/nodes/vx4bk/files/osfstorage/",
+  "sourceUrl": "https://datasets.simula.no/pmdata/",
+  "licenseNotice": "Original downloaded data license: CC BY-NC 4.0. Noncommercial research demonstration.",
+  "attribution": "Thambawita et al. (2020), PMData: A Sports Logging Dataset, doi:10.1145/3339825.3394926",
+  "forecastApiAvailable": false,
+  "interpretation": "Wearable features did not consistently improve over simpler models. Small metric differences are exploratory, not established clinical benefit."
+}
