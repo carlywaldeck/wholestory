@@ -31,7 +31,8 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
   const setView = (next: string) => {
     updateView(next);
     const href = destinations.find(d=>d.view===next)?.href;
-    if (href && window.location.pathname !== href) window.history.pushState(null, "", href);
+    if (href && (window.location.pathname !== href || Boolean(window.location.search))) window.history.pushState(null, "", href);
+    window.dispatchEvent(new Event("elya-route-change"));
     if (next === "Today" && window.location.pathname !== "/") window.history.pushState(null, "", "/");
   };
   const [settings, setSettingsState] = useState(false);

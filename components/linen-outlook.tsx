@@ -1,4 +1,5 @@
 "use client";
+import {DemoWearable} from "./demo-wearable";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Entry } from "../lib/model";
@@ -26,7 +27,7 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
   const navigation=useAppNavigation();
   const [detailDate,setDetailDate]=useState<string|null>(null);
   function openDay(day:string){onSelect(day);setDetailDate(day);navigation?.setView("Outlook");window.history.pushState(null,"","/outlook?day="+day);window.scrollTo(0,0);}
-  useEffect(()=>{const sync=()=>{const day=new URLSearchParams(window.location.search).get("day");const valid=day&&/^\d{4}-\d{2}-\d{2}$/.test(day)?day:null;setDetailDate(valid);if(valid)onSelect(valid);};sync();window.addEventListener("popstate",sync);return()=>window.removeEventListener("popstate",sync);},[]);
+  useEffect(()=>{const sync=()=>{const day=new URLSearchParams(window.location.search).get("day");const valid=day&&/^\d{4}-\d{2}-\d{2}$/.test(day)?day:null;setDetailDate(valid);if(valid)onSelect(valid);};sync();window.addEventListener("popstate",sync);window.addEventListener("elya-route-change",sync);return()=>{window.removeEventListener("popstate",sync);window.removeEventListener("elya-route-change",sync);};},[]);
   const [month,setMonth]=useState(selected.slice(0,7));
   useEffect(()=>setMonth(selected.slice(0,7)),[selected]);
   const first=new Date(month+"-01T12:00:00");
@@ -53,9 +54,10 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
         {!learning&&<p className="outlook-summary-line">{higher.length?`${higher[0].label} may be more likely ${target===today?"today":"on "+targetLabel}.`:`No elevated likelihood in the available estimates for ${targetLabel}.`}</p>}
         {!learning&&<span className="outlook-estimate-tag">◇ Estimate · experimental</span>}
       </>:<p className="outlook-summary-line">{target?`No estimate available for ${targetLabel} yet.`:"No outlook available yet."}</p>}
-      {!loading&&!error&&(learning!==undefined?<PersonalLearningOutlook result={learning}/>:<><ul className="outlook-forecast-rows">{checkinSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?"○ Still learning":s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>)}
+      {!loading&&!error&&(learning!==undefined?<PersonalLearningOutlook result={learning} sampleDays={demoDays?.length}/>:<><ul className="outlook-forecast-rows">{checkinSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?"○ Still learning":s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>)}
       <div className="outlook-checkin-action"><button className="button primary" onClick={()=>onEdit(today)}>Check in today</button></div>
     </section>
+    {demoDays!==undefined&&<DemoWearable days={demoDays} onView={()=>openDay(today)}/>}
     <section className="linen-panel outlook-calendar-panel" aria-labelledby="calendar-month">
       <div className="outlook-calendar-heading"><h2 id="calendar-month" aria-live="polite">{first.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</h2><div className="outlook-month-controls"><button onClick={()=>{setMonth(today.slice(0,7));onSelect(today);}}>Today</button><button aria-label="Previous month" onClick={()=>moveMonth(-1)}>←</button><button aria-label="Next month" onClick={()=>moveMonth(1)}>→</button></div></div>
       <div className="outlook-calendar-key"><span><b aria-hidden="true">●</b> Logged</span><span><b aria-hidden="true">◇</b> Estimate</span><span>Unanswered days are unknown</span></div>

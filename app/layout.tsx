@@ -3,6 +3,7 @@ import "../components/forecast-experience.css";
 import "../components/typography.css";
 import "../components/app-navigation.css";
 import "../components/linen-pages.css";
+import "../components/demo-experience.css";
 import { EllieSupport } from "../components/ellie-support";
 import { AppNavigationProvider } from "../components/app-navigation";
 import { Inter, Rethink_Sans } from "next/font/google";
