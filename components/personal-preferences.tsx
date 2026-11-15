@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PenLine, Mic, ArrowRight, Check } from "lucide-react";
 import { Preferences, defaultPreferences } from "../lib/preferences";
 import { Button } from "./ui/button";
@@ -16,7 +16,11 @@ export function PersonalPreferences({
     [saved, setSaved] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  useEffect(() => setDraft(value), [value]);
+  const queued=useRef(Promise.resolve());const pending=useRef(0);
+  useEffect(() => {if(!pending.current)setDraft(value);}, [value]);
+  useEffect(()=>{if(!onboarding){try{const saved=localStorage.getItem("elya.journalMode");if(saved)setDraft(v=>({...v,inputMode:saved==="speak"?"voice":"write"}));}catch{}}},[]);
+  function autosave(next:Preferences){setDraft(next);setSaved(false);setError("");setBusy(true);pending.current++;queued.current=queued.current.catch(()=>{}).then(async()=>{try{await onSave({...next,name:next.name.trim(),setupComplete:true});setError("");}catch{setError("Your preferences could not be saved. Change the field to try again.");}finally{pending.current--;if(!pending.current){setBusy(false);setSaved(true);}}});}
+
   async function save(next = draft) {
     setBusy(true);
     setError("");
@@ -29,6 +33,7 @@ export function PersonalPreferences({
       setBusy(false);
     }
   }
+  if(!onboarding)return <div className="personal-preferences"><label>What should we call you? <span className="optional">Optional</span><input autoComplete="given-name" maxLength={60} value={draft.name} placeholder="Your first name" onChange={e=>autosave({...draft,name:e.target.value})}/></label><fieldset><legend>How would you like to journal?</legend><div className="settings-input-choice">{([['write','Write'],['voice','Talk']] as const).map(([mode,label])=><label key={mode}><input type="radio" name="settings-input" checked={draft.inputMode===mode} onChange={()=>autosave({...draft,inputMode:mode})}/>{label}</label>)}</div></fieldset><p role="status">{error|| (busy?"Saving…":saved?"Saved automatically.":"Changes save automatically on this device.")}</p></div>;
   return (
     <div className="personal-preferences">
       <label>

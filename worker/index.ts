@@ -1,3 +1,4 @@
+import {handleTts} from "../lib/server-tts";
 import {appointmentSummary} from "../lib/server-appointment-summary";
 import { benchmarkResponse } from "../lib/research-benchmark";
 import { handleForecast } from "../lib/server-forecast";
@@ -21,6 +22,7 @@ export default {
       return new Response("Invalid URL", { status: 400 });
     }
     if (path === "/api/appointment-summary") return appointmentSummary(req,env);
+    if (path === "/api/tts") return handleTts(req,env);
     if (path === "/api/forecast") return handleForecast(req, env);
     if (path === "/api/research/benchmark")
       return req.method === "GET"

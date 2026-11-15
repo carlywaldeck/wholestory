@@ -1,0 +1,6 @@
+elya prepared question audio
+Generated locally with hexgrad/Kokoro-82M v1.0, preset af_heart, speed 0.95.
+Model: https://huggingface.co/hexgrad/Kokoro-82M (Apache-2.0)
+Voice documentation: https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md
+Inference: https://github.com/thewh1teagle/kokoro-onnx (MIT)
+Preset synthesis only; no real-person reference voice or patient information supplied.

@@ -18,7 +18,7 @@ it("keeps the top bar mounted, uses the exact ordered links, and marks the curre
  expect(screen.queryByRole("navigation",{name:"Main pages"})).toBeNull();
  await user.click(menu);
  const links=screen.getAllByRole("link").filter(l=>l.closest("#app-menu"));
- expect(links.map(l=>l.textContent)).toEqual(["Journal","Outlook","Appointment Brief","Privacy","Settings"]);
+ expect(links.map(l=>l.textContent)).toEqual(["Journal","Outlook","Appointment Brief","Settings and privacy"]);
  expect(screen.getByRole("link",{name:"Outlook"}).getAttribute("aria-current")).toBe("page");
  await user.click(screen.getByRole("link",{name:"Journal"}));
  expect(screen.getByRole("heading",{name:"Your story"})).toBeTruthy();
@@ -37,12 +37,12 @@ it("supports arrow keys, Enter, Escape and the requested tab order",async()=>{
  await user.keyboard("{ArrowDown}");
  expect(document.activeElement).toBe(screen.getByRole("link",{name:"Outlook"}));
  await user.keyboard("{End}");
- expect(document.activeElement).toBe(screen.getByRole("link",{name:"Settings"}));
+ expect(document.activeElement).toBe(screen.getByRole("link",{name:"Settings and privacy"}));
  await user.keyboard("{Escape}");
  expect(document.activeElement).toBe(menu);
  expect(menu.getAttribute("aria-expanded")).toBe("false");
  await user.click(menu);
- for(const name of ["Journal","Outlook","Appointment Brief","Privacy","Settings"]){
+ for(const name of ["Journal","Outlook","Appointment Brief","Settings and privacy"]){
    await user.tab();expect(document.activeElement).toBe(screen.getByRole("link",{name}));
  }
  await user.keyboard("{Home}{Enter}");

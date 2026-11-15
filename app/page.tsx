@@ -44,6 +44,8 @@ import {
   isPresentFact,
 } from "../lib/model";
 import * as storage from "../lib/storage";
+import {MicrophoneStatus} from "../components/microphone-status";
+import {SettingsShell} from "../components/settings-shell";
 import {CloudJournal} from "../components/cloud-journal";
 import {BrowserVoicePreferences} from "../components/browser-voice-preferences";
 import {LearningImport} from "../components/learning-import";
@@ -60,7 +62,7 @@ import { SafetySection } from "../components/safety-section";
 import { safetyBoundary } from "../lib/clinical-context";
 import { appointmentQuestions, cycleContext } from "../lib/cycles";
 import { useSpokenReplies } from "../hooks/use-spoken-replies";
-import { VoicePicker } from "../components/voice-picker";
+
 import { PersonalPreferences } from "../components/personal-preferences";
 import { JourneyProgress } from "../components/journey-progress";
 import { HeroBackground } from "../components/hero-background";
@@ -201,7 +203,7 @@ function HomeContent() {
         ).filter((el) => {
           const hidden = el.closest("details:not([open])");
           return (
-            !hidden || (el.tagName === "SUMMARY" && el.parentElement === hidden)
+            (!hidden || (el.tagName === "SUMMARY" && el.parentElement === hidden)) && !el.closest("[hidden]")
           );
         });
         const first = items[0],
@@ -607,7 +609,7 @@ function HomeContent() {
     resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
     try{
       await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
-      if(all){try{sessionStorage.removeItem("elya-active-demo");}catch{}await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all){try{sessionStorage.removeItem("elya-active-demo");}catch{}await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.autoReplies");localStorage.removeItem("elya.spokenReplies");localStorage.removeItem("elya.voiceSpeed");localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
       if(all||!demoMode)setLearningBundle(null);
       await refresh();setReviewed(false);
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
@@ -1609,9 +1611,9 @@ function HomeContent() {
         </div>
       )}
       {settings && (
-        <div className="overlay">
+        <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)setSettings(false);}}>
           <section
-            className="modal"
+            className="modal settings-modal glass-card"
             role="dialog"
             aria-modal="true"
             aria-labelledby="privacy-title"
@@ -1626,91 +1628,27 @@ function HomeContent() {
             >
               <X />
             </button>
-            <ShieldCheck />
-            <div className="eyebrow">YOUR SPACE</div>
-            <h2 id="privacy-title">Settings</h2>
-            <Button onClick={()=>{setSettings(false);setView("Today");}}>View the fabric welcome screen</Button>
+            <h2 id="privacy-title">Settings and privacy</h2>
             {demo && <span className="demo-chip">Fictional demo history</span>}
-            <p className="brand-boundary">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
-            <section className="settings-section">
-              <h3>Demo history</h3>
-              <p>Maya’s fictional history includes model-computed forecasts, journal entries and an appointment brief.</p>
-
-              <p>No wearable or API account needed. Personal records stay separate.</p>
-              {demo ? <Button onClick={exitDemo}>Exit demo</Button> : <Button disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading ? "Loading demo…" : "Try Maya’s demo"}</Button>}
-              {forecastError && <p role="alert">{forecastError}</p>}
-            </section>
-            <section className="settings-section">
-              <h3>Your preferences</h3>
-              <PersonalPreferences
-                value={preferences}
-                onSave={updatePreferences}
-              />
-            </section>
-            <details className="settings-section settings-voices">
-              <summary>Voice & spoken replies</summary>
-              <BrowserVoicePreferences/>
-              <VoicePicker speech={speech} beforePlay={stopCapture} />
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={speech.enabled}
-                  onChange={(e) => speech.setEnabled(e.target.checked)}
-                />{" "}
-                Read replies aloud with OpenAI
-              </label>
-              {(speech.speaking || speech.preparing) && (
-                <Button onClick={speech.stop}>
-                  <VolumeX size={16} />
-                  Stop speaking
-                </Button>
-              )}
-              {speech.speechError && (
-                <p className="error" role="status">
-                  {speech.speechError}
-                </p>
-              )}
-            </details>
-            <details className="settings-section">
-              <summary>Wearable connections</summary>
-              <WearableConnections onImported={async record=>{await saveWearables(record);await rememberLegacyWearables(record);setCheckinVersion(n=>n+1);setNotice("Wearable measurements imported on this device.");}} />
-              <p>
-                Explore sleep and activity using a local daily CSV import or
-                fictional demo. No device is connected automatically. Imports
-                stay in this browser and are not sent to AI.
-              </p>
-              <Button
-                onClick={() => {
-                  setSettings(false);
-                  setView("Insights");
-                }}
-              >
-                Manage wearable data <ArrowRight size={15} />
-              </Button>
-            </details>
-            <CloudJournal onImported={async()=>{await refresh();setCheckinVersion(n=>n+1);}}/>
-            <LearningImport onSaved={bundle=>{if(!demoMode)setLearningBundle(bundle);setNotice("Normalized wearable observations imported locally.");}}/>
-            <h3 className="settings-subheading">Privacy & your data</h3>
-            <p>Personal-learning snapshots, wearable receipt times, and later outcome revisions are stored separately on this device. They are not encrypted or synchronized across devices. More observations do not guarantee more accurate forecasts.</p>
-            <Button onClick={async()=>{const data=await exportLearningData();const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));const link=document.createElement("a");link.href=url;link.download="elya-local-learning.json";link.click();URL.revokeObjectURL(url);}}>Export local learning data</Button>
-            <p>
-              Entries stay in this browser’s IndexedDB. Local browser data is
-              not encrypted medical storage. Clearing browser data can erase
-              your journal. Optional accounts and cloud journal backup are available when Supabase is configured. Upload requires a separate action. No analytics or raw audio storage.
-            </p>
-            <p>
-              AI extraction requires your explicit consent per session. Only the
-              entry text is sent to OpenAI; previous entries are not sent.
-              Browser speech recognition may process audio externally. Natural
-              spoken replies send reply text to OpenAI after separate consent.
-              Spoken replies are opt-in; turn off “Read replies aloud” or use
-              “Stop speaking” at any time.
-            </p>
+            <SettingsShell
+              preferences={<PersonalPreferences value={preferences} onSave={async value=>{await savePreferences(value);setPreferences(value);localStorage.setItem("elya.journalMode",value.inputMode==="voice"?"speak":"type");window.dispatchEvent(new Event("elya-journal-preferences"));}}/>}
+              voice={<BrowserVoicePreferences/>}
+              connections={<>
+                <p>Connect Oura or import a daily file. Nothing connects automatically.</p>
+                <WearableConnections onImported={async record=>{await saveWearables(record);await rememberLegacyWearables(record);setCheckinVersion(n=>n+1);setNotice("Wearable measurements imported on this device.");}}/>
+                <LearningImport onSaved={bundle=>{if(!demoMode)setLearningBundle(bundle);setNotice("Wearable measurements imported on this device.");}}/>
+                <Button onClick={()=>{setSettings(false);setView("Insights");}}>View saved measurements <ArrowRight size={15}/></Button>
+              </>}
+              data={<>
+                <CloudJournal onImported={async()=>{await refresh();setCheckinVersion(n=>n+1);}}/>
+                <div className="settings-privacy-summary"><article><strong>Stays on this device</strong><p>Entries start in this browser. Local copies are not encrypted and can be erased when you clear browser data. Cloud backup below is optional.</p></article><article><strong>Your voice</strong><p>elya does not save microphone recordings. Your browser may use its speech service for dictation.</p></article><article><strong>AI is optional</strong><p>AI extraction needs your consent each session and sends only that entry’s text, not earlier entries. The current Journal does not use it.</p></article></div>
+                <details><summary>Technical details</summary><p>Your entries, saved measurements and forecast history stay on this device. They do not sync automatically. You can optionally sign in and explicitly upload personal journal entries to Supabase. Wearable measurements and forecast history stay local. Clearing browser data may erase them.</p><p>The current Journal does not send entries for AI extraction. Any optional AI processing requires your consent; earlier entries are not included automatically. Prepared spoken questions do not send your text to a speech provider. Dictation may use your browser’s speech service.</p><p>Optional accounts and cloud journal backup are available when Supabase is configured. Upload requires a separate action. There is no analytics tracking. Forecasts are experimental; recording more days does not guarantee better accuracy.</p></details>
+                <MicrophoneStatus/><h4>Backups</h4>
             <div className="toolbar">
-              <Button
-                onClick={() => {
+              <Button className="primary"
+                onClick={async () => {
                   const u = URL.createObjectURL(
-                    new Blob([JSON.stringify(entries, null, 2)], {
+                    new Blob([JSON.stringify({journal:allEntries,preferences,wearables:await loadWearables(),forecasts:await exportLearningData()}, null, 2)], {
                       type: "application/json",
                     }),
                   );
@@ -1721,9 +1659,9 @@ function HomeContent() {
                   URL.revokeObjectURL(u);
                 }}
               >
-                Export JSON
+                Export my data
               </Button>
-              <Button onClick={() => file.current?.click()}>Import JSON</Button>
+              <Button onClick={() => file.current?.click()}>Restore journal backup</Button>
               <input
                 hidden
                 ref={file}
@@ -1734,7 +1672,7 @@ function HomeContent() {
                     const f = e.target.files?.[0];
                     if (!f) return;
                     if (f.size > 10000000) throw Error("File is too large.");
-                    await storage.importEntries(JSON.parse(await f.text()));
+                    const backup=JSON.parse(await f.text());await storage.importEntries(Array.isArray(backup)?backup:backup.journal);
                     await refresh();
                     setNotice("Journal imported.");
                   } catch (e) {
@@ -1750,7 +1688,7 @@ function HomeContent() {
               onClick={async () => {
                 if (
                   confirm(
-                    "Permanently delete all journal entries on this device?",
+                    "Delete all journal entries, check-ins, saved measurements, forecast history, demo records and preferences from this browser? This cannot be undone. Exported files, provider accounts and cloud backups will not be deleted.",
                   )
                 ) {
                   await resetPersonalData(true);
@@ -1758,9 +1696,10 @@ function HomeContent() {
                 }
               }}
             >
-              <Trash2 size={16} /> Delete all local data
+              <Trash2 size={16} /> Delete all my data
             </Button>
-            <h3>Clinical context</h3>
+            <Button onClick={async()=>{const data=await exportLearningData();const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));const link=document.createElement("a");link.href=url;link.download="elya-local-learning.json";link.click();URL.revokeObjectURL(url);}}>Download forecast history</Button>
+                <details><summary>Medical context and sources</summary>            <h4>Medical context</h4>
             <p>
               Question categories support documentation, not diagnosis or
               treatment advice.
@@ -1783,6 +1722,11 @@ function HomeContent() {
                 ACOG diagnosis guidance ↗
               </a>
             </p>
+</details>
+              </>}
+              demo={<><p>Try a fictional history without changing your personal journal. No wearable or API account is needed.</p><div className="settings-demo-choices">{forecastPeople.map(person=><Button key={person.id} className={demo&&persona===person.id?"primary":""} disabled={forecastLoading} onClick={()=>{void tryDemo(person.id).then(()=>{setSettings(false);setView("Outlook");});}}>{person.name}{demo&&persona===person.id?" · Active":""}</Button>)}</div>{forecastLoading&&<p role="status">Loading fictional history…</p>}{demo&&<Button onClick={exitDemo}>Return to my journal</Button>}{forecastError&&<p role="alert">{forecastError}</p>}</>}
+            />
+            <p className="brand-boundary">Experimental symptom-risk estimates. Not a diagnostic tool or a replacement for medical care.</p>
           </section>
         </div>
       )}
