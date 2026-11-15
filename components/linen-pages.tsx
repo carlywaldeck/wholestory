@@ -89,7 +89,7 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
   return <div className="linen-experience">
     <div className="linen-static"><HeroBackground frozen /></div>
     <div className="linen-content">
-      {demo&&!continuous&&<div className="demo-journey"><span>Sophie’s demo · Fictional profile</span><nav aria-label="Demo walkthrough">{[{label:"1 · Outlook",view:"Outlook"},{label:"2 · Journal",view:"Your story"},{label:"3 · Appointment brief",view:"Appointment brief"}].map(step=><button key={step.view} aria-current={view===step.view?"step":undefined} onClick={()=>nav.navigateTo(step.view)}>{step.label}</button>)}</nav></div>}
+      {demo&&!continuous&&<div className="demo-journey"><span>Sophie’s demo · Fictional profile</span><div role="navigation" aria-label="Demo walkthrough">{[{label:"1 · Outlook",view:"Outlook"},{label:"2 · Journal",view:"Your story"},{label:"3 · Appointment brief",view:"Appointment brief"}].map(step=><button key={step.view} aria-current={view===step.view?"step":undefined} onClick={()=>nav.navigateTo(step.view)}>{step.label}</button>)}</div></div>}
       {(continuous||view==="Your story")&&<section className="linen-panel journal-panel" aria-labelledby="journal-heading">
         <div className="linen-date-heading"><button aria-label="Previous day" onClick={()=>changeDate(shiftDate(date,-1))}>←</button><h1 id="journal-heading">Journal <span>— {pretty(date)}</span></h1><button aria-label="Next day" disabled={date>=currentDay} onClick={()=>changeDate(shiftDate(date,1))}>→</button></div>
         <label className="linen-date-picker">Entry date<input type="date" value={date} max={currentDay} onChange={e=>changeDate(e.target.value)}/></label>
