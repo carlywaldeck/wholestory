@@ -14,9 +14,9 @@ export function monthlySections(entries:Entry[]):BriefSection[] {
     const quotes=new Map<string,Set<string>>();
     for(const e of ordered)for(const f of e.facts){
       if(!(kinds as readonly string[]).includes(f.kind)||!e.text.includes(f.quote)||(f.kind==="Daily-life impact"&&!isPresentFact(f)))continue;
-      const ids=quotes.get(f.quote)??new Set<string>();ids.add(e.id);quotes.set(f.quote,ids);
+      const context=e.journal?.provenance.find(p=>p.quote===f.quote&&p.symptom)?.symptom;const wording=context?context+": “"+f.quote+"”":"“"+f.quote+"”";const ids=quotes.get(wording)??new Set<string>();ids.add(e.id);quotes.set(wording,ids);
     }
-    if(quotes.size)sections.push({heading,statements:[...quotes].map(([quote,ids])=>({text:"“"+quote+"”",sourceIds:[...ids]}))});
+    if(quotes.size)sections.push({heading,statements:[...quotes].map(([quote,ids])=>({text:quote,sourceIds:[...ids]}))});
   }
   const absent=ordered.filter(e=>e.symptomFree);
   if(absent.length)sections.push({heading:"Explicitly symptom-free days",statements:[{text:"No symptoms explicitly reported on "+new Set(absent.map(e=>e.date)).size+" day(s).",sourceIds:absent.map(e=>e.id)}]});

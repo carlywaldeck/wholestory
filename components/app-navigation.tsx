@@ -18,7 +18,6 @@ const destinations = [
   { label: "Journal", view: "Your story", href: "/journal", Icon: BookOpen },
   { label: "Outlook", view: "Outlook", href: "/outlook", Icon: CalendarDays },
   { label: "Appointment Brief", view: "Appointment brief", href: "/appointment-brief", Icon: FileText },
-  { label: "Privacy", view: "Privacy", href: "/privacy", Icon: Settings },
 ];
 export function AppNavigationProvider({ children }: { children: ReactNode }) {
   const [view, updateView] = useState("Today");
@@ -35,7 +34,9 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
     if (href && window.location.pathname !== href) window.history.pushState(null, "", href);
     if (next === "Today" && window.location.pathname !== "/") window.history.pushState(null, "", "/");
   };
-  const [settings, setSettings] = useState(false);
+  const [settings, setSettingsState] = useState(false);
+  const previousPage=useRef("/outlook");
+  function setSettings(value:boolean){if(value){if(!window.location.pathname.startsWith("/settings")){previousPage.current=window.location.pathname+window.location.search;window.history.pushState(null,"","/settings");}}else if(window.location.pathname.startsWith("/settings"))window.history.replaceState(null,"",previousPage.current);setSettingsState(value);}
   const [open, setOpen] = useState(false);
   const [checkinRequest, setCheckinRequest] = useState(0);
   const anchor = useRef<HTMLDivElement>(null);
@@ -53,8 +54,9 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
   };
   useEffect(() => {
     const fromHash = () => {
+      if(window.location.pathname==="/privacy"||window.location.pathname==="/settings"&&window.location.hash==="#privacy")window.history.replaceState(null,"","/settings/privacy");
       const route = destinations.find(d=>d.href===window.location.pathname);
-      updateView(route?.view ?? (window.location.pathname==="/settings"?"Outlook":"Today")); setOpen(false); setSettings(window.location.pathname === "/settings");
+      updateView(route?.view ?? (window.location.pathname.startsWith("/settings")?"Outlook":"Today")); setOpen(false); setSettingsState(window.location.pathname.startsWith("/settings"));
     };
     fromHash(); window.addEventListener("popstate", fromHash);
     window.addEventListener("hashchange", fromHash);
@@ -78,8 +80,8 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
           onKeyDown={e=>{
             if(e.key==="ArrowDown"||e.key==="ArrowUp") {
               e.preventDefault();
-              if(open) anchor.current?.querySelectorAll<HTMLAnchorElement>("nav a")[e.key==="ArrowUp"?4:0]?.focus();
-              else {focusOnOpen.current=e.key==="ArrowUp"?4:0;setOpen(true);}
+              if(open) anchor.current?.querySelectorAll<HTMLAnchorElement>("nav a")[e.key==="ArrowUp"?3:0]?.focus();
+              else {focusOnOpen.current=e.key==="ArrowUp"?3:0;setOpen(true);}
             }
           }}>Menu</button>
         <GlassCard as="nav" id="app-menu" className={`app-menu${open?" is-open":""}`} aria-label="Main pages" aria-hidden={!open} inert={!open}
@@ -95,7 +97,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
             <Icon size={18} aria-hidden="true"/><span>{label}</span>{current===next&&<Check size={16} aria-hidden="true" className="app-current-check"/>}
           </a>)}
           <div className="app-menu-divider"/>
-          <a href="/settings" className="app-settings-link" onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();requestLeave(()=>{close();window.history.pushState(null,"","/settings");setSettings(true);});}}>Settings</a>
+          <a href="/settings" className="app-settings-link" data-settings-link="true" onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();requestLeave(()=>{close();setSettings(true);});}}>Settings and privacy</a>
         </GlassCard>
       </div>
       <Link className="app-wordmark-link" href="/" aria-label="elya, go to the home page" onNavigate={e=>{e.preventDefault();requestLeave(()=>navigate("Today"));}}><Wordmark /></Link>
@@ -107,5 +109,6 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
       <button className="button primary" onClick={()=>{setDirty(false);setLeaving(false);pending.current?.();pending.current=null;}}>Leave</button>
     </section></div>}
     {children}
+    <footer className="settings-privacy-footer"><a href="/settings/privacy" onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();setSettings(true);window.history.replaceState(null,"","/settings/privacy");window.dispatchEvent(new PopStateEvent("popstate"));}}>Privacy</a></footer>
   </NavigationContext.Provider>;
 }

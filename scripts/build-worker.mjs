@@ -11,6 +11,8 @@ const mime = {
   ".woff2": "font/woff2",
   ".json": "application/json",
   ".svg": "image/svg+xml",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
 };
 async function add(file, url) {
   assets[url] = {
@@ -30,7 +32,7 @@ await add(".next/server/app/index.html", "/");
 await walk(".next/static", "/_next/static");
 await walk("public", "");
 // Section routes need their own HTML for direct visits and auth redirects.
-for(const section of ["outlook","journal","appointment-brief","privacy","settings","welcome"]){
+for(const section of ["outlook","journal","appointment-brief","privacy","settings","settings/privacy","welcome"]){
  const html=path.join(".next/server/app",section+".html");
  try{await add(html,"/"+section);}catch(error){if(error.code!=="ENOENT")throw error;}
 }

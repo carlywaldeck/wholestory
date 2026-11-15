@@ -3,12 +3,7 @@ import {afterEach,expect,it,vi} from "vitest";
 import {cleanup,render,screen} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {JournalFollowups} from "./journal-followups";
-afterEach(()=>{cleanup();vi.unstubAllGlobals();});
-it("speaks only on request, adapts one question at a time, and stops at three",async()=>{
- class Utterance{ text:string;onend:(()=>void)|null=null;onerror:(()=>void)|null=null;constructor(text:string){this.text=text;} }
- const spoken:string[]=[];vi.stubGlobal("SpeechSynthesisUtterance",Utterance);vi.stubGlobal("speechSynthesis",{getVoices:()=>[],cancel:vi.fn(),speak:(u:Utterance)=>{spoken.push(u.text);u.onend?.();}});
- const answer=vi.fn();const user=userEvent.setup();render(<JournalFollowups mode="type" text="I had pelvic cramps for two hours." sessionKey="entry" onAnswer={answer} onActivity={vi.fn()}/>);expect(spoken).toHaveLength(0);
- await user.click(screen.getByRole("button",{name:"Answer a few follow-ups"}));expect(spoken).toHaveLength(0);
- await user.type(screen.getByLabelText("Your answer"),"I missed work and took ibuprofen.");await user.click(screen.getByRole("button",{name:/^(Next question|Finish)$/}));expect(screen.getByText("What changed after you tried that, if anything?")).toBeTruthy();
- await user.type(screen.getByLabelText("Your answer"),"No relief.");await user.click(screen.getByRole("button",{name:/^(Next question|Finish)$/}));await user.type(screen.getByLabelText("Your answer"),"Moderate.");await user.click(screen.getByRole("button",{name:/^(Next question|Finish)$/}));expect(spoken).toHaveLength(0);expect(answer).toHaveBeenCalledTimes(3);expect(screen.queryByLabelText("Your answer")).toBeNull();
-});
+afterEach(cleanup);
+it("shows one optional question, keeps original text separate, and can stop unanswered",async()=>{const update=vi.fn();const user=userEvent.setup();render(<JournalFollowups text="cramps for two hours" sessionKey="test" onUpdate={update} onActivity={vi.fn()}/>);expect(screen.getByText("How strong was the pelvic pain / cramps?")).toBeTruthy();await user.click(screen.getByRole("button",{name:"Moderate"}));await user.click(screen.getByRole("button",{name:"Next question"}));expect(update.mock.calls.at(-1)?.[0][0].answer).toBe("Moderate");await user.click(screen.getByRole("button",{name:"Finish questions"}));expect(screen.queryByLabelText("Your answer")).toBeNull();expect(screen.getByText("You can review and save your entry.")).toBeTruthy();});
+
+it("keeps Speak mode free of answer options and hides editing until requested",async()=>{const user=userEvent.setup();render(<JournalFollowups mode="speak" text="cramps for two hours" sessionKey="voice" onUpdate={vi.fn()} onActivity={vi.fn()}/>);expect(screen.queryByRole("button",{name:"Moderate"})).toBeNull();expect(screen.queryByRole("textbox",{name:"Your answer"})).toBeNull();expect(screen.getByRole("button",{name:"Answer"})).toBeTruthy();await user.click(screen.getByText("Edit answer",{exact:true}));expect(screen.getByRole("textbox",{name:"Your answer"})).toBeTruthy();});

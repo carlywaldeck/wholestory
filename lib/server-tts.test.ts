@@ -1,0 +1,8 @@
+import {afterEach,expect,it,vi} from "vitest";
+import {handleTts} from "./server-tts";
+import {SAMPLE_LINES,STYLE_INSTRUCTION,VOICE_ID} from "./conversation-voice-config";
+afterEach(()=>vi.unstubAllGlobals());
+const req=(text:string)=>new Request("http://localhost/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,consent:true})});
+it("never sends arbitrary journal text or identifiers",async()=>{const fetch=vi.fn();vi.stubGlobal("fetch",fetch);expect((await handleTts(req("My name is Jane and I have pain"),{OPENAI_API_KEY:"server-secret"})).status).toBe(400);expect(fetch).not.toHaveBeenCalled();});
+it("streams PCM with one server-selected voice and style; key is never returned",async()=>{const fetch=vi.fn(async(_url:unknown,_options?:RequestInit)=>new Response(new Uint8Array([0,0,1,0])));vi.stubGlobal("fetch",fetch);const response=await handleTts(req(SAMPLE_LINES[0]),{OPENAI_API_KEY:"server-secret"});expect(response.headers.get("Content-Type")).toBe("audio/pcm");expect(response.headers.get("Cache-Control")).toBe("no-store");const body=JSON.parse(String(fetch.mock.calls[0]?.[1]?.body));expect(body.voice).toBe(VOICE_ID);expect(body.instructions).toBe(STYLE_INSTRUCTION);expect(body.model).toBe("gpt-4o-mini-tts");expect(new Uint8Array(await response.arrayBuffer())).toEqual(new Uint8Array([0,0,1,0]));});
+it("reports missing key and provider failure for fallback without leaking errors",async()=>{expect((await handleTts(req(SAMPLE_LINES[0]),{})).status).toBe(503);vi.stubGlobal("fetch",vi.fn().mockResolvedValue(new Response(null,{status:429})));const response=await handleTts(req(SAMPLE_LINES[0]),{OPENAI_API_KEY:"secret"});expect(response.status).toBe(502);expect(await response.text()).not.toContain("secret");});

@@ -64,8 +64,7 @@ export function WearableConnections({
       <p>
         Import the last 60 completed calendar dates of sleep and activity.
         elya requests daily-data permission only, not your name or email.
-        Provider authorization stays in an encrypted, HttpOnly cookie; imported
-        measurements stay in this browser and are not sent to AI.
+        Your connection uses a separate browser session. Imported measurements stay in this browser and are not sent to AI.
       </p>
       {status?.connected ? (
         <div className="toolbar">
@@ -87,7 +86,7 @@ export function WearableConnections({
         {status === null
           ? "Connection status is unavailable. You can still use CSV import or the demo."
           : !status.configured
-            ? "Live connection needs developer setup. Demo and CSV import are available now."
+            ? "Oura is not available here. You can import a file or explore a demo."
             : status.connected
               ? "Connected for this short browser session. Import is manual; it replaces your previous wearable import. Reconnect when the session expires."
               : "Oura will ask you to authorize access. You can cancel without sharing data."}
