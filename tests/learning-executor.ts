@@ -10,5 +10,5 @@ export async function executeTestLearning(task:LearningTask){
  const source=forecastDemo(task.persona,task.targetDate);
  source.input.asOf=shiftDate(task.targetDate,-1)+"T23:00:00Z";
  const bundle=computeLearning({op:"issue",state:createPersonalLearner("demo-"+task.persona,"synthetic","UTC"),input:source.input,physiology:source.physiology});
- return {...bundle,persona:task.persona,entries:forecastDemoJournal(source),label:source.label,disclosure:source.disclosure};
+ return {...bundle,persona:task.persona,demoSeedVersion:task.persona==="maya"?"maya-prebleeding-2":undefined,entries:forecastDemoJournal(source),label:source.label,disclosure:source.disclosure};
 }

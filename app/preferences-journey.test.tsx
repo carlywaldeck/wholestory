@@ -15,7 +15,7 @@ beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockIm
   window.history.replaceState(null, "", "/outlook");
   await clearPreferences();
   await clearEntries();
-  localStorage.clear();
+  localStorage.clear(); sessionStorage.clear();
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   vi.stubGlobal(
     "fetch",
@@ -52,7 +52,7 @@ it("uses the saved name in the home greeting", async()=>{
 it("opens Outlook and keeps personalization in Settings", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Today’s summary" });
+  await screen.findByRole("heading", { name: "Tomorrow’s outlook" });
   expect(screen.queryByRole("button", { name: "Preview Coral" })).toBeNull();
   expect(screen.queryByRole("dialog")).toBeNull();
   await navigate(user, "Outlook");
@@ -70,7 +70,7 @@ it("opens Outlook and keeps personalization in Settings", async () => {
 it("saves a name and entry preference, then restores them without onboarding", async () => {
   const user = userEvent.setup();
   const app = render(<Home />);
-  await screen.findByRole("heading", { name: "Today’s summary" });
+  await screen.findByRole("heading", { name: "Tomorrow’s outlook" });
   await navigate(user, "Settings");
   await user.type(
     screen.getByRole("textbox", { name: /What should we call you/ }),

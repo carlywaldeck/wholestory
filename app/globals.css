@@ -2800,3 +2800,6 @@ footer p { font-size: var(--type-label); line-height: 1.7; }
   line-height: 1.8;
   color: var(--muted);
 }
+
+.opening-demo { position: absolute; left: 2rem; bottom: 2rem; z-index: 2; }
+@media (max-width: 600px) { .opening-demo { left: 1.5rem; bottom: 6.5rem; } }

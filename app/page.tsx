@@ -46,6 +46,7 @@ import {
 import * as storage from "../lib/storage";
 import {MicrophoneStatus} from "../components/microphone-status";
 import {SettingsShell} from "../components/settings-shell";
+import {CloudJournal} from "../components/cloud-journal";
 import {BrowserVoicePreferences} from "../components/browser-voice-preferences";
 import {LearningImport} from "../components/learning-import";
 import {currentPersonalOutlook,loadFictionalLearning,saveFictionalJournal,advanceFictionalLearning,rememberLegacyWearables,clearLearningData,exportLearningData,REAL_PROFILE} from "../lib/learning-store";
@@ -82,7 +83,7 @@ import {
   type Preferences,
 } from "../lib/preferences";
 const BRAND = "elya";
-const forecastPeople = [{id:"maya",name:"Maya"},{id:"alex",name:"Alex"},{id:"jules",name:"Jules"}] as const;
+const forecastPeople = [{id:"maya",name:"Maya"}] as const;
 type ForecastDemo = {
   demo: { persona: PersonaId; label: string; disclosure: string };
   forecast: ForecastResult;
@@ -539,13 +540,15 @@ function HomeContent() {
     catch(error){setForecastError(error instanceof Error?error.message:"Demo could not advance.");}
     finally{if(request===forecastRequest.current)setForecastLoading(false);}
   }
-  async function tryDemo(chosen: PersonaId = persona) {
+  const demoRestored=useRef(false);
+  useEffect(()=>{if(!ready||demoRestored.current)return;demoRestored.current=true;try{if(sessionStorage.getItem("elya-active-demo")==="maya")void tryDemo("maya",true);}catch{}},[ready]);
+  async function tryDemo(chosen: PersonaId = persona, preservePage=false) {
     profileIntent.current=chosen;
     const request = ++forecastRequest.current;
     setForecastLoading(true);
     setForecastError("");
     setCheckin(false);
-    if(view!=="Today")setView("Outlook");
+    if(!preservePage)setView("Outlook");
     try {
       const bundle=await loadFictionalLearning(chosen,shiftDate(today(),1));
       if(request!==forecastRequest.current)return;
@@ -553,10 +556,9 @@ function HomeContent() {
       setPersona(chosen);
       setJournalLimit(14);
       setDemoMode(true);
+      try{sessionStorage.setItem("elya-active-demo","maya");}catch{}
       setQuestions([]); setStatement(""); setEvidence(null); setSelected(""); setReviewed(false); setWearableNote("");
-      setNotice(
-        "Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.",
-      );
+      setNotice("");
       setSettings(false);
     } catch (e) {
       if (request === forecastRequest.current) {profileIntent.current=demoMode?persona:"real";setForecastError((e as Error).message);}
@@ -580,6 +582,7 @@ function HomeContent() {
     setNotice(demo ? "Fictional check-in saved. Review it in your journal." : "Check-in saved on this device. Review it in your journal.");
   }
   function exitDemo() {
+    try{sessionStorage.removeItem("elya-active-demo");}catch{}
     profileIntent.current="real";
     forecastRequest.current++;
     setForecastLoading(false); setForecastError(""); setForecastDemo(null);setLearningBundle(null); setCheckin(false);
@@ -606,7 +609,7 @@ function HomeContent() {
     resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
     try{
       await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
-      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.autoReplies");localStorage.removeItem("elya.spokenReplies");localStorage.removeItem("elya.voiceSpeed");localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all){try{sessionStorage.removeItem("elya-active-demo");}catch{}await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.autoReplies");localStorage.removeItem("elya.spokenReplies");localStorage.removeItem("elya.voiceSpeed");localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
       if(all||!demoMode)setLearningBundle(null);
       await refresh();setReviewed(false);
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
@@ -614,7 +617,7 @@ function HomeContent() {
   const openingMode = view === "Today";
   const journalExperience = <LinenPages learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
-          demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Next demo day</button></details>}</div>}
+          demoControls={<div className="demo-toolbar">{demo?<><span className="demo-mode-label">Demo · Maya <small>Fictional data</small></span><button className="text-action" onClick={exitDemo}>Exit demo</button><details><summary>Demo controls</summary><p>Model-computed fictional history. Personal records stay separate.</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Next demo day</button></details></>:<button className="text-action" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>Try Maya’s demo</button>}</div>}
           onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={()=>resetPersonalData()}
           onSave={async entry=>{
             const saved=validateEntry({...entry,...(demo?{persona}: {})});
@@ -629,12 +632,6 @@ function HomeContent() {
   return (
     <div className={`shell persistent-nav-shell${openingMode ? " opening-mode" : ""}`}>
       <main className={openingMode ? undefined : "page-content-transition"}>
-        {demo && openingMode && (
-          <div className="demo-banner">
-            <span className="demo-chip">Fictional demo history</span>{" "}
-            <span>Fictional entries for exploring elya.</span>
-          </div>
-        )}
         {(speech.speaking || speech.preparing) && <button className="stop-reply" onClick={speech.stop}><VolumeX size={14}/>Stop speaking</button>}
         {notice && (
           <div role="status" className="notice">
@@ -649,7 +646,6 @@ function HomeContent() {
             {error}
           </p>
         )}
-        {demo && openingMode && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
         {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
         {!openingMode && view!=="Insights" ? journalExperience:String(view) === "Outlook" ? (
           <>
@@ -663,17 +659,18 @@ function HomeContent() {
               <section className="opening-screen" aria-label="Start your story">
                 <HeroBackground />
                 <div className="opening-copy">
-                  <h1>Welcome{preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
-                  <p>Bring Oura data and your symptom notes together to prepare for care.</p>
+                  <h1>Welcome{demo?", Maya":preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
+                  <p>Learn your symptom patterns with wearable data, and turn your journal into a clear appointment brief.</p>
                 </div>
                 <button
                   className="opening-start"
-                  aria-label="Start your story, go to Journal"
+                  aria-label="Start my journal"
                   onClick={() => document.getElementById("home-journal")?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"})}
                 >
-                  <span>Start your story</span>
+                  <span>Start my journal</span>
                   <ArrowDown size={18} aria-hidden="true" />
                 </button>
+                <button className="opening-demo button" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading?"Preparing outlook…":"Try Maya’s demo"}</button>
                 <button className="visually-hidden" onClick={() => voice()}>
                   Record instead
                 </button>
@@ -1643,8 +1640,9 @@ function HomeContent() {
                 <Button onClick={()=>{setSettings(false);setView("Insights");}}>View saved measurements <ArrowRight size={15}/></Button>
               </>}
               data={<>
-                <div className="settings-privacy-summary"><article><strong>Stays on this device</strong><p>Your entries stay in this browser. They are not encrypted and can be erased when you clear browser data.</p></article><article><strong>Your voice</strong><p>elya does not save microphone recordings. Your browser may use its speech service for dictation.</p></article><article><strong>AI is optional</strong><p>AI extraction needs your consent each session and sends only that entry’s text, not earlier entries. The current Journal does not use it.</p></article></div>
-                <details><summary>Technical details</summary><p>Your entries, saved measurements and forecast history stay on this device. They do not sync between devices. Clearing browser data may erase them.</p><p>The current Journal does not send entries for AI extraction. Any optional AI processing requires your consent; earlier entries are not included automatically. Prepared spoken questions do not send your text to a speech provider. Dictation may use your browser’s speech service.</p><p>There is no account or analytics tracking. Forecasts are experimental; recording more days does not guarantee better accuracy.</p></details>
+                <CloudJournal onImported={async()=>{await refresh();setCheckinVersion(n=>n+1);}}/>
+                <div className="settings-privacy-summary"><article><strong>Stays on this device</strong><p>Entries start in this browser. Local copies are not encrypted and can be erased when you clear browser data. Cloud backup below is optional.</p></article><article><strong>Your voice</strong><p>elya does not save microphone recordings. Your browser may use its speech service for dictation.</p></article><article><strong>AI is optional</strong><p>AI extraction needs your consent each session and sends only that entry’s text, not earlier entries. The current Journal does not use it.</p></article></div>
+                <details><summary>Technical details</summary><p>Your entries, saved measurements and forecast history stay on this device. They do not sync automatically. You can optionally sign in and explicitly upload personal journal entries to Supabase. Wearable measurements and forecast history stay local. Clearing browser data may erase them.</p><p>The current Journal does not send entries for AI extraction. Any optional AI processing requires your consent; earlier entries are not included automatically. Prepared spoken questions do not send your text to a speech provider. Dictation may use your browser’s speech service.</p><p>Optional accounts and cloud journal backup are available when Supabase is configured. Upload requires a separate action. There is no analytics tracking. Forecasts are experimental; recording more days does not guarantee better accuracy.</p></details>
                 <MicrophoneStatus/><h4>Backups</h4>
             <div className="toolbar">
               <Button className="primary"
@@ -1690,7 +1688,7 @@ function HomeContent() {
               onClick={async () => {
                 if (
                   confirm(
-                    "Delete all journal entries, check-ins, saved measurements, forecast history, demo records and preferences from this browser? This cannot be undone. Exported files and provider accounts will not be deleted.",
+                    "Delete all journal entries, check-ins, saved measurements, forecast history, demo records and preferences from this browser? This cannot be undone. Exported files, provider accounts and cloud backups will not be deleted.",
                   )
                 ) {
                   await resetPersonalData(true);

@@ -1,4 +1,5 @@
 import {handleTts} from "../lib/server-tts";
+import {appointmentSummary} from "../lib/server-appointment-summary";
 import { benchmarkResponse } from "../lib/research-benchmark";
 import { handleForecast } from "../lib/server-forecast";
 import { handleOura, type OuraEnv } from "../lib/server-oura";
@@ -14,7 +15,13 @@ export default {
       OPENAI_VOICE_MODEL?: string;
     },
   ) {
-    const path = new URL(req.url).pathname;
+    let path: string;
+    try {
+      path = decodeURIComponent(new URL(req.url).pathname);
+    } catch {
+      return new Response("Invalid URL", { status: 400 });
+    }
+    if (path === "/api/appointment-summary") return appointmentSummary(req,env);
     if (path === "/api/tts") return handleTts(req,env);
     if (path === "/api/forecast") return handleForecast(req, env);
     if (path === "/api/research/benchmark")

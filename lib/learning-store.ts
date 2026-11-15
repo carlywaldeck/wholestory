@@ -34,7 +34,10 @@ export function currentPersonalOutlook(days:RiskInput["days"],timeZone:string,ex
 export function loadLearningBundle(id:string){return serializeLearning(async()=>{const state=await loadPersonalLearner(learnerStorage,id);const raw=await learnerStorage.getItem(bundleKey(id));if(!raw||!state)return null;const bundle=JSON.parse(raw) as LearningBundle;if(bundle.result.state.profileId!==id)throw Error("Learning profile mismatch.");return {...bundle,result:{...bundle.result,state}};});}
 export function loadFictionalLearning(persona:ForecastPersona,targetDate:string,executor:Executor=runLearningTask){return serializeLearning(async()=>{
  const id="demo-"+persona;const state=await loadPersonalLearner(learnerStorage,id);const cached=await learnerStorage.getItem(bundleKey(id));
- if(state&&cached){const bundle=JSON.parse(cached) as LearningBundle;if(bundle.persona!==persona||state.kind!=="synthetic")throw Error("Fictional profile mismatch.");return {...bundle,result:{...bundle.result,state}};}
+ if(state&&cached){const bundle=JSON.parse(cached) as LearningBundle;if(bundle.persona!==persona||state.kind!=="synthetic")throw Error("Fictional profile mismatch.");if(persona!=="maya"||bundle.demoSeedVersion==="maya-prebleeding-2")return {...bundle,result:{...bundle.result,state}};
+ // Preserve older fictional edits in the exportable archive before loading the new scenario.
+ await learnerStorage.setItem("archived-demo-maya:"+Date.now(),cached);
+ }
  return persist(await executor({op:"demo",persona,targetDate}));
 });}
 export function saveFictionalJournal(persona:ForecastPersona,entry:import("./model").Entry,day:RiskInput["days"][number],executor:Executor=runLearningTask){return serializeLearning(async()=>{
