@@ -1,4 +1,5 @@
 "use client";
+import {customSymptomLabels} from "../lib/custom-symptom-labels";
 import {newEntryId} from "../lib/entry-id";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -32,7 +33,7 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
   const [custom,setCustom]=useState<string[]>([]);const [adding,setAdding]=useState(false);const [newSymptom,setNewSymptom]=useState("");
   const labels=[...defaultLabels,...custom];
   useEffect(()=>{const sync=()=>{try{setMode(localStorage.getItem("elya.journalMode")==="speak"?"speak":"type");}catch{}};sync();window.addEventListener("elya-journal-preferences",sync);window.addEventListener("storage",sync);return()=>{window.removeEventListener("elya-journal-preferences",sync);window.removeEventListener("storage",sync);};},[]);
-  useEffect(()=>{setCustom([...new Set(entries.flatMap(e=>[...e.text.matchAll(/^I reported (.+)\.$/gm)].map(m=>m[1].replace(/^no /,"" )).filter(l=>!defaultLabels.some(d=>d.toLowerCase()===l))))]);},[entries]);
+  useEffect(()=>{setCustom(customSymptomLabels(entries));},[entries]);
   function addSymptom(){const label=newSymptom.trim().replace(/[\r\n.]/g," ").trim().slice(0,60);if(!label)return;const known=labels.find(l=>l.toLowerCase()===label.toLowerCase())??label;if(!labels.includes(known))setCustom(c=>[...c,known]);setChips(c=>c.includes(known)?c:[...c,known]);setAbsent(c=>c.filter(l=>l!==known));setNone(false);setDirty(true);setNewSymptom("");setAdding(false);}
   const nav = useAppNavigation()!;
   const [date,setDate]=useState(()=>currentDay);
@@ -47,7 +48,7 @@ export function LinenPages({view, entries, forecast, loading, forecastError, onS
   const [confirmDelete,setConfirmDelete]=useState(false); const [copied,setCopied]=useState("");
   const existing=entries.find(e=>e.date===date);
   useEffect(()=>{const requested=new URLSearchParams(window.location.search).get("date");if(requested&&/^\d{4}-\d{2}-\d{2}$/.test(requested)&&requested<=currentDay&&!Number.isNaN(Date.parse(requested)))setDate(requested);},[]);
-  useEffect(()=>{setWords(existing?.text??"");setNone(existing?.symptomFree??false);const savedLabels=[...new Set([...labels,...[...(existing?.text??"").matchAll(/^I reported (.+)\.$/gm)].map(m=>m[1].replace(/^no /,"" )).filter(l=>!defaultLabels.some(d=>d.toLowerCase()===l))])];setChips(savedLabels.filter(l=>defaultLabels.includes(l)?existing?.facts.some(f=>f.kind===kindFor(l)&&isPresentFact(f)&&(l!=="Headache"||f.value.toLowerCase().includes("headache"))):existing?.text.includes(`I reported ${l.toLowerCase()}.`)));setAbsent(savedLabels.filter(l=>existing?.symptomFree||(defaultLabels.includes(l)?existing?.facts.some(f=>f.kind===kindFor(l)&&!isPresentFact(f)&&/^(no|none|absent|not present|false|0)\b/i.test(f.value)):existing?.text.includes(`I reported no ${l.toLowerCase()}.`))));setDirty(false);setError("");setFollowupFacts([]);},[date,existing]);
+  useEffect(()=>{setWords(existing?.text??"");setNone(existing?.symptomFree??false);const savedLabels=[...new Set([...labels,...customSymptomLabels(existing?[existing]:[])])];setChips(savedLabels.filter(l=>defaultLabels.includes(l)?existing?.facts.some(f=>f.kind===kindFor(l)&&isPresentFact(f)&&(l!=="Headache"||f.value.toLowerCase().includes("headache"))):existing?.text.includes(`I reported ${l.toLowerCase()}.`)));setAbsent(savedLabels.filter(l=>existing?.symptomFree||(defaultLabels.includes(l)?existing?.facts.some(f=>f.kind===kindFor(l)&&!isPresentFact(f)&&/^(no|none|absent|not present|false|0)\b/i.test(f.value)):existing?.text.includes(`I reported no ${l.toLowerCase()}.`))));setDirty(false);setError("");setFollowupFacts([]);},[date,existing]);
   useEffect(()=>{nav.setDirty(dirty);return()=>nav.setDirty(false);},[dirty,nav.setDirty]);
   useEffect(()=>{draftId.current=null;},[date]);
   useEffect(()=>{const checkin=()=>setDate(currentDay);window.addEventListener("elya-checkin-today",checkin);return()=>window.removeEventListener("elya-checkin-today",checkin);},[currentDay]);

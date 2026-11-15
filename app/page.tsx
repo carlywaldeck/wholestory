@@ -44,6 +44,7 @@ import {
   isPresentFact,
 } from "../lib/model";
 import * as storage from "../lib/storage";
+import {CloudJournal} from "../components/cloud-journal";
 import {BrowserVoicePreferences} from "../components/browser-voice-preferences";
 import {LearningImport} from "../components/learning-import";
 import {currentPersonalOutlook,loadFictionalLearning,saveFictionalJournal,advanceFictionalLearning,rememberLegacyWearables,clearLearningData,exportLearningData,REAL_PROFILE} from "../lib/learning-store";
@@ -672,6 +673,7 @@ function HomeContent() {
                   <span>Start your story</span>
                   <ArrowDown size={18} aria-hidden="true" />
                 </button>
+                <button className="opening-demo button" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading?"Preparing outlook…":"Explore Maya’s demo"}</button>
                 <button className="visually-hidden" onClick={() => voice()}>
                   Record instead
                 </button>
@@ -1694,6 +1696,7 @@ function HomeContent() {
                 Manage wearable data <ArrowRight size={15} />
               </Button>
             </details>
+            <CloudJournal onImported={async()=>{await refresh();setCheckinVersion(n=>n+1);}}/>
             <LearningImport onSaved={bundle=>{if(!demoMode)setLearningBundle(bundle);setNotice("Normalized wearable observations imported locally.");}}/>
             <h3 className="settings-subheading">Privacy & your data</h3>
             <p>Personal-learning snapshots, wearable receipt times, and later outcome revisions are stored separately on this device. They are not encrypted or synchronized across devices. More observations do not guarantee more accurate forecasts.</p>
@@ -1701,7 +1704,7 @@ function HomeContent() {
             <p>
               Entries stay in this browser’s IndexedDB. Local browser data is
               not encrypted medical storage. Clearing browser data can erase
-              your journal. No accounts, analytics, or raw audio storage.
+              your journal. Optional accounts and cloud journal backup are available when Supabase is configured. Upload requires a separate action. No analytics or raw audio storage.
             </p>
             <p>
               AI extraction requires your explicit consent per session. Only the
