@@ -93,7 +93,7 @@ it("records only after Speak, keeps the transcript editable, and saves without a
  await user.type(screen.getByLabelText("What are you experiencing today?")," My correction.");
  expect((screen.getByLabelText("What are you experiencing today?") as HTMLTextAreaElement).value).toContain("Fictional cramping");
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
- await user.click(screen.getByRole("button",{name:"Add to calendar"}));
+ await user.click(screen.getByRole("button",{name:"Save entry"}));
  await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  expect((await loadEntries())[0].text).toContain("Fictional cramping interrupted my walk.");
  expect((await loadEntries())[0].text).toContain("My original note.");expect((await loadEntries())[0].text).toContain("My correction.");expect((await loadEntries())[0].text.match(/Fictional cramping/g)).toHaveLength(1);

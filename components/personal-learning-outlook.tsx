@@ -6,8 +6,13 @@ export function PersonalLearningOutlook({result}:{result:LearningOutlook|null}){
  const supported=result?.symptoms.filter(s=>s.usedWearables).map(s=>checkinSymptoms.find(c=>c.key===s.symptom)?.label).filter(Boolean)??[];
  return <div className="outlook-reading">
   <p className="outlook-narrative">{outlookSummary(result)}</p>
-  {supported.length>0&&<p className="outlook-basis">Wearable-informed estimates for {supported.map(s=>String(s).toLowerCase()).join(" and ")}.</p>}
+  
   <ul className="symptom-risk-list">{checkinSymptoms.map(({key,label})=>{const o=result?.outlook.find(s=>s.symptom===key);return <li key={key}><span>{label}</span><span className={`risk-pill ${o?.band??'learning'}`}>{o?.label??'Still learning your pattern'}</span></li>;})}</ul>
+  <section className="wearable-learning-note" aria-labelledby="wearable-learning-heading">
+   <h2 id="wearable-learning-heading">Your wearable connection</h2>
+   <p>{supported.length?`Wearable patterns contribute to your ${supported.map(s=>String(s).toLowerCase()).join(" and ")} outlook. Other symptoms use history and cycle context, or are still learning.`:'We compare wearable patterns with your symptom history when enough paired observations are available. Your current outlook does not yet use wearable patterns.'}</p>
+   <p className="wearable-learning-next">Check in tomorrow to help evaluate today’s forecast.</p>
+  </section>
   <p className="outlook-caption">Experimental · Symptom likelihood, not severity or diagnosis.</p>
   <details className="outlook-method"><summary>How this was estimated</summary>
    <p>{supported.length?`Wearable readings were selected for ${supported.join(', ')} after comparison with symptom history and cycle context.`:'Available estimates use symptom history and supported cycle context. Wearables have not yet demonstrated enough added value for these estimates.'}</p>

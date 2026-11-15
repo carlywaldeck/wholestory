@@ -657,18 +657,18 @@ function HomeContent() {
               <section className="opening-screen" aria-label="Start your story">
                 <HeroBackground />
                 <div className="opening-copy">
-                  <h1>Welcome{preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
-                  <p>Bring Oura data and your symptom notes together to prepare for care.</p>
+                  <h1>Welcome{demo?", Maya":preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
+                  <p>Learn your symptom patterns with wearable data, and turn your journal into a clear appointment brief.</p>
                 </div>
                 <button
                   className="opening-start"
-                  aria-label="Start your story, go to Journal"
+                  aria-label="Start my journal"
                   onClick={() => document.getElementById("home-journal")?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"})}
                 >
-                  <span>Start your story</span>
+                  <span>Start my journal</span>
                   <ArrowDown size={18} aria-hidden="true" />
                 </button>
-                <button className="opening-demo button" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading?"Preparing outlook…":"Explore Maya’s demo"}</button>
+                <button className="opening-demo button" disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading?"Preparing outlook…":"Try Maya’s demo"}</button>
                 <button className="visually-hidden" onClick={() => voice()}>
                   Record instead
                 </button>
@@ -1637,7 +1637,7 @@ function HomeContent() {
               <p>Maya’s fictional history includes model-computed forecasts, journal entries and an appointment brief.</p>
 
               <p>No wearable or API account needed. Personal records stay separate.</p>
-              {demo ? <Button onClick={exitDemo}>Exit demo</Button> : <Button disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading ? "Loading demo…" : "Explore Maya’s demo"}</Button>}
+              {demo ? <Button onClick={exitDemo}>Exit demo</Button> : <Button disabled={forecastLoading} onClick={()=>void tryDemo("maya")}>{forecastLoading ? "Loading demo…" : "Try Maya’s demo"}</Button>}
               {forecastError && <p role="alert">{forecastError}</p>}
             </section>
             <section className="settings-section">
