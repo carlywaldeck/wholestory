@@ -44,6 +44,7 @@ import {
   isPresentFact,
 } from "../lib/model";
 import * as storage from "../lib/storage";
+import {BrowserVoicePreferences} from "../components/browser-voice-preferences";
 import {LearningImport} from "../components/learning-import";
 import {currentPersonalOutlook,loadFictionalLearning,saveFictionalJournal,advanceFictionalLearning,rememberLegacyWearables,clearLearningData,exportLearningData,REAL_PROFILE} from "../lib/learning-store";
 import type {LearningBundle} from "../lib/learning-types";
@@ -603,7 +604,7 @@ function HomeContent() {
     resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
     try{
       await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
-      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
       if(all||!demoMode)setLearningBundle(null);
       await refresh();setReviewed(false);
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
@@ -1654,6 +1655,7 @@ function HomeContent() {
             </section>
             <details className="settings-section settings-voices">
               <summary>Voice & spoken replies</summary>
+              <BrowserVoicePreferences/>
               <VoicePicker speech={speech} beforePlay={stopCapture} />
               <label className="checkbox">
                 <input

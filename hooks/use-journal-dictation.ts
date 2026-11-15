@@ -7,7 +7,7 @@ export function useJournalDictation(append:(text:string)=>void,sessionKey:string
  const [state,setState]=useState<"idle"|"starting"|"recording">("idle");const [message,setMessage]=useState("");
  function cancel(){const r=current.current;current.current=null;if(r){r.onresult=null;r.onstart=null;r.onend=null;r.onerror=null;r.abort();}setState("idle");}
  useEffect(()=>{return()=>{const r=current.current;if(r){r.onresult=null;r.onstart=null;r.onend=null;r.onerror=null;r.abort();current.current=null;}};},[sessionKey]);
- useEffect(()=>{setState("idle");const hide=()=>{if(document.hidden&&current.current){cancel();setMessage("Recording stopped when the page was hidden. Your transcript is still editable.");}};document.addEventListener("visibilitychange",hide);return()=>document.removeEventListener("visibilitychange",hide);},[sessionKey]);
+ useEffect(()=>{setState("idle");setMessage("");const hide=()=>{if(document.hidden&&current.current){cancel();setMessage("Recording stopped when the page was hidden. Your transcript is still editable.");}};document.addEventListener("visibilitychange",hide);return()=>document.removeEventListener("visibilitychange",hide);},[sessionKey]);
  function stop(){const r=current.current;if(!r)return;try{r.stop();}catch{cancel();}}
  function start(){
   if(current.current)return;
@@ -21,5 +21,5 @@ export function useJournalDictation(append:(text:string)=>void,sessionKey:string
   r.onend=()=>{if(current.current!==r)return;current.current=null;setState("idle");if(!failed)setMessage("Transcription stopped. Review or edit your words before saving.");};
   setState("starting");setMessage("Waiting for microphone permission…");try{r.start();}catch{cancel();setMessage("Speech transcription could not start. Your text is preserved; you can keep typing.");}
  }
- return {state,message,active:state!=="idle",start,stop};
+ return {state,message,active:state!=="idle",start,stop,cancel};
 }
