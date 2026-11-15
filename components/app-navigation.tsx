@@ -17,6 +17,7 @@ export const useAppNavigation = () => useContext(NavigationContext);
 const destinations = [
   { label: "Journal", view: "Your story", href: "/journal", Icon: BookOpen },
   { label: "Outlook", view: "Outlook", href: "/outlook", Icon: CalendarDays },
+  { label: "My days", view: "Calendar", href: "/calendar", Icon: CalendarDays },
   { label: "Appointment Brief", view: "Appointment brief", href: "/appointment-brief", Icon: FileText },
 ];
 export function AppNavigationProvider({ children }: { children: ReactNode }) {
@@ -81,8 +82,8 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
           onKeyDown={e=>{
             if(e.key==="ArrowDown"||e.key==="ArrowUp") {
               e.preventDefault();
-              if(open) anchor.current?.querySelectorAll<HTMLAnchorElement>("nav a")[e.key==="ArrowUp"?3:0]?.focus();
-              else {focusOnOpen.current=e.key==="ArrowUp"?3:0;setOpen(true);}
+              if(open) anchor.current?.querySelectorAll<HTMLAnchorElement>("nav a")[e.key==="ArrowUp"?destinations.length:0]?.focus();
+              else {focusOnOpen.current=e.key==="ArrowUp"?destinations.length:0;setOpen(true);}
             }
           }}>Menu</button>
         <GlassCard as="nav" id="app-menu" className={`app-menu${open?" is-open":""}`} aria-label="Main pages" aria-hidden={!open} inert={!open}
