@@ -52,7 +52,7 @@ beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockIm
   window.history.replaceState(null, "", "/outlook");
   await clearEntries();
   await savePreferences({ ...defaultPreferences, setupComplete: true });
-  localStorage.clear();
+  localStorage.clear(); sessionStorage.clear();
   Recognition.instances = [];
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   vi.stubGlobal("SpeechRecognition", Recognition);

@@ -538,13 +538,15 @@ function HomeContent() {
     catch(error){setForecastError(error instanceof Error?error.message:"Demo could not advance.");}
     finally{if(request===forecastRequest.current)setForecastLoading(false);}
   }
-  async function tryDemo(chosen: PersonaId = persona) {
+  const demoRestored=useRef(false);
+  useEffect(()=>{if(!ready||demoRestored.current)return;demoRestored.current=true;try{if(sessionStorage.getItem("elya-active-demo")==="maya")void tryDemo("maya",true);}catch{}},[ready]);
+  async function tryDemo(chosen: PersonaId = persona, preservePage=false) {
     profileIntent.current=chosen;
     const request = ++forecastRequest.current;
     setForecastLoading(true);
     setForecastError("");
     setCheckin(false);
-    setView("Outlook");
+    if(!preservePage)setView("Outlook");
     try {
       const bundle=await loadFictionalLearning(chosen,shiftDate(today(),1));
       if(request!==forecastRequest.current)return;
@@ -552,6 +554,7 @@ function HomeContent() {
       setPersona(chosen);
       setJournalLimit(14);
       setDemoMode(true);
+      try{sessionStorage.setItem("elya-active-demo","maya");}catch{}
       setQuestions([]); setStatement(""); setEvidence(null); setSelected(""); setReviewed(false); setWearableNote("");
       setNotice("");
       setSettings(false);
@@ -577,6 +580,7 @@ function HomeContent() {
     setNotice(demo ? "Fictional check-in saved. Review it in your journal." : "Check-in saved on this device. Review it in your journal.");
   }
   function exitDemo() {
+    try{sessionStorage.removeItem("elya-active-demo");}catch{}
     profileIntent.current="real";
     forecastRequest.current++;
     setForecastLoading(false); setForecastError(""); setForecastDemo(null);setLearningBundle(null); setCheckin(false);
@@ -603,7 +607,7 @@ function HomeContent() {
     resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
     try{
       await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
-      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all){try{sessionStorage.removeItem("elya-active-demo");}catch{}await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
       if(all||!demoMode)setLearningBundle(null);
       await refresh();setReviewed(false);
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}

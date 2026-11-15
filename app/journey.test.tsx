@@ -14,7 +14,7 @@ import { savePreferences, defaultPreferences } from "../lib/preferences";
 import { handleForecast } from "../lib/server-forecast";
 beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockImplementation(executeTestLearning);
   window.history.replaceState(null, "", "/outlook");
-  localStorage.clear();
+  localStorage.clear(); sessionStorage.clear();
   vi.stubGlobal("fetch",vi.fn((url:string)=>handleForecast(new Request(new URL(url,"http://localhost").href))));
   await clearEntries();
   await savePreferences({ ...defaultPreferences, setupComplete: true });

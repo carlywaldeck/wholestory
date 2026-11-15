@@ -15,7 +15,7 @@ beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockIm
   window.history.replaceState(null, "", "/outlook");
   await clearPreferences();
   await clearEntries();
-  localStorage.clear();
+  localStorage.clear(); sessionStorage.clear();
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   vi.stubGlobal(
     "fetch",
