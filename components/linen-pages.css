@@ -270,3 +270,8 @@
 .monthly-brief .monthly-report-section li{font-size:1rem;line-height:1.7;margin:.5rem 0}
 .monthly-brief .brief-method{margin:1rem 0;font-size:.8rem}
 .monthly-brief .brief-statement-sources a{font-size:.75rem}
+
+.wearable-learning-note{margin:1.3rem 0;padding:1rem 1.1rem;border-radius:16px;background:#f5ecee}
+.wearable-learning-note h2{font-size:.85rem!important;margin:0 0 .5rem!important;letter-spacing:0!important;color:#895467}
+.wearable-learning-note p{font-size:.85rem;line-height:1.6;margin:.3rem 0;color:#655450}
+.wearable-learning-note .wearable-learning-next{font-size:.78rem;color:#87736f;margin-top:.6rem}

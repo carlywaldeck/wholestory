@@ -39,7 +39,7 @@ it("uses matching backend history and isolates a demo check-in from personal rec
 it("keeps personal absence false and unanswered null without transmitting records",async()=>{
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.click(screen.getByText("Record a symptom as absent"));await user.selectOptions(screen.getByLabelText("Bloating status"),"absent");
- await user.click(screen.getByRole("button",{name:"Add to calendar"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
+ await user.click(screen.getByRole("button",{name:"Save entry"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  const days=JSON.parse(localStorage.getItem("elya-confirmed-checkins-v1")!);
  expect(days[0].symptoms.bloating).toBe(false);expect(days[0].symptoms.pelvicPain).toBeNull();expect(days[0].availableAt).toBeTruthy();
  expect(vi.mocked(fetch).mock.calls.filter(([url,init])=>String(url).includes("/api/forecast")||init?.method==="POST")).toEqual([]);
