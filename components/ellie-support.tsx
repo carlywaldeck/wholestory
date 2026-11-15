@@ -2,7 +2,7 @@
 import {useEffect,useRef,useState} from "react";
 import {useAppNavigation} from "./app-navigation";
 import "./ellie-support.css";
-export function EllieIcon(){return <img src="/media/ellie/ellie-3d.png" alt="" width={88} height={80} draggable={false}/>;}
+export function EllieIcon(){return <img src="/media/ellie/ellie-minimal.png" alt="" width={88} height={80} draggable={false}/>;}
 type Topic="home"|"support"|"learn"|"prepare";
 const sources={who:"https://www.who.int/news-room/fact-sheets/detail/endometriosis",nhs:"https://www.nhs.uk/conditions/periods/",groups:"https://endometriosis.org/support/support-groups/",uk:"https://www.endometriosis-uk.org/support-groups"};
 export function EllieSupport(){
