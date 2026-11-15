@@ -1,0 +1,13 @@
+# Settings refinement
+
+Existing features are reorganized into a short grouped list with one detail view at a time. Name and Write/Talk save through a serialized queue; settings writes do not navigate away. The journal's input preference and stored profile preference stay aligned. Demo rows start the existing fictional flow in one tap. The approved voice and forecasting logic are unchanged.
+
+The menu has one Settings and privacy link after the three main tabs. /settings/privacy opens privacy directly; /settings#privacy and legacy /privacy resolve there. Closing returns to the previous path. The existing focus trap now excludes hidden elements; focus returns to the menu trigger rather than a hidden menu link.
+
+Privacy wording was checked against lib/storage.ts, lib/preferences.ts, lib/learning-store.ts, lib/server-extract.ts, hooks/use-journal-dictation.ts, and the prepared voice engine. Confirmed: browser-local journal/measurements/forecasts, no encryption of these local records, deletion on browser data clearing, no app raw-microphone recording storage, consent required by optional extraction API, only supplied entry text sent, prepared replies send no patient text for synthesis, browser dictation may process audio externally. Provider-side retention and the user's browser speech-service policy cannot be verified here and are not claimed. Oura authorization is a separate encrypted session cookie, unlike the unencrypted imported local measurements.
+
+Export my data now downloads journal, preferences, saved wearable measurements and forecast history. Journal backup restore remains available and restores Journal entries only. Provider accounts and previously downloaded files are not erased by local deletion; the confirmation says so.
+
+Validation: 185 tests passed, production TypeScript/build/Sites packaging passed. Chrome verified autosave, input selection, privacy URL/reload, root/detail navigation, mobile and desktop layout, no nested accordions, and close behavior. Screenshots are in /private/tmp/elya-settings-root-mobile.png, /private/tmp/elya-settings-privacy-mobile.png, and /private/tmp/elya-settings-root-desktop.png.
+
+Limits: a screen-capture video was not recorded. There is no new automatic-replies toggle or microphone-permission status UI in this pass: the existing voice remains explicitly user-started. The changed privacy copy is plain language; platform privacy policies and actual hosted behavior still require review. No forecast/backend or Journal layout changes were made.

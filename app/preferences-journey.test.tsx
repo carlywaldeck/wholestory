@@ -76,10 +76,8 @@ it("saves a name and entry preference, then restores them without onboarding", a
     screen.getByRole("textbox", { name: /What should we call you/ }),
     "Sam",
   );
-  await user.click(screen.getByRole("radio", { name: /Talk it through/ }));
-  await user.click(
-    screen.getByRole("button", { name: "Save preferences" }),
-  );
+  await user.click(screen.getByRole("radio", { name: "Talk" }));
+  await waitFor(()=>expect(screen.getByText("Saved automatically.")).toBeTruthy());
   await user.click(screen.getByRole("button", { name: "Close settings" }));
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   expect((await loadPreferences()).name).toBe("Sam");
@@ -92,7 +90,7 @@ it("saves a name and entry preference, then restores them without onboarding", a
       }) as HTMLInputElement
     ).value,
   ).toBe("Sam");
-  await user.click(screen.getByText("Voice & spoken replies", { exact: true }));
+  await user.click(screen.getByRole("button", { name: /Voice and replies/ }));
   expect(screen.getByRole("button", { name: "Play sample" })).toBeTruthy();
   await user.click(screen.getByRole("button", { name: "Close settings" }));
   app.unmount();
