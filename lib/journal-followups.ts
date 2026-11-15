@@ -7,6 +7,7 @@ export type FollowupTurn={question:FollowupQuestion;answer:string;skipped?:boole
 export type JournalContext={selected?:string[];symptomFree?:boolean;absent?:string[]};
 const patterns:[string,RegExp][]=[["Pelvic pain / cramps",/\b(?:cramps?|pelvic pain|pain|ache)\b/i],["Fatigue",/\b(?:fatigue|tired|exhausted)\b/i],["Bloating",/\b(?:bloating|bloated)\b/i],["Bowel symptoms",/\b(?:bowel|constipation|diarrhea)\b/i],["Headache",/\bheadache\b/i]];
 function reported(text:string,pattern:RegExp){return text.split(/[.!?;\n]|\bbut\b/i).some(clause=>{const match=clause.match(pattern);return !!match&&!/\b(?:no|without|not having|did not have|not experiencing)\s+(?:any\s+)?$/i.test(clause.slice(0,match.index))&&!/^\s*(?:was |were |is |are )?(?:absent|not present)/i.test(clause.slice((match.index??0)+match[0].length));});}
+export function reportedJournalSymptoms(text:string){return patterns.filter(([,pattern])=>reported(text,pattern)).map(([label])=>label);}
 export function nextJournalQuestion(original:string,turns:FollowupTurn[],context:JournalContext={}):FollowupQuestion|null{
  if(turns.length>=QUESTION_LIMIT)return null;
  const answered=(type:QuestionId,symptom?:string)=>turns.some(t=>t.question.type===type&&(!symptom||t.question.symptom===symptom||!t.question.symptom));
