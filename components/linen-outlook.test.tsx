@@ -43,3 +43,7 @@ it("offers a working retry when loading fails",async()=>{
  expect(screen.getByRole("alert").textContent).toContain("Outlook unavailable.");
  await user.click(screen.getByRole("button",{name:"Try again"}));expect(p.onRetry).toHaveBeenCalledOnce();
 });
+it('labels a today forecast as today and keeps the check-in on the local day',async()=>{
+ const user=userEvent.setup();const p=props();const result=symptomRisk({kind:'synthetic',targetDate:'2026-11-14',asOf:'2026-11-13T20:00:00Z',timeZone:'America/Los_Angeles',days:[]},{evaluate:false});
+ render(<LinenOutlook {...p} forecast={result}/>);expect(screen.getByRole('heading',{name:'Today’s outlook'})).toBeTruthy();expect(document.querySelector('.outlook-summary-top')?.textContent).toContain('November 14, 2026');expect(screen.queryByRole('heading',{name:'Tomorrow’s outlook'})).toBeNull();await user.click(screen.getByRole('button',{name:'Check in today'}));expect(p.onEdit).toHaveBeenCalledWith('2026-11-14');
+});

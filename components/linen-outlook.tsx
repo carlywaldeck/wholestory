@@ -1,5 +1,6 @@
 "use client";
 import {IssuedDayOutlook} from "./issued-day-outlook";
+import {outlookDateCopy} from "../lib/outlook-date-copy";
 import {DemoWearable} from "./demo-wearable";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -42,6 +43,8 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
   const available=learning?predictions(learning.targetDate):forecast?predictions(forecast.targetDate):[];
   const higher=available.filter(s=>s.higher).sort((a,b)=>b.probability-a.probability);
   const target=learning?.targetDate??forecast?.targetDate;
+  const shownTarget=stage==="outlook"?today:target;
+  const dateCopy=outlookDateCopy(shownTarget,today);
   const targetLabel=target===today?"today":target?displayDate(target):"";
   const dayEntries=entries.filter(e=>e.date===selected);
   const dayPredictions=predictions(selected);
@@ -49,13 +52,13 @@ export function LinenOutlook({today,selected,onSelect,onEdit,entries,forecast,lo
   if(detailDate&&stage!=="outlook")return <OutlookDay onBrief={onBrief} learning={learning} date={detailDate} today={today} entries={entries} forecast={forecast} demoDays={demoDays} onDate={openDay} onCalendar={()=>{setDetailDate(null);window.history.pushState(null,"",stage?"/calendar":"/outlook");}} onEdit={()=>onEdit(detailDate)} onSettings={onSettings??(()=>{window.location.href="/settings";})}/>;
   return <div className="outlook-composition">
     {stage!=="calendar"&&<section className="linen-panel outlook-summary" aria-labelledby="outlook-summary-heading">
-      <div className="outlook-summary-top"><h1 id="outlook-summary-heading">{stage==="outlook"?"Today’s outlook":"Tomorrow’s outlook"}</h1><span>{displayDate(stage==="outlook"?today:target??today)}</span></div>
+      <div className="outlook-summary-top"><h1 id="outlook-summary-heading">{dateCopy.heading}</h1><span>{shownTarget?displayDate(shownTarget):"No forecast date yet"}</span></div>
       {demoControls}
       {loading?<p role="status">Loading outlook…</p>:error?<div role="alert"><p>{error}</p><button className="button" onClick={onRetry}>Try again</button></div>:available.length?<>
         {!learning&&<p className="outlook-summary-line">{higher.length?`${higher[0].label} may be more likely ${target===today?"today":"on "+targetLabel}.`:`No elevated likelihood in the available estimates for ${targetLabel}.`}</p>}
         {!learning&&<span className="outlook-estimate-tag">◇ Estimate · experimental</span>}
       </>:<p className="outlook-summary-line">{target?`No estimate available for ${targetLabel} yet.`:"No outlook available yet."}</p>}
-      {!loading&&!error&&(stage==="outlook"?<IssuedDayOutlook result={learning} date={today}/>:learning!==undefined?<PersonalLearningOutlook result={learning} sampleDays={demoDays?.length}/>:<><ul className="outlook-forecast-rows">{checkinSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?"○ Still learning":s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>)}
+      {!loading&&!error&&(stage==="outlook"?<IssuedDayOutlook result={learning} date={today}/>:learning!==undefined?<PersonalLearningOutlook result={learning} today={today} sampleDays={demoDays?.length}/>:<><ul className="outlook-forecast-rows">{checkinSymptoms.map(({key,label})=>{const s=forecast?.symptoms.find(s=>s.symptom===key);const available=s?.state==="experimental-estimate"&&s.probability!==null;return <li key={key}><span>{label}</span><span className={!available?"forecast-learning":s.outlook==="higher-estimated-likelihood"?"forecast-elevated":"forecast-usual"}>{!available?"○ Still learning":s.outlook==="higher-estimated-likelihood"?"● Elevated likelihood":"◐ Usual pattern"}{available&&<small>Estimate · experimental</small>}</span></li>;})}</ul><p className="outlook-context-note">Based on confirmed symptom history when available. Wearable readings are context only. Lower likelihood does not rule out pain.</p></>)}
       <div className="outlook-checkin-action"><button className="button primary" onClick={()=>onCheckin?onCheckin():onEdit(today)}>{stage==="outlook"?"Tell Ellie how you’re feeling":demoDays!==undefined?"Start voice conversation":"Check in today"}</button>{demoDays!==undefined&&<><button className="day-back-link demo-type-instead" onClick={()=>onEdit(today)}>Type instead</button><p className="conversation-start-note">Talk with Ellie or type your answers. You choose when to use the microphone.</p></>}</div>
     </section>}
     {!stage&&demoDays!==undefined&&<DemoWearable days={demoDays} onView={()=>openDay(today)}/>}
