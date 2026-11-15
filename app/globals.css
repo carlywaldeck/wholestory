@@ -7,8 +7,8 @@
   --rose-soft: #F3D9DD;
   --rose: #D9A5AD;
   --rose-deep: #9E5A68;
-  --ink: #3A2E2A;
-  --ink-soft: #6B5B56;
+  --ink: #54372D;
+  --ink-soft: #73584C;
   --line: #E8DDD9;
   --muted: var(--ink-soft);
   --rose-dark: var(--rose-deep);
@@ -2284,7 +2284,7 @@ footer p {
   }
   body {
     background: var(--white);
-    color: black;
+    color: var(--ink);
   }
 }
 
