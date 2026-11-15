@@ -54,7 +54,7 @@ it("reports a demo error without substituting an older history",async()=>{
 it("restores the single demo after refresh without changing the current report page",async()=>{
  sessionStorage.setItem("elya-active-demo","maya");window.history.replaceState(null,"","/appointment-brief");
  render(<Home/>);
- await screen.findByText("Your month at a glance");
+ await screen.findByText("Supporting Journal entries (14)");
  expect(window.location.pathname).toBe("/appointment-brief");
  expect(screen.queryByText("Personal private words.")).toBeNull();
 });

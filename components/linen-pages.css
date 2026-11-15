@@ -260,3 +260,13 @@
 .outlook-summary-top h1{font-size:1.55rem!important;text-transform:none;letter-spacing:-.035em!important;color:#352d2a!important;font-weight:600!important}.outlook-summary-top{align-items:baseline;flex-wrap:wrap;gap:.4rem 1rem}.outlook-summary-top>span{font-size:.85rem}.outlook-narrative{margin-top:1.3rem}
 
 .outlook-basis{font-size:.82rem;color:#8b6572;margin:-.5rem 0 1.2rem;line-height:1.5}
+
+/* Keep the appointment brief focused on one readable record. */
+.monthly-brief .monthly-report-title h2{font-size:1.65rem;letter-spacing:-.035em;margin-bottom:.45rem}
+.monthly-brief .monthly-report-title p{font-size:.85rem;color:#82746e;line-height:1.6}
+.monthly-brief .day-context-note{font-size:.85rem;line-height:1.6;color:#82746e;margin-bottom:1.5rem}
+.monthly-brief .monthly-report-section{padding:1.2rem 0;border-bottom:1px solid #e7dedb}
+.monthly-brief .monthly-report-section h3{font-size:1rem;margin:0 0 .8rem;letter-spacing:-.015em}
+.monthly-brief .monthly-report-section li{font-size:1rem;line-height:1.7;margin:.5rem 0}
+.monthly-brief .brief-method{margin:1rem 0;font-size:.8rem}
+.monthly-brief .brief-statement-sources a{font-size:.75rem}
