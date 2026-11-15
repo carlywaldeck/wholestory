@@ -3,6 +3,7 @@ import "../components/forecast-experience.css";
 import "../components/typography.css";
 import "../components/app-navigation.css";
 import "../components/linen-pages.css";
+import { EllieSupport } from "../components/ellie-support";
 import { AppNavigationProvider } from "../components/app-navigation";
 import { Inter, Rethink_Sans } from "next/font/google";
 const displayFont = Rethink_Sans({ subsets: ["latin"], weight: "variable", variable: "--font-display", display: "swap", adjustFontFallback: true });
@@ -14,7 +15,7 @@ export const metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
-      <body><AppNavigationProvider>{children}</AppNavigationProvider></body>
+      <body><AppNavigationProvider>{children}<EllieSupport /></AppNavigationProvider></body>
     </html>
   );
 }
