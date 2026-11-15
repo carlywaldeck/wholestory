@@ -3,13 +3,13 @@ import {riskInputSchema} from "./symptom-risk";
 import type {LearningBundle,LearningTask} from "./learning-types";
 /** Shipped synthetic snapshot computed offline by the actual learner, never scripted risk labels. */
 export async function loadPreparedMaya():Promise<LearningBundle>{
- const response=await fetch("/demos/maya-learning-v2.json",{cache:"force-cache",signal:AbortSignal.timeout(15000)});
+ const response=await fetch("/demos/maya-learning-v3.json",{cache:"force-cache",signal:AbortSignal.timeout(15000)});
  if(!response.ok)throw Error("Sophie’s demo could not load. Please try again; your personal journal is unchanged.");
  const bundle=await response.json() as LearningBundle;
  const state=personalLearningSchema.parse(bundle.result?.state),input=riskInputSchema.parse(bundle.input);
- if(bundle.persona!=="maya"||state.kind!=="synthetic"||state.profileId!=="demo-maya"||input.kind!=="synthetic"||state.timeZone!==input.timeZone||bundle.demoSeedVersion!=="maya-prebleeding-2"||bundle.result.targetDate!==input.targetDate||!bundle.entries?.length||bundle.entries.some(e=>!e.demo||e.persona!=="maya"))
+ if(bundle.persona!=="maya"||state.kind!=="synthetic"||state.profileId!=="demo-maya"||input.kind!=="synthetic"||state.timeZone!==input.timeZone||bundle.demoSeedVersion!=="sophie-irregular-3"||bundle.result.targetDate!==input.targetDate||!bundle.entries?.length||bundle.entries.some(e=>!e.demo||e.persona!=="maya"))
   throw Error("The fictional demo snapshot could not be verified.");
- return {...bundle,input,result:{...bundle.result,state},disclosure:"Fictional demo with a prepared, model-computed history for November 2026. New demo check-ins still run the learner. Not clinical validation."};
+ return {...bundle,input,result:{...bundle.result,state},disclosure:"Fictional demo history with an intentionally short irregular cycle in November 2026. Computed by the learner; new check-ins remain fictional. Not a typical endometriosis pattern or clinical validation."};
 }
 export function runLearningTask(task:LearningTask):Promise<LearningBundle>{
  if(task.op==="demo"&&task.persona==="maya")return loadPreparedMaya();

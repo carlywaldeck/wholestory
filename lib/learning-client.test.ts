@@ -2,7 +2,7 @@ import {afterEach,expect,it,vi} from 'vitest';
 import {loadPreparedMaya,runLearningTask} from './learning-client';
 import {createPersonalLearner} from './personal-learning';
 const input={kind:'synthetic',timeZone:'UTC',targetDate:'2026-11-15',asOf:'2026-11-14T23:00:00Z',days:[]};
-const snapshot=()=>({persona:'maya',demoSeedVersion:'maya-prebleeding-2',input,physiology:[],entries:[{id:'fake',date:'2026-11-14',text:'Fictional',demo:true,persona:'maya',facts:[],symptomFree:false}],result:{state:createPersonalLearner('demo-maya','synthetic','UTC'),targetDate:input.targetDate,outlook:[]}});
+const snapshot=()=>({persona:'maya',demoSeedVersion:'sophie-irregular-3',input,physiology:[],entries:[{id:'fake',date:'2026-11-14',text:'Fictional',demo:true,persona:'maya',facts:[],symptomFree:false}],result:{state:createPersonalLearner('demo-maya','synthetic','UTC'),targetDate:input.targetDate,outlook:[]}});
 afterEach(()=>vi.unstubAllGlobals());
 it('loads Maya without creating a training worker',async()=>{
  const worker=vi.fn();vi.stubGlobal('Worker',worker);vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,json:async()=>snapshot()})));

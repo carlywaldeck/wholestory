@@ -1,4 +1,5 @@
 import type {Entry} from './model';
+import {sophieDemoBrief} from './sophie-demo-brief';
 import {verifiedHighlights} from './appointment-overview';
 import {monthlySections,type BriefStatement} from './monthly-brief';
 const ink=[58,46,42] as const,muted=[107,91,86] as const,rose=[158,90,104] as const;
@@ -11,6 +12,7 @@ export async function createMonthlyBriefPdf(entries:Entry[],month:string,highlig
  if(new Set(chosen.map(e=>e.demo?`demo:${e.persona??'fictional'}`:'personal')).size>1)throw Error('Keep fictional and personal reports separate.');
  const overview=verifiedHighlights(chosen,month,highlights),sections=monthlySections(chosen);
  const days=new Set(chosen.map(e=>e.date)).size;
+ const sophie=chosen.length>0&&chosen.every(e=>e.demo&&e.persona==="maya");
  const label=new Date(month+'-01T12:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'});
  const origin=typeof window!=='undefined'?window.location.origin:'https://elya.ingeniouscondor8.chatgpt.site';
  pdf.setProperties({title:`elya | Appointment summary | ${label}`,subject:'Confirmed patient-reported journal summary',creator:'elya'});
@@ -26,6 +28,7 @@ export async function createMonthlyBriefPdf(entries:Entry[],month:string,highlig
  if(chosen.some(e=>e.demo))text('FICTIONAL DEMO HISTORY',128,19,8,true,rose);
  para(`${days} logged ${days===1?'day':'days'}${chosen.length?` | ${shortDate(chosen[0].date)} - ${shortDate(chosen.at(-1)!.date)}`:''}`,11);
  para('Missing days are unknown, not symptom-free. Only confirmed journal details are summarized.',9,muted);
+ if(sophie)para(sophieDemoBrief(chosen,month).summary,10);
  if(overview.length){heading('AI-selected key points');para('AI-assisted summary: original wording checked against the confirmed entries.',9,muted);overview.forEach(statement);}
  const symptoms=sections.find(s=>s.heading==='Reported symptoms');heading('Reported symptoms');
  if(!symptoms)para('No confirmed symptom details were recorded for this month.',10,muted);
@@ -38,7 +41,7 @@ export async function createMonthlyBriefPdf(entries:Entry[],month:string,highlig
    pdf.setFontSize(8);const citations=pdf.splitTextToSize(refs(item.sourceIds),47) as string[];
    const height=Math.max(10,Math.max(names.length,citations.length)*4.5+4);
    if(ensure(height+12))tableHeader();
-   names.forEach((line,i)=>text(line,21,y+i*4.5));text(String(count),108,y,10,true);citations.forEach((line,i)=>text(line,143,y+i*4.5,8,false,muted));
+   names.forEach((line,i)=>text(line,21,y+i*4.5));text(sophie?`${count} of ${days}`:String(count),108,y,10,true);citations.forEach((line,i)=>text(line,143,y+i*4.5,8,false,muted));
    y+=height;pdf.setDrawColor(232,221,217);pdf.line(18,y-4,192,y-4);
   }
  }

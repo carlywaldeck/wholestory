@@ -38,3 +38,9 @@ it("does not turn missing days into symptom-free days or include future observat
  expect(screen.getByText("1 logged day · Missing entries are unknown.")).toBeTruthy();expect(screen.queryByText("Explicitly symptom-free days")).toBeNull();expect(screen.queryByText("Future record")).toBeNull();
 });
 it('does not call a profile empty while its saved entries are restoring',()=>{render(<LinenBrief {...props()} entries={[]} loading/>);expect(screen.getByRole('status').textContent).toBe('Loading saved journal entries…');expect(screen.queryByText('No journal entries for this month.')).toBeNull();});
+it('uses counts first and keeps Sophie dates and absences inside a closed disclosure only',()=>{
+ const seeded={...entry,persona:'maya' as const,facts:[...entry.facts,{kind:'Bloating' as const,value:'No',quote:'Pain'}]};render(<LinenBrief {...props()} sophieDemo entries={[seeded]}/>);
+ expect(document.querySelector('.doctor-overview')?.textContent).toContain('pelvic pain was reported on 1 of 1 logged days');
+ const main=document.querySelector('.monthly-report-body')!;const disclosure=Array.from(main.querySelectorAll('details')).find(d=>d.querySelector('summary')?.textContent==='Show dates')!;expect(disclosure.open).toBe(false);expect(disclosure.textContent).toContain('Symptoms explicitly reported absent');
+ expect(Array.from(main.querySelectorAll(':scope > .monthly-report-section')).map(s=>s.textContent).join(' ')).toContain('Pelvic pain: 1 of 1 logged days');expect(main.querySelector(':scope > .monthly-report-section a')).toBeNull();
+});

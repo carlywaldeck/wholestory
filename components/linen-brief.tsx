@@ -5,23 +5,25 @@ import { type Entry } from "../lib/model";
 
 const dateLabel=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
 export {monthlySections,recordedSummary} from "../lib/monthly-brief";
+import {sophieDemoBrief} from "../lib/sophie-demo-brief";
 import {appointmentOverview} from "../lib/appointment-overview";
 import type {BriefStatement} from "../lib/monthly-brief";
 import {monthlySections} from "../lib/monthly-brief";
 import {BriefAIHighlights} from "./brief-ai-highlights";
 
-export function LinenBrief({entries,today,onSource,active=true,loading=false}: {loading?:boolean;entries:Entry[];today:string;onSource:(entry:Entry)=>void;onJournal?:()=>void;active?:boolean;wearableNote?:string}) {
+export function LinenBrief({entries,today,onSource,active=true,loading=false,sophieDemo=false}: {sophieDemo?:boolean;loading?:boolean;entries:Entry[];today:string;onSource:(entry:Entry)=>void;onJournal?:()=>void;active?:boolean;wearableNote?:string}) {
   const [month,setMonth]=useState(today.slice(0,7));
   const [status,setStatus]=useState("");const [busy,setBusy]=useState(false);
   const valid=/^\d{4}-(0[1-9]|1[0-2])$/.test(month);
   const chosen=valid?entries.filter(e=>e.date.startsWith(month+"-")&&e.date<=today).sort((a,b)=>a.date.localeCompare(b.date)):[];
   const sections=monthlySections(chosen);
+  const demoReport=sophieDemo?sophieDemoBrief(chosen,month):null;
   const label=valid?new Date(month+"-01T12:00:00").toLocaleDateString(undefined,{month:"long",year:"numeric"}):"";
   const loggedDays=new Set(chosen.map(e=>e.date)).size;
   const signature=JSON.stringify(chosen);const [overview,setOverview]=useState<{signature:string;items:BriefStatement[]}|null>(null);const highlights=overview?.signature===signature?overview.items:[];
   useEffect(()=>setStatus(""),[month,signature]);
   const ref=(id:string)=>chosen.findIndex(e=>e.id===id)+1;
-  const documentText=["elya | Appointment Brief",label,chosen.some(e=>e.demo)?"Fictional demo history":"","Source-linked journal summary",loggedDays+" logged "+(loggedDays===1?"day":"days")+". Missing entries are unknown, not symptom-free.",...(highlights.length?["AI-assisted summary",...highlights.map(s=>s.text+" ["+s.sourceIds.map(ref).join(", ")+"]")]:[]),...sections.map(section=>section.heading+"\n"+section.statements.map(s=>s.text+" ["+s.sourceIds.map(ref).join(", ")+"]").join("\n")),"Source entries",...chosen.map((e,i)=>"["+(i+1)+"] "+dateLabel(e.date)),"Patient-reported information. Not a diagnosis or a replacement for medical care."].filter(Boolean).join("\n\n");
+  const documentText=["elya | Appointment Brief",label,chosen.some(e=>e.demo)?"Fictional demo history":"","Source-linked journal summary",...(demoReport?[demoReport.summary]:[]),loggedDays+" logged "+(loggedDays===1?"day":"days")+". Missing entries are unknown, not symptom-free.",...(highlights.length?["AI-assisted summary",...highlights.map(s=>s.text+" ["+s.sourceIds.map(ref).join(", ")+"]")]:[]),...(demoReport?.sections??sections).map(section=>section.heading+"\n"+section.statements.map(s=>s.text+" ["+s.sourceIds.map(ref).join(", ")+"]").join("\n")),"Source entries",...chosen.map((e,i)=>"["+(i+1)+"] "+dateLabel(e.date)),"Patient-reported information. Not a diagnosis or a replacement for medical care."].filter(Boolean).join("\n\n");
   async function pdf(){
     setBusy(true);setStatus("");
     try{const {downloadMonthlyBrief}=await import("../lib/monthly-brief-pdf");await downloadMonthlyBrief(chosen,month,highlights);}
@@ -36,16 +38,17 @@ export function LinenBrief({entries,today,onSource,active=true,loading=false}: {
       <BriefAIHighlights active={active} onHighlights={items=>setOverview({signature,items})} entries={chosen} month={month} onSource={onSource}/>
       <div className="brief-export-actions"><button className="button" onClick={async()=>{try{await copyText(documentText);setStatus("Brief copied.");}catch{setStatus("Copy is unavailable in this browser. Select the report text to copy it.");}}}>Copy</button><button className="button" onClick={()=>window.print()}>Print</button><button className="button primary" disabled={busy} onClick={pdf}>{busy?"Saving PDF…":"Download report"}</button></div>
       <div className="monthly-report-body">
-        <p className="day-context-note">A short summary for your doctor, made from the entries you saved. The small numbered links open the entries behind each detail.</p>
-        <p className="doctor-overview">{appointmentOverview(chosen,month)}</p><div className="monthly-report-title"><h2>{label}</h2><p>{loggedDays} logged {loggedDays===1?"day":"days"} · Missing entries are unknown.</p>{chosen.some(e=>e.demo)&&<span className="demo-chip">Fictional demo history</span>}</div>
-        {sections.map(section=><section className="monthly-report-section" key={section.heading}><h3>{section.heading}</h3><ul>{section.statements.map((statement,i)=><li key={i}>{statement.text}{statementSources(statement.sourceIds)}</li>)}</ul></section>)}
+        <p className="day-context-note">{demoReport?"A short summary from Sophie’s fictional entries. Open Show dates to review the supporting entries.":"A short summary for your doctor, made from the entries you saved. The small numbered links open the entries behind each detail."}</p>
+        <p className="doctor-overview">{demoReport?.summary??appointmentOverview(chosen,month)}</p><div className="monthly-report-title"><h2>{label}</h2><p>{loggedDays} logged {loggedDays===1?"day":"days"} · Missing entries are unknown.</p>{chosen.some(e=>e.demo)&&<span className="demo-chip">Fictional demo history</span>}</div>
+        {(demoReport?.sections??sections).map(section=><section className="monthly-report-section" key={section.heading}><h3>{section.heading}</h3><ul>{section.statements.map((statement,i)=><li key={i}>{statement.text}{!demoReport&&statementSources(statement.sourceIds)}</li>)}</ul></section>)}
+        {demoReport&&<details className="brief-method"><summary>Show dates</summary>{demoReport.dates.map(section=><section key={section.heading}><h3>{section.heading}</h3><ul>{section.statements.map((item,i)=><li key={i}>{item.text} {item.sourceIds.map(id=>{const entry=chosen.find(e=>e.id===id);return entry?<span key={id}>{sourceLink(entry,dateLabel(entry.date))} </span>:null;})}</li>)}</ul></section>)}</details>}
       </div>
       <p className="brief-download-note">The PDF is a formatted appointment summary. Full journal entries stay in Supporting Journal entries below.</p><details className="brief-method"><summary>How this report is prepared</summary><p>This report is generated locally from confirmed journal entries. Each statement links to its source. Missing entries are unknown. Forecasts are not counted as experienced symptoms.</p></details>
 
       <details className="brief-sources"><summary>Supporting Journal entries ({chosen.length})</summary><ol>{chosen.map(e=><li key={e.id}>{sourceLink(e,dateLabel(e.date))}<p>{e.text}</p></li>)}</ol></details>
 
       {status&&<p className="brief-status" role="status">{status}</p>}
-      {active&&<article className="brief-print-document" aria-hidden="true"><h2>elya | Appointment Brief</h2><p>{label} · {loggedDays} logged days</p>{highlights.length>0&&<section><h3>AI-assisted summary</h3>{highlights.map((s,i)=><p key={i}>{s.text} [{s.sourceIds.map(ref).join(", ")}]</p>)}</section>}{chosen.some(e=>e.demo)&&<p>Fictional demo history</p>}{sections.map(section=><section key={section.heading}><h3>{section.heading}</h3>{section.statements.map((s,i)=><p key={i}>{s.text} ({s.sourceIds.map(id=>chosen.find(e=>e.id===id)?.date).filter(Boolean).join(", ")})</p>)}</section>)}<p>Missing entries are unknown. Patient-reported information, not a diagnosis.</p></article>}
+      {active&&<article className="brief-print-document" aria-hidden="true"><h2>elya | Appointment Brief</h2><p>{label} · {loggedDays} logged days</p>{demoReport&&<p>{demoReport.summary}</p>}{highlights.length>0&&<section><h3>AI-assisted summary</h3>{highlights.map((s,i)=><p key={i}>{s.text} [{s.sourceIds.map(ref).join(", ")}]</p>)}</section>}{chosen.some(e=>e.demo)&&<p>Fictional demo history</p>}{(demoReport?.sections??sections).map(section=><section key={section.heading}><h3>{section.heading}</h3>{section.statements.map((s,i)=><p key={i}>{s.text} ({s.sourceIds.map(id=>chosen.find(e=>e.id===id)?.date).filter(Boolean).join(", ")})</p>)}</section>)}<p>Missing entries are unknown. Patient-reported information, not a diagnosis.</p></article>}
     </>}
   </section>;
 }

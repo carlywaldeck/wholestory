@@ -676,7 +676,7 @@ function HomeContent() {
                 <HeroBackground />
                 <div className="opening-copy">
                   <h1>Welcome{!demo&&preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
-                  <p>Learn your symptom patterns with wearable data, and turn your journal into a clear appointment brief.</p>
+                  <p>Learn your symptom patterns, with wearable data when it helps your forecast, and turn your journal into a clear appointment brief.</p>
                 </div>
                 <button
                   className="opening-start"

@@ -27,3 +27,10 @@ it('clears every Present control when no symptoms is chosen, and clears no sympt
  await user.click(screen.getByRole('button',{name:/^Headache/}));expect(none.checked).toBe(false);expect(screen.getByRole('button',{name:'Headache'}).getAttribute('aria-pressed')).toBe('true');
  await user.click(none);await user.click(screen.getByText('Record a symptom as absent'));await user.selectOptions(screen.getByLabelText('Fatigue status'),'present');expect(none.checked).toBe(false);expect(screen.getByRole('button',{name:'Fatigue'}).getAttribute('aria-pressed')).toBe('true');
 });
+it('starts Sophie typing with an empty prompt and never copies seeded absence or impact into the new answer',async()=>{
+ const {default:seed}=await import('../public/demos/maya-learning-v3.json');window.history.replaceState(null,'','/journal');const user=userEvent.setup();const p={...props(),demo:true,demoToday:'2026-11-14',entries:seed.entries as import('../lib/model').Entry[]};p.onSave.mockResolvedValue(undefined);render(<AppNavigationProvider><LinenPages {...p}/></AppNavigationProvider>);
+ expect((screen.getByLabelText('What are you experiencing today?') as HTMLTextAreaElement).value).toBe('');
+ await user.type(screen.getByLabelText('What are you experiencing today?'),'Tired and bloated today.');await user.click(screen.getByRole('button',{name:'Fatigue'}));await user.click(screen.getByRole('button',{name:'Bloating'}));
+ await user.click(screen.getByRole('button',{name:'Missed activities'}));await user.click(screen.getByRole('button',{name:'Next question'}));await user.click(screen.getByRole('button',{name:'Review entry'}));await user.click(screen.getByRole('button',{name:'Save & see my day'}));
+ const entry=p.onSave.mock.calls[0][0];expect(entry.text).not.toMatch(/I reported no|no interference|No change/);expect(entry.facts.filter((f:any)=>f.kind==='Daily-life impact').map((f:any)=>f.value)).toEqual(['Missed activities']);
+});

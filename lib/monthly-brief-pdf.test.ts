@@ -20,3 +20,6 @@ it('keeps explicit absence separate from unknown and retains confirmed absence o
  const e={...entry,text:'No cramps today. Impact was unknown. No interference today.',facts:[{kind:'Pelvic pain' as const,value:'No',quote:'No cramps today.'},{kind:'Fatigue' as const,value:'Unknown',quote:'Impact was unknown.'},{kind:'Daily-life impact' as const,value:'No',quote:'No interference today.'}]};
  const pdf=await createMonthlyBriefPdf([e],'2026-11');expect(pdf.output()).toContain('Pelvic pain: explicitly absent on 1 logged day.');expect(pdf.output()).not.toContain('Fatigue: explicitly absent');expect(pdf.output()).toContain('No interference today.');
 });
+it('adds the computed Sophie overview and denominator without changing personal PDF presentation',async()=>{
+ const {default:seed}=await import('../public/demos/maya-learning-v3.json');const pdf=await createMonthlyBriefPdf(seed.entries as import('./model').Entry[],'2026-11');const output=pdf.output();expect(output).toContain('pelvic pain was reported on 5 of 14 logged days');expect(output).toContain('5 of 14');expect(output).toContain('Daily activities were affected on 3 days');
+});
