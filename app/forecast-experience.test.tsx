@@ -23,8 +23,8 @@ beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockIm
 afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
 it("uses matching backend history and isolates a demo check-in from personal records",async()=>{
  await putEntry({id:"private",date:"2026-11-01",text:"Personal private words.",facts:[],symptomFree:false,demo:false});
- const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Maya’s demo"}));
- await screen.findByText(/Demo · Maya/);
+ const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Sophie’s demo"}));
+ await screen.findByText(/Demo · Sophie/);
  expect(screen.getAllByText(/Still learning your pattern/)).toHaveLength(4);
  await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
@@ -46,7 +46,7 @@ it("keeps personal absence false and unanswered null without transmitting record
 });
 it("reports a demo error without substituting an older history",async()=>{
  vi.mocked(runLearningTask).mockImplementation(async task=>{if(task.op==="demo")throw Error("The fictional learner could not be loaded.");return executeTestLearning(task);});
- const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Maya’s demo"}));
+ const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Sophie’s demo"}));
  await waitFor(()=>expect(screen.getByRole("alert").textContent).toContain("could not be loaded"));
  expect(screen.queryByText("Fictional demo history")).toBeNull();
 });

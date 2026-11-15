@@ -72,7 +72,7 @@ export function demoEntries(): Entry[] {
 export const personas = [
   {
     id: "maya",
-    name: "Maya",
+    name: "Sophie",
     description: "Cyclical pain, bowel symptoms & missed classes",
   },
   {

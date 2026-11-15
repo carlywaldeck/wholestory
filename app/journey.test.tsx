@@ -43,8 +43,8 @@ it("saves a confirmed entry, reviews it on the calendar, and edits without dupli
  const saved=await loadEntries();expect(saved).toHaveLength(1);expect(saved[0].text).toContain("I missed a walk.");expect(saved[0].facts[0].quote).toBe("I reported pelvic pain / cramps.");
 });
 it("exports the selected fictional month as a read-only brief",async()=>{
- const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Maya’s demo"}));
- await screen.findByText(/Demo · Maya/);
+ const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Try Sophie’s demo"}));
+ await screen.findByText(/Demo · Sophie/);
  await navigate(user,"Appointment Brief");const print=screen.getByRole("button",{name:"Print"}) as HTMLButtonElement;
  expect(print.disabled).toBe(false);expect(document.querySelector("textarea")).toBeNull();
  expect(await loadEntries()).toHaveLength(0);
