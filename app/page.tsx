@@ -644,7 +644,6 @@ function HomeContent() {
             {error}
           </p>
         )}
-        {demo && openingMode && forecastDemo && <p className="demo-disclosure">{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p>}
         {checkin && <QuickCheckin date={today()} demo={demo} onCancel={()=>setCheckin(false)} onSave={saveCheckin} />}
         {!openingMode && view!=="Insights" ? journalExperience:String(view) === "Outlook" ? (
           <>
