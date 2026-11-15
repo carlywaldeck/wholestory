@@ -17,9 +17,10 @@ class Recognition {
   continuous = false;
   interimResults = false;
   onresult: ((e: unknown) => void) | null = null;
+  onstart: (() => void) | null = null;
   onend: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  start = vi.fn();
+  start = vi.fn(()=>this.onstart?.());
   stop = () => this.onend?.();
   abort = vi.fn();
   constructor() {
@@ -55,6 +56,7 @@ beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockIm
   Recognition.instances = [];
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   vi.stubGlobal("SpeechRecognition", Recognition);
+  vi.stubGlobal("isSecureContext", true);
   vi.stubGlobal("Audio", AudioMock);
   vi.stubGlobal(
     "URL",
@@ -78,14 +80,18 @@ afterEach(() => {
 it("records only after Speak, keeps the transcript editable, and saves without automatic replies", async () => {
  const user=userEvent.setup();render(<Home/>);await navigate(user,"Journal");
  expect(Recognition.instances).toHaveLength(0);
+ await user.type(screen.getByLabelText("What are you experiencing today?"),"My original note.");
  await user.click(screen.getByRole("button",{name:"Speak"}));
  expect(Recognition.instances).toHaveLength(1);expect(Recognition.instances[0].start).toHaveBeenCalledOnce();
  act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}]]}));
- await user.click(screen.getByRole("button",{name:"Stop"}));
+ await user.type(screen.getByLabelText("What are you experiencing today?")," My correction.");
+ act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}],[{transcript:"Second dictated sentence."}]]}));
+ await user.click(screen.getByRole("button",{name:"Stop recording"}));
  expect((screen.getByLabelText("What are you experiencing today?") as HTMLTextAreaElement).value).toContain("Fictional cramping");
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
  await user.click(screen.getByRole("button",{name:"Add to calendar"}));
  await screen.findByRole("heading",{name:"Today’s summary"});
  expect((await loadEntries())[0].text).toContain("Fictional cramping interrupted my walk.");
+ expect((await loadEntries())[0].text).toContain("My original note.");expect((await loadEntries())[0].text).toContain("My correction.");expect((await loadEntries())[0].text.match(/Fictional cramping/g)).toHaveLength(1);
  expect(voiceFetch.mock.calls.filter(c=>c[1]?.method==="POST")).toHaveLength(0);
 });

@@ -1,4 +1,5 @@
 "use client";
+import {newEntryId} from "../lib/entry-id";
 import { useEffect, useRef, useState } from "react";
 import {
   Mic,
@@ -351,7 +352,7 @@ function HomeContent() {
         text +
         (answer.trim() ? `\nFollow-up: ${question}\n${answer.trim()}` : "");
       const updatedEntry = validateEntry({
-          id: id || crypto.randomUUID(),
+          id: id || newEntryId(),
           date,
           text: combined,
           facts,
