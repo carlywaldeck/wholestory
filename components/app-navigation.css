@@ -1,0 +1,79 @@
+.glass-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--white) 14%, transparent), transparent 45%), color-mix(in srgb, var(--white) 55%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--white) 70%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--white) 90%, transparent), inset 0 -1px 1px color-mix(in srgb, var(--ink) 4%, transparent), 0 8px 32px color-mix(in srgb, var(--ink) 8%, transparent);
+  border-radius: 28px;
+}
+.app-topbar {
+  position: fixed; top: 40px; left: 42px; right: 42px; height: 42px; z-index: 15;
+  display: flex; align-items: center; justify-content: space-between;
+  animation: none; transition: none;
+}
+.app-menu-anchor { position: relative; height: 42px; }
+.app-menu-trigger, .app-checkin-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 42px; min-height: 42px; border-radius: 999px; padding: 0 18px;
+  font-family: var(--font-body), system-ui, sans-serif; font-size: var(--type-button); font-weight: 500;
+  color: var(--ink); background: var(--hero-approved-9); border: 1px solid var(--hero-approved-10);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  text-decoration: none; white-space: nowrap; animation: none; transition: none;
+}
+.app-checkin-pill[hidden] { display: none; }
+.app-wordmark-link {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  display: inline-flex; text-decoration: none; animation: none; transition: none;
+}
+.app-topbar .app-menu {
+  position: absolute; top: 54px; left: 0; width: 280px; max-width: calc(100vw - 64px);
+  display: grid; gap: 4px; padding: 10px; border-radius: 24px;
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(8px);
+  transition: opacity 240ms cubic-bezier(.2,.7,.2,1), transform 240ms cubic-bezier(.2,.7,.2,1), visibility 0s 240ms;
+}
+.app-topbar .app-menu.is-open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); transition-delay: 0s; }
+.app-menu a {
+  display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 12px 14px;
+  border-radius: 999px; text-decoration: none; color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif; font-size: var(--type-body); font-weight: 500; line-height: 1.5;
+}
+.app-menu a:hover, .app-menu a:focus-visible { background: color-mix(in srgb, var(--white) 85%, transparent); }
+.app-menu a.is-current { background: var(--rose-soft); font-weight: 600; }
+.app-current-check { margin-left: auto; }
+.app-menu-divider { height: 1px; background: var(--line); margin: 5px 12px; }
+.app-menu .app-settings-link { color: var(--ink-soft); font-size: var(--type-small); }
+.app-menu a:focus-visible, .app-topbar > a:focus-visible, .app-menu-trigger:focus-visible { outline: 2px solid var(--rose-deep); outline-offset: 3px; }
+.persistent-nav-shell { max-width: 1600px; }
+.persistent-nav-shell > main { margin-left: 0; width: 100%; padding-top: 116px; }
+.persistent-nav-shell.opening-mode > main { padding-top: 0; }
+.page-content-transition { animation: page-content-fade 240ms ease-out both; }
+:root { view-transition-name: none; }
+.persistent-nav-shell > main { view-transition-name: elya-content; }
+.app-topbar { view-transition-name: none; }
+.app-topbar { z-index: 30; }
+.overlay:has(#privacy-title) { padding-top: 110px; }
+.overlay:has(#privacy-title) .modal { max-height: calc(100svh - 134px); }
+.overlay:has(#leave-title) { z-index: 40; }
+:root:active-view-transition .page-content-transition { animation: none; }
+::view-transition-old(elya-content) { animation: page-content-out 240ms ease both; }
+::view-transition-new(elya-content) { animation: page-content-fade 240ms ease both; }
+@keyframes page-content-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes page-content-out { from { opacity: 1; } to { opacity: 0; } }
+.persistent-nav-shell .demo-banner { top: 100px; }
+@media (max-width: 700px) {
+  .app-topbar { top: calc(32px + env(safe-area-inset-top, 0px)); left: 32px; right: 32px; }
+  .persistent-nav-shell > main { padding-top: calc(108px + env(safe-area-inset-top, 0px)); }
+  .persistent-nav-shell.opening-mode > main { padding-top: 0; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-card { background: var(--pearl); border: 1px solid var(--line); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-card, .app-menu-trigger, .app-checkin-pill { background: var(--pearl); border-color: var(--line); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-contrast: more) { .glass-card, .app-menu-trigger, .app-checkin-pill { border-color: var(--ink-soft); } }
+@media (prefers-reduced-motion: reduce) {
+  .app-topbar .app-menu { transition: none; transform: none; }
+  .page-content-transition { animation: none; }
+  ::view-transition-old(elya-content), ::view-transition-new(elya-content) { animation: none; }
+}

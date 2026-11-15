@@ -7,9 +7,9 @@ export const LINEN = {
   foldSpeed: 3,
   glowBreathPeriod: 9,
   glowStrength: 1,
-  highlight: [1, 1, 1],
-  mid: [250 / 255, 246 / 255, 244 / 255],
-  shadow: [237 / 255, 229 / 255, 225 / 255],
+  highlight: "--white",
+  mid: "--pearl",
+  shadow: "--pearl-deep",
 };
 
 const fragment = `
@@ -40,7 +40,7 @@ void main() {
   gl_FragColor=vec4(color,1.);
 }`;
 
-export function HeroBackground() {
+export function HeroBackground({ frozen = false }: { frozen?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [path, setPath] = useState("initializing");
   useEffect(() => {
@@ -48,7 +48,7 @@ export function HeroBackground() {
     if (!canvas) return;
     const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
     const report = (path: string, detail?: string) => {
-      console.info("[Elya linen]", path, detail ?? "");
+      console.info("[elya linen]", path, detail ?? "");
       canvas.dataset.renderPath = path;
       setPath(path);
     };
@@ -87,7 +87,11 @@ export function HeroBackground() {
     for (const [key,value] of Object.entries(LINEN)) {
       if (key === "foldSpeed" || key === "glowBreathPeriod") continue;
       const location = gl.getUniformLocation(program,key);
-      if (Array.isArray(value)) gl.uniform3fv(location,value);
+      if (typeof value === "string") {
+        const raw = getComputedStyle(canvas).getPropertyValue(value).trim().replace("#", "");
+        const hex = raw.length === 3 ? [...raw].map(c => c + c).join("") : raw;
+        gl.uniform3fv(location, [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16) / 255));
+      }
       else if (typeof value === "number") gl.uniform1f(location,value);
     }
     const timeUniform = gl.getUniformLocation(program,"phase");
@@ -99,7 +103,7 @@ export function HeroBackground() {
       // Integer orbit count keeps both fold and glow cycles seamless when tuned.
       const phase = elapsed / (LINEN.glowBreathPeriod * 6000) * Math.PI * 2;
       gl.uniform1f(timeUniform, phase * Math.max(1, Math.round(LINEN.foldSpeed)));
-      gl.uniform1f(breathUniform, reduced.matches ? 0.5 : .5-.5*Math.cos(phase*6));
+      gl.uniform1f(breathUniform, frozen || reduced.matches ? 0.5 : .5-.5*Math.cos(phase*6));
       gl.drawArrays(gl.TRIANGLES,0,6);
       canvas.style.opacity = "1";
     };
@@ -119,8 +123,8 @@ export function HeroBackground() {
     };
     const update = () => {
       cancelAnimationFrame(frame); last=0;
-      report(reduced.matches ? "reduced-motion static" : "WebGL");
-      if (reduced.matches) { elapsed=0; draw(); }
+      report(frozen ? "frozen WebGL frame" : reduced.matches ? "reduced-motion static" : "WebGL");
+      if (frozen || reduced.matches) { elapsed=frozen ? 6800 : 0; draw(); }
       else if (!document.hidden) frame=requestAnimationFrame(tick);
     };
     const observer = new ResizeObserver(resize);
@@ -134,10 +138,10 @@ export function HeroBackground() {
       gl.deleteBuffer(buffer); gl.deleteProgram(program);
       shaders.forEach(s => gl.deleteShader(s));
     };
-  }, []);
+  }, [frozen]);
   return <div className="hero-background" aria-hidden="true" style={{
-    background: "linear-gradient(125deg, #ffffff, #faf6f4 60%, #ede5e1)",
+    background: "linear-gradient(125deg, var(--white), var(--pearl) 60%, var(--pearl-deep))",
   }}><canvas ref={ref} style={{ width: "100%", height: "100%", display: "block", opacity: 0, filter: "blur(2px)", transform: "scale(1.015)" }} />
-    {process.env.NODE_ENV === "development" && <span style={{ position: "absolute", top: 12, right: 12, padding: "3px 8px", background: "#fff8ed", color: "#3a2e2a", fontSize: 11 }}>{path}</span>}
+    {process.env.NODE_ENV === "development" && <span style={{ position: "absolute", top: 12, right: 12, padding: "3px 8px", background: "var(--pearl)", color: "var(--ink)", fontSize: "var(--type-label)" }}>{path}</span>}
   </div>;
 }
