@@ -11,6 +11,8 @@ const mime = {
   ".woff2": "font/woff2",
   ".json": "application/json",
   ".svg": "image/svg+xml",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
 };
 async function add(file, url) {
   assets[url] = {
@@ -28,6 +30,7 @@ async function walk(dir, prefix) {
 }
 await add(".next/server/app/index.html", "/");
 await walk(".next/static", "/_next/static");
+await walk("public/voice-samples", "/voice-samples");
 await fs.mkdir("work", { recursive: true });
 await fs.writeFile("work/assets.json", JSON.stringify(assets));
 await fs.mkdir("dist/server", { recursive: true });

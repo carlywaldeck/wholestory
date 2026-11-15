@@ -1,3 +1,4 @@
+import {handleTts} from "../lib/server-tts";
 import { benchmarkResponse } from "../lib/research-benchmark";
 import { handleForecast } from "../lib/server-forecast";
 import { handleOura, type OuraEnv } from "../lib/server-oura";
@@ -14,6 +15,7 @@ export default {
     },
   ) {
     const path = new URL(req.url).pathname;
+    if (path === "/api/tts") return handleTts(req,env);
     if (path === "/api/forecast") return handleForecast(req, env);
     if (path === "/api/research/benchmark")
       return req.method === "GET"

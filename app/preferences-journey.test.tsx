@@ -93,7 +93,7 @@ it("saves a name and entry preference, then restores them without onboarding", a
     ).value,
   ).toBe("Sam");
   await user.click(screen.getByText("Voice & spoken replies", { exact: true }));
-  expect(screen.getByRole("button", { name: "Preview Coral" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Play sample" })).toBeTruthy();
   await user.click(screen.getByRole("button", { name: "Close settings" }));
   app.unmount();
   render(<Home />);

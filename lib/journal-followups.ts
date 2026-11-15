@@ -1,7 +1,8 @@
+import {spokenQuestion} from "./conversation-voice-config";
 import type {Fact} from "./model";
 import {QUESTION_BANK,QUESTION_BANK_VERSION,QUESTION_ORDER,QUESTION_LIMIT} from "./journal-question-policy";
 export type QuestionId=keyof typeof QUESTION_BANK;
-export type FollowupQuestion={id:string;type:QuestionId;version:string;text:string;kind:Fact["kind"];symptom?:string;tier:number;field:string;options:readonly string[];optional:true;sensitive:boolean;answerFormat:"choice-or-text";eligible:string;exclude:string};
+export type FollowupQuestion={id:string;type:QuestionId;version:string;text:string;spokenText:string;kind:Fact["kind"];symptom?:string;tier:number;field:string;options:readonly string[];optional:true;sensitive:boolean;answerFormat:"choice-or-text";eligible:string;exclude:string};
 export type FollowupTurn={question:FollowupQuestion;answer:string;skipped?:boolean;status?:"answered"|"skipped"|"declined"|"not-applicable"|"unknown"};
 export type JournalContext={selected?:string[];symptomFree?:boolean;absent?:string[]};
 const patterns:[string,RegExp][]=[["Pelvic pain / cramps",/\b(?:cramps?|pelvic pain|pain|ache)\b/i],["Fatigue",/\b(?:fatigue|tired|exhausted)\b/i],["Bloating",/\b(?:bloating|bloated)\b/i],["Bowel symptoms",/\b(?:bowel|constipation|diarrhea)\b/i],["Headache",/\bheadache\b/i]];
@@ -12,7 +13,7 @@ export function nextJournalQuestion(original:string,turns:FollowupTurn[],context
  const resolution=turns.find(t=>t.question.type==="clarify"&&t.status!=="skipped");
  const free=context.symptomFree||/\bno symptoms(?: today)?\b|symptom.free|nothing to report/i.test(original);
  const symptoms=[...new Set([...(context.selected??[]),...patterns.filter(([,p])=>reported(original,p)).map(([label])=>label)])].filter(label=>!(context.absent??[]).includes(label));
- const q=(type:QuestionId,symptom?:string):FollowupQuestion=>({...QUESTION_BANK[type],id:type+(symptom?":"+symptom:""),type,version:QUESTION_BANK_VERSION,symptom,text:QUESTION_BANK[type].text.replace("{symptom}",symptom?.toLowerCase()??"symptom"),optional:true,answerFormat:"choice-or-text",sensitive:type==="bowel"});
+ const q=(type:QuestionId,symptom?:string):FollowupQuestion=>({...QUESTION_BANK[type],id:type+(symptom?":"+symptom:""),type,version:QUESTION_BANK_VERSION,symptom,spokenText:spokenQuestion(type,symptom),text:QUESTION_BANK[type].text.replace("{symptom}",symptom?.toLowerCase()??"symptom"),optional:true,answerFormat:"choice-or-text",sensitive:type==="bowel"});
  if(free&&symptoms.length&&!resolution&&!answered("clarify"))return q("clarify");
  if(resolution?.answer==="Not sure"||resolution?.answer==="No symptoms today"||free&&!symptoms.length)return null;
  if(!symptoms.length)return null;

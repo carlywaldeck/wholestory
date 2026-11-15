@@ -43,6 +43,7 @@ export function useSpokenReplies() {
     setSpeaking(false);
     setPreparing(false);
   }, [release]);
+  useEffect(()=>{window.addEventListener("elya-conversation-voice-start",stop);return()=>window.removeEventListener("elya-conversation-voice-start",stop);},[stop]);
   const checkStatus = useCallback(async () => {
     try {
       const r = await fetch("/api/voice", { cache: "no-store" });
@@ -110,6 +111,7 @@ export function useSpokenReplies() {
     (id: string) => {
       const voice = naturalVoices.find((v) => v.id === id);
       if (!voice) return;
+      window.dispatchEvent(new Event("elya-legacy-voice-start"));
       stop();
       setSpeechError("");
       void play(voice.sample, generation.current);
@@ -135,6 +137,7 @@ export function useSpokenReplies() {
         );
         return;
       }
+      window.dispatchEvent(new Event("elya-legacy-voice-start"));
       stop();
       const token = generation.current;
       const controller = new AbortController();

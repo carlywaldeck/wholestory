@@ -59,7 +59,7 @@ import { SafetySection } from "../components/safety-section";
 import { safetyBoundary } from "../lib/clinical-context";
 import { appointmentQuestions, cycleContext } from "../lib/cycles";
 import { useSpokenReplies } from "../hooks/use-spoken-replies";
-import { VoicePicker } from "../components/voice-picker";
+
 import { PersonalPreferences } from "../components/personal-preferences";
 import { JourneyProgress } from "../components/journey-progress";
 import { HeroBackground } from "../components/hero-background";
@@ -604,7 +604,7 @@ function HomeContent() {
     resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
     try{
       await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
-      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.voiceSpeed");localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
       if(all||!demoMode)setLearningBundle(null);
       await refresh();setReviewed(false);
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
@@ -1656,26 +1656,6 @@ function HomeContent() {
             <details className="settings-section settings-voices">
               <summary>Voice & spoken replies</summary>
               <BrowserVoicePreferences/>
-              <VoicePicker speech={speech} beforePlay={stopCapture} />
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={speech.enabled}
-                  onChange={(e) => speech.setEnabled(e.target.checked)}
-                />{" "}
-                Read replies aloud with OpenAI
-              </label>
-              {(speech.speaking || speech.preparing) && (
-                <Button onClick={speech.stop}>
-                  <VolumeX size={16} />
-                  Stop speaking
-                </Button>
-              )}
-              {speech.speechError && (
-                <p className="error" role="status">
-                  {speech.speechError}
-                </p>
-              )}
             </details>
             <details className="settings-section">
               <summary>Wearable connections</summary>
