@@ -56,6 +56,7 @@ export function LinenBrief({entries,today,onSource,active=true}: {entries:Entry[
     <div className="brief-heading"><h1 id="brief-title">Appointment Brief</h1><label className="brief-month-selector">Month<input type="month" value={month} onChange={e=>setMonth(e.target.value)}/></label></div>
     {!valid?<p role="alert">Select a month.</p>:!chosen.length?<p className="monthly-brief-empty">No journal entries for this month.</p>:<>
       <div className="monthly-report-body">
+        <p className="day-context-note">Confirmed Journal observations only. Experimental forecasts and observed wearable readings are separate context and are not counted as reported symptoms.</p>
         <div className="monthly-report-title"><h2>{label}</h2><p>{loggedDays} logged {loggedDays===1?"day":"days"} · Missing entries are unknown.</p>{chosen.some(e=>e.demo)&&<span className="demo-chip">Fictional demo history</span>}</div>
         <p className="monthly-generation-label">Source-linked journal summary</p><p className="monthly-generation-status">AI-generated summary unavailable: a monthly AI service is not connected.</p>
         {sections.map(section=><section className="monthly-report-section" key={section.heading}><h3>{section.heading}</h3><ul>{section.statements.map((statement,i)=><li key={i}>{statement.text}<span className="brief-statement-sources">{statement.sourceIds.map(id=>{const entry=chosen.find(e=>e.id===id);return entry?<span key={id}>{sourceLink(entry,"["+ref(id)+"]")}</span>:null;})}</span></li>)}</ul></section>)}

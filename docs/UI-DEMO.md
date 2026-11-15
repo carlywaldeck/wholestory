@@ -5,7 +5,7 @@ The default `/` screen is the animated fabric welcome. It greets the saved name 
 ## Four-minute walkthrough
 
 1. Start on Outlook. Choose Maya, Alex or Jules under Demo history. The fictional label stays visible. Each choice loads the forecast and matching journal history from the existing forecast API.
-2. Show the four independent tomorrow states. Missing estimates say Still learning. Percentages are not confidence scores; no clinical accuracy is claimed. Wearables are context only.
+2. Show the four independent personal-learning states for tomorrow: Low/Medium/High risk or Still learning your pattern. Percentages are withheld. Learning progress shows paired observations; no clinical accuracy is claimed. Wearables are selected only when an earlier personal comparison supports them. See PERSONAL-LEARNING-UI.md for persistence and verification.
 3. Click Check in today. Tap symptom bubbles to select experienced symptoms, and tap again to clear them. Unselected symptoms are unanswered. No symptoms today explicitly records absence; optional per-symptom absence controls are behind a disclosure. Optionally write. Save changes / Add to calendar returns to the selected calendar day. Click Edit entry to review the stored text and answers.
 4. Open Appointment Brief. Choose a month and read the report. Statements link to Journal entries; corrections happen in Journal and refresh the report. Copy, Print, or Save as PDF. There are no contribution fields. This is currently a clearly labeled browser-local summary; the proposed monthly AI contract is in MONTHLY-BRIEF-HANDOFF.md and is not implemented.
 

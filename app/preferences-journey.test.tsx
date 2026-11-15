@@ -4,10 +4,14 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import {clearLearningData} from "../lib/learning-store";
+import {runLearningTask} from "../lib/learning-client";
+import {executeTestLearning} from "../tests/learning-executor";
+vi.mock("../lib/learning-client",async()=>{const {executeTestLearning}=await import("../tests/learning-executor");return {runLearningTask:vi.fn(executeTestLearning)};});
 import { navigate } from "./test-navigation";
 import { clearPreferences, loadPreferences, savePreferences, defaultPreferences } from "../lib/preferences";
 import { clearEntries } from "../lib/storage";
-beforeEach(async () => {
+beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockImplementation(executeTestLearning);
   window.history.replaceState(null, "", "/outlook");
   await clearPreferences();
   await clearEntries();

@@ -4,11 +4,15 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, cleanup, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import {clearLearningData} from "../lib/learning-store";
+import {runLearningTask} from "../lib/learning-client";
+import {executeTestLearning} from "../tests/learning-executor";
+vi.mock("../lib/learning-client",async()=>{const {executeTestLearning}=await import("../tests/learning-executor");return {runLearningTask:vi.fn(executeTestLearning)};});
 import { navigate } from "./test-navigation";
 import { clearEntries, loadEntries } from "../lib/storage";
 import { savePreferences, defaultPreferences } from "../lib/preferences";
 import { handleForecast } from "../lib/server-forecast";
-beforeEach(async () => {
+beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockImplementation(executeTestLearning);
   window.history.replaceState(null, "", "/outlook");
   localStorage.clear();
   vi.stubGlobal("fetch",vi.fn((url:string)=>handleForecast(new Request(new URL(url,"http://localhost").href))));

@@ -43,6 +43,10 @@ import {
   isPresentFact,
 } from "../lib/model";
 import * as storage from "../lib/storage";
+import {LearningImport} from "../components/learning-import";
+import {currentPersonalOutlook,loadFictionalLearning,saveFictionalJournal,advanceFictionalLearning,rememberLegacyWearables,clearLearningData,exportLearningData,REAL_PROFILE} from "../lib/learning-store";
+import type {LearningBundle} from "../lib/learning-types";
+import {loadWearables} from "../lib/wearables";
 import type { ForecastPersona as PersonaId } from "../lib/forecast-demo";
 import { StructuredDetails } from "../components/structured-details";
 import { WearableExplorer } from "../components/wearable-explorer";
@@ -132,6 +136,7 @@ function HomeContent() {
     setShowWelcome(false);
     setView("Outlook");
   }
+  const [learningBundle,setLearningBundle]=useState<LearningBundle|null>(null);
   const [persona, setPersona] = useState<PersonaId>("maya");
   const [forecastDemo, setForecastDemo] = useState<ForecastDemo | null>(null);
   const [personalForecast, setPersonalForecast] = useState<ForecastResult | null>(null);
@@ -141,6 +146,8 @@ function HomeContent() {
   const [checkinVersion, setCheckinVersion] = useState(0);
   const [journalLimit, setJournalLimit] = useState(14);
   const forecastRequest = useRef(0);
+  const profileIntent=useRef<string>("real");
+  const resettingLearning=useRef(false);
   const [customQuestion, setCustomQuestion] = useState("");
   const [entryMode, setEntryMode] = useState<"write" | "voice">("write");
   const [voiceTarget, setVoiceTarget] = useState<"entry" | "answer">("entry");
@@ -256,16 +263,15 @@ function HomeContent() {
     setReviewed(false);
     setWearableNote("");
   }, [allEntries, demoMode, persona]);
-  useEffect(() => {
-    if (demoMode) return;
-    try {
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      setPersonalForecast(symptomRisk({ kind: "real", targetDate: shiftDate(today(), 1), asOf: new Date().toISOString(), timeZone, days: loadConfirmedDays() }, { evaluate: false }));
-      setForecastError("");
-    } catch {
-      setForecastError("Your saved check-ins could not be read. Your journal is still available.");
-    }
-  }, [demoMode, checkinVersion]);
+  useEffect(()=>{
+    if(demoMode||!ready||profileIntent.current!=="real"||resettingLearning.current)return;
+    const request=++forecastRequest.current;
+    setForecastLoading(true);setForecastError("");
+    void (async()=>{const imported=await loadWearables();if(request!==forecastRequest.current||resettingLearning.current)return null;await rememberLegacyWearables(imported);if(request!==forecastRequest.current||resettingLearning.current)return null;return currentPersonalOutlook(loadConfirmedDays(),Intl.DateTimeFormat().resolvedOptions().timeZone,undefined,{entries:allEntries.filter(e=>!e.demo)});})()
+      .then(bundle=>{if(bundle&&request===forecastRequest.current)setLearningBundle(bundle);})
+      .catch(error=>{if(request===forecastRequest.current)setForecastError(error instanceof Error?error.message:"Local learning could not be loaded.");})
+      .finally(()=>{if(request===forecastRequest.current)setForecastLoading(false);});
+  },[demoMode,ready,checkinVersion,allEntries]);
   useEffect(() => {
     window.scrollTo(0, 0);
     setSelected("");
@@ -519,21 +525,27 @@ function HomeContent() {
     );
   }
 
+  function applyFictionalBundle(bundle:LearningBundle){
+    setLearningBundle(bundle);
+    setForecastDemo({demo:{persona:bundle.persona!,label:bundle.label??"Fictional learner",disclosure:bundle.disclosure??""},forecast:null as unknown as ForecastResult,demoInput:bundle.input,demoPhysiology:bundle.physiology,demoJournalEntries:bundle.entries??[]});
+  }
+  async function advanceDemo(){
+    const request=++forecastRequest.current;setForecastLoading(true);setForecastError("");
+    try{const bundle=await advanceFictionalLearning(persona);if(request===forecastRequest.current)applyFictionalBundle(bundle);}
+    catch(error){setForecastError(error instanceof Error?error.message:"Demo could not advance.");}
+    finally{if(request===forecastRequest.current)setForecastLoading(false);}
+  }
   async function tryDemo(chosen: PersonaId = persona) {
+    profileIntent.current=chosen;
     const request = ++forecastRequest.current;
     setForecastLoading(true);
     setForecastError("");
     setCheckin(false);
     if(view!=="Today")setView("Outlook");
     try {
-      const response = await fetch(`/api/forecast?persona=${chosen}&targetDate=${shiftDate(today(), 1)}`);
-      if (!response.ok) throw Error("The fictional outlook could not be loaded. Please try again.");
-      const payload = await response.json() as ForecastDemo;
-      if (payload.demo?.persona !== chosen || !payload.forecast?.symptoms || !Array.isArray(payload.demoJournalEntries)) throw Error("The demo response was incomplete. Please try again.");
-      const matched = payload.demoJournalEntries.map(validateEntry);
-      if (matched.some(e=>!e.demo || e.persona!==chosen || !e.id.startsWith("forecast-demo-"))) throw Error("The demo history did not match the selected person.");
-      if (request !== forecastRequest.current) return;
-      setForecastDemo({ ...payload, demoJournalEntries: matched });
+      const bundle=await loadFictionalLearning(chosen,shiftDate(today(),1));
+      if(request!==forecastRequest.current)return;
+      applyFictionalBundle(bundle);
       setPersona(chosen);
       setJournalLimit(14);
       setDemoMode(true);
@@ -543,7 +555,7 @@ function HomeContent() {
       );
       setSettings(false);
     } catch (e) {
-      if (request === forecastRequest.current) setForecastError((e as Error).message);
+      if (request === forecastRequest.current) {profileIntent.current=demoMode?persona:"real";setForecastError((e as Error).message);}
     } finally {
       if (request === forecastRequest.current) setForecastLoading(false);
     }
@@ -564,8 +576,9 @@ function HomeContent() {
     setNotice(demo ? "Fictional check-in saved. Review it in your journal." : "Check-in saved on this device. Review it in your journal.");
   }
   function exitDemo() {
+    profileIntent.current="real";
     forecastRequest.current++;
-    setForecastLoading(false); setForecastError(""); setForecastDemo(null); setCheckin(false);
+    setForecastLoading(false); setForecastError(""); setForecastDemo(null);setLearningBundle(null); setCheckin(false);
     setDemoMode(false);
     setNotice("Back to your personal journal. Demo entries are kept separately.");
   }
@@ -585,17 +598,29 @@ function HomeContent() {
       setError("The PDF could not be generated. Please try again.");
     }
   }
+  async function resetPersonalData(all=false){
+    resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
+    try{
+      await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
+      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all||!demoMode)setLearningBundle(null);
+      await refresh();setReviewed(false);
+    }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
+  }
   const openingMode = view === "Today";
-  const journalExperience = <LinenPages demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={demo ? forecastDemo?.forecast ?? null : personalForecast} loading={forecastLoading} forecastError={forecastError} demo={demo}
+  const journalExperience = <LinenPages learning={learningBundle?.result??null} demoToday={demo&&learningBundle?shiftDate(learningBundle.result.targetDate,-1):undefined} demoDays={demo?forecastDemo?.demoPhysiology??[]:undefined} continuous={openingMode} view={openingMode?"Your story":view} entries={entries} forecast={null} loading={forecastLoading} forecastError={forecastError} demo={demo}
           wearableNote={wearableNote}
-          demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p></details>}</div>}
-          onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={async()=>{await storage.clearEntries();clearConfirmedDays();await refresh();setCheckinVersion(n=>n+1);}}
+          demoControls={<div className="forecast-demo-control"><label htmlFor="outlook-persona">Demo history</label><select id="outlook-persona" aria-label="Fictional history" value={demo?persona:""} disabled={forecastLoading} onChange={e=>e.target.value?void tryDemo(e.target.value as PersonaId):exitDemo()}><option value="">My journal</option>{forecastPeople.map(p=><option key={p.id} value={p.id}>{p.name} · fictional</option>)}</select>{demo&&forecastDemo&&<details><summary>About this demo</summary><p>{forecastDemo.demo.label} · {forecastDemo.demo.disclosure}</p><button className="button" disabled={forecastLoading} onClick={()=>void advanceDemo()}>Next demo day</button></details>}</div>}
+          onRetry={()=>demo ? void tryDemo() : setCheckinVersion(n=>n+1)} onSettings={()=>setSettings(true)} onDelete={()=>resetPersonalData()}
           onSave={async entry=>{
             const saved=validateEntry({...entry,...(demo?{persona}: {})});
             const answers=Object.fromEntries(checkinSymptoms.map(s=>[s.key,saved.symptomFree?false:saved.facts.some(f=>f.kind===s.kind&&isPresentFact(f))?true:saved.facts.some(f=>f.kind===s.kind&&/^(no|none|absent|not present|false|0)\b/i.test(f.value))?false:null])) as Answers;
             const day=checkinRecord(saved.date,answers,saved.text).day;
-            if(demo){setForecastDemo(current=>{if(!current)return current;const input={...current.demoInput,asOf:new Date().toISOString(),days:[...current.demoInput.days.filter(d=>d.date!==day.date),day]};return {...current,demoInput:input,forecast:symptomRisk(input,{evaluate:false}),demoJournalEntries:[saved,...current.demoJournalEntries.filter(e=>e.id!==saved.id)]};});}
-            else {await storage.putEntry(saved);saveConfirmedDay(day);await refresh();setCheckinVersion(n=>n+1);}
+            if(demo){applyFictionalBundle(await saveFictionalJournal(persona,saved,day));}
+            else {await storage.putEntry(saved);saveConfirmedDay(day);await refresh();
+              const cleared=Object.entries(day.symptoms).filter(([,v])=>v===null).map(([k])=>k as import("../lib/symptom-risk").RiskSymptom);
+              try{const result=await currentPersonalOutlook(loadConfirmedDays(),Intl.DateTimeFormat().resolvedOptions().timeZone,undefined,{entries:[saved,...allEntries.filter(e=>e.id!==saved.id&&!e.demo)],withdraw:{date:day.date,symptoms:cleared}});setLearningBundle(result);}catch(error){setForecastError("Entry saved. "+(error instanceof Error?error.message:"Learning could not update."));}
+            }
           }}/>;
   return (
     <div className={`shell persistent-nav-shell${openingMode ? " opening-mode" : ""}`}>
@@ -1650,8 +1675,8 @@ function HomeContent() {
               )}
             </details>
             <details className="settings-section">
-              <summary>Wearable data</summary>
-              <WearableConnections onImported={async record=>{await saveWearables(record);setNotice("Wearable measurements imported on this device.");}} />
+              <summary>Wearable connections</summary>
+              <WearableConnections onImported={async record=>{await saveWearables(record);await rememberLegacyWearables(record);setCheckinVersion(n=>n+1);setNotice("Wearable measurements imported on this device.");}} />
               <p>
                 Explore sleep and activity using a local daily CSV import or
                 fictional demo. No device is connected automatically. Imports
@@ -1666,7 +1691,10 @@ function HomeContent() {
                 Manage wearable data <ArrowRight size={15} />
               </Button>
             </details>
+            <LearningImport onSaved={bundle=>{if(!demoMode)setLearningBundle(bundle);setNotice("Normalized wearable observations imported locally.");}}/>
             <h3 className="settings-subheading">Privacy & your data</h3>
+            <p>Personal-learning snapshots, wearable receipt times, and later outcome revisions are stored separately on this device. They are not encrypted or synchronized across devices. More observations do not guarantee more accurate forecasts.</p>
+            <Button onClick={async()=>{const data=await exportLearningData();const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));const link=document.createElement("a");link.href=url;link.download="elya-local-learning.json";link.click();URL.revokeObjectURL(url);}}>Export local learning data</Button>
             <p>
               Entries stay in this browser’s IndexedDB. Local browser data is
               not encrypted medical storage. Clearing browser data can erase
@@ -1727,14 +1755,7 @@ function HomeContent() {
                     "Permanently delete all journal entries on this device?",
                   )
                 ) {
-                  await storage.clearEntries();
-                  await clearPreferences();
-                  clearConfirmedDays(); setCheckinVersion(n=>n+1);
-                  await clearWearables();
-                  setPreferences(defaultPreferences);
-                  speech.resetPreferences();
-                  await refresh();
-                  setReviewed(false);
+                  await resetPersonalData(true);
                   setNotice("All local entries deleted.");
                 }
               }}

@@ -4,11 +4,15 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, within, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import {clearLearningData} from "../lib/learning-store";
+import {runLearningTask} from "../lib/learning-client";
+import {executeTestLearning} from "../tests/learning-executor";
+vi.mock("../lib/learning-client",async()=>{const {executeTestLearning}=await import("../tests/learning-executor");return {runLearningTask:vi.fn(executeTestLearning)};});
 import { navigate } from "./test-navigation";
 import { clearEntries, putEntry, loadEntries } from "../lib/storage";
 import { defaultPreferences, savePreferences } from "../lib/preferences";
 import { handleForecast } from "../lib/server-forecast";
-beforeEach(async()=>{
+beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockImplementation(executeTestLearning);
   window.history.replaceState(null, "", "/outlook");
   await clearEntries(); localStorage.clear();
   await savePreferences({...defaultPreferences,setupComplete:true});
@@ -21,7 +25,7 @@ it("uses matching backend history and isolates a demo check-in from personal rec
  await putEntry({id:"private",date:"2026-11-01",text:"Personal private words.",facts:[],symptomFree:false,demo:false});
  const user=userEvent.setup();render(<Home/>);await user.selectOptions(screen.getByLabelText("Fictional history"),"maya");
  await screen.findByText("Matching fictional outlook, journal and appointment history loaded. Personal records stay separate.");
- expect(screen.getAllByText(/Estimate · experimental/).length).toBeGreaterThan(0);
+ expect(screen.getAllByText(/Still learning your pattern/)).toHaveLength(4);
  await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
  await user.click(screen.getByText("Record a symptom as absent"));await user.selectOptions(screen.getByLabelText("Fatigue status"),"absent");
@@ -41,7 +45,7 @@ it("keeps personal absence false and unanswered null without transmitting record
  expect(vi.mocked(fetch).mock.calls.filter(([url,init])=>String(url).includes("/api/forecast")||init?.method==="POST")).toEqual([]);
 });
 it("reports a demo error without substituting an older history",async()=>{
- vi.stubGlobal("fetch",vi.fn().mockResolvedValue(new Response("unavailable",{status:503})));
+ vi.mocked(runLearningTask).mockImplementation(async task=>{if(task.op==="demo")throw Error("The fictional learner could not be loaded.");return executeTestLearning(task);});
  const user=userEvent.setup();render(<Home/>);await user.selectOptions(screen.getByLabelText("Fictional history"),"alex");
  await waitFor(()=>expect(screen.getByRole("alert").textContent).toContain("could not be loaded"));
  expect(screen.queryByText("Fictional demo history")).toBeNull();

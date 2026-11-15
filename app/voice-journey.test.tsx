@@ -4,6 +4,10 @@ import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, cleanup, act, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "./page";
+import {clearLearningData} from "../lib/learning-store";
+import {runLearningTask} from "../lib/learning-client";
+import {executeTestLearning} from "../tests/learning-executor";
+vi.mock("../lib/learning-client",async()=>{const {executeTestLearning}=await import("../tests/learning-executor");return {runLearningTask:vi.fn(executeTestLearning)};});
 import { navigate } from "./test-navigation";
 import { clearEntries, loadEntries } from "../lib/storage";
 import { savePreferences, defaultPreferences } from "../lib/preferences";
@@ -43,7 +47,7 @@ class AudioMock {
 }
 const OriginalURL = URL;
 let voiceFetch: ReturnType<typeof vi.fn>;
-beforeEach(async () => {
+beforeEach(async()=>{await clearLearningData();vi.mocked(runLearningTask).mockImplementation(executeTestLearning);
   window.history.replaceState(null, "", "/outlook");
   await clearEntries();
   await savePreferences({ ...defaultPreferences, setupComplete: true });
