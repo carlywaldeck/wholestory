@@ -16,10 +16,10 @@ it("uses the reported units and preserves missing measurements",()=>{
 it("does not fabricate estimates outside the supported date",()=>{
  render(<OutlookDay {...props()} date="2026-11-20"/>);expect(screen.getByRole("heading",{name:"Symptoms you may experience"})).toBeTruthy();expect(screen.getByText("No symptom outlook available for this date.")).toBeTruthy();expect(screen.queryByRole("heading",{name:"Wearable data"})).toBeNull();expect(screen.queryByRole("button",{name:"Open Journal"})).toBeNull();
 });
-it("shows only model-supported probabilities and allows day/calendar navigation",async()=>{
+it("shows experimental risk bands without percentages and allows day/calendar navigation",async()=>{
  const user=userEvent.setup();const p=props();const forecast=symptomRisk({kind:"synthetic",targetDate:"2026-11-15",asOf:"2026-11-14T12:00:00Z",timeZone:"UTC",days:[]},{evaluate:false});
  forecast.symptoms[0]={...forecast.symptoms[0],state:"experimental-estimate",probability:.7,outlook:"higher-estimated-likelihood"};
- render(<OutlookDay {...p} date="2026-11-15" forecast={forecast}/>);expect(screen.getByText("Estimated likelihood: 70%")).toBeTruthy();expect(screen.queryByText("Fatigue")).toBeNull();
+ render(<OutlookDay {...p} date="2026-11-15" forecast={forecast}/>);expect(screen.getByText("High risk")).toBeTruthy();expect(screen.queryByText("Estimated likelihood: 70%")).toBeNull();expect(screen.getByRole("button",{name:/Fatigue Still learning your pattern/})).toBeTruthy();
  await user.click(screen.getByRole("button",{name:"Next day"}));expect(p.onDate).toHaveBeenCalledWith("2026-11-16");await user.click(screen.getByRole("button",{name:"Month calendar"}));expect(p.onCalendar).toHaveBeenCalledOnce();
 });
 
