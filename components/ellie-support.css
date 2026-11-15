@@ -4,3 +4,8 @@ body:has(.opening-screen) .ellie-root{bottom:max(100px,env(safe-area-inset-botto
 body:has(.opening-screen) .ellie-panel{max-height:calc(100dvh - 205px)}
 
 .ellie-root img,.ellie-journal-identity img{object-fit:contain;display:block}.ellie-launcher img{width:64px;height:62px}.ellie-launcher{padding:3px 15px 3px 5px}.ellie-avatar img{height:48px}.ellie-journal-identity img{width:32px;height:30px}
+
+.ellie-wanders{animation:ellie-stroll 42s ease-in-out infinite}.ellie-wanders .ellie-launcher img{animation:ellie-footsteps 1.15s ease-in-out infinite;transform-origin:50% 90%}.ellie-wanders:hover,.ellie-wanders:focus-within,.ellie-wanders:hover .ellie-launcher img,.ellie-wanders:focus-within .ellie-launcher img{animation-play-state:paused}.ellie-motion-toggle{display:block;margin-top:7px;padding:0;background:none;border:0;font:inherit;color:#995272;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@keyframes ellie-stroll{0%,8%,100%{transform:translateX(0)}45%,55%{transform:translateX(calc(-100vw + 160px))}}
+@keyframes ellie-footsteps{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-4px) rotate(2deg)}}
+@media(prefers-reduced-motion:reduce){.ellie-wanders,.ellie-wanders .ellie-launcher img{animation:none!important}}
