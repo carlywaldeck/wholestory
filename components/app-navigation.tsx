@@ -109,5 +109,6 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
       <button className="button primary" onClick={()=>{setDirty(false);setLeaving(false);pending.current?.();pending.current=null;}}>Leave</button>
     </section></div>}
     {children}
+    <footer className="settings-privacy-footer"><a href="/settings/privacy" onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();setSettings(true);window.history.replaceState(null,"","/settings/privacy");window.dispatchEvent(new PopStateEvent("popstate"));}}>Privacy</a></footer>
   </NavigationContext.Provider>;
 }

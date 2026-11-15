@@ -14,7 +14,7 @@ export function JournalFollowups({text,edits={},selected=[],absent=[],symptomFre
  const mic=useJournalDictation(addition=>setAnswer(v=>[v,addition].filter(Boolean).join(" ")),sessionKey+":"+(question?.id??"none"));
  function stopVoice(){conversationAudio.stop();}
  useEffect(()=>{if(paused){talking.current=false;stopVoice();mic.cancel();}},[paused]);
- useEffect(()=>{setAnswer("");setEditing(false);stopVoice();mic.cancel();if(talking.current&&mode==="speak"&&!paused&&question)read();},[question?.id]);
+ useEffect(()=>{setAnswer("");setEditing(false);stopVoice();mic.cancel();if(talking.current&&mode==="speak"&&!paused&&question&&localStorage.getItem("elya.autoReplies")==="on")read();},[question?.id]);
  useEffect(()=>()=>conversationAudio.stop(),[]);
  useEffect(()=>{onActivity(mic.active||speaking);},[mic.active,speaking,onActivity]);
  const makeTurn=(q:FollowupQuestion,value:string):FollowupTurn=>({question:q,answer:value.trim(),status:value.trim()==="Prefer not to answer"?"declined":value.trim()==="Not applicable"?"not-applicable":value.trim()==="Not sure"?"unknown":"answered"});

@@ -44,6 +44,7 @@ import {
   isPresentFact,
 } from "../lib/model";
 import * as storage from "../lib/storage";
+import {MicrophoneStatus} from "../components/microphone-status";
 import {SettingsShell} from "../components/settings-shell";
 import {BrowserVoicePreferences} from "../components/browser-voice-preferences";
 import {LearningImport} from "../components/learning-import";
@@ -605,7 +606,7 @@ function HomeContent() {
     resettingLearning.current=true;++forecastRequest.current;setForecastLoading(false);setForecastError("");
     try{
       await storage.clearEntries();clearConfirmedDays();await clearLearningData(all?undefined:REAL_PROFILE);
-      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.spokenReplies");localStorage.removeItem("elya.voiceSpeed");localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
+      if(all){await clearWearables();await clearPreferences();setPreferences(defaultPreferences);speech.resetPreferences();localStorage.removeItem("elya.journalMode");window.dispatchEvent(new Event("elya-journal-preferences"));localStorage.removeItem("elya.autoReplies");localStorage.removeItem("elya.spokenReplies");localStorage.removeItem("elya.voiceSpeed");localStorage.removeItem("elya.followupVoice");localStorage.removeItem("elya.followupPace");setDemoMode(false);setForecastDemo(null);profileIntent.current="real";}
       if(all||!demoMode)setLearningBundle(null);
       await refresh();setReviewed(false);
     }finally{resettingLearning.current=false;setCheckinVersion(n=>n+1);}
@@ -1644,7 +1645,7 @@ function HomeContent() {
               data={<>
                 <div className="settings-privacy-summary"><article><strong>Stays on this device</strong><p>Your entries stay in this browser. They are not encrypted and can be erased when you clear browser data.</p></article><article><strong>Your voice</strong><p>elya does not save microphone recordings. Your browser may use its speech service for dictation.</p></article><article><strong>AI is optional</strong><p>AI extraction needs your consent each session and sends only that entry’s text, not earlier entries. The current Journal does not use it.</p></article></div>
                 <details><summary>Technical details</summary><p>Your entries, saved measurements and forecast history stay on this device. They do not sync between devices. Clearing browser data may erase them.</p><p>The current Journal does not send entries for AI extraction. Any optional AI processing requires your consent; earlier entries are not included automatically. Prepared spoken questions do not send your text to a speech provider. Dictation may use your browser’s speech service.</p><p>There is no account or analytics tracking. Forecasts are experimental; recording more days does not guarantee better accuracy.</p></details>
-                <h4>Backups</h4>
+                <MicrophoneStatus/><h4>Backups</h4>
             <div className="toolbar">
               <Button className="primary"
                 onClick={async () => {
