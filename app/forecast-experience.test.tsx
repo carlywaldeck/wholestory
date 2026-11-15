@@ -28,10 +28,12 @@ it("uses matching backend history and isolates a demo check-in from personal rec
  expect(screen.getAllByText(/Still learning your pattern/)).toHaveLength(4);
  await user.click(screen.getByRole("button",{name:"Start voice conversation"}));
  await user.click(await screen.findByRole("button",{name:"Pause conversation"}));
+ await user.click(screen.getByText("Symptoms and additional details"));
+ await user.click(screen.getByText("Your journal entry"));
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
  await user.click(screen.getByText("Record a symptom as absent"));await user.selectOptions(screen.getByLabelText("Fatigue status"),"absent");
  await user.type(screen.getByLabelText("What are you experiencing today?")," I missed a fictional rehearsal.");
- await user.click(screen.getByRole("button",{name:"Save changes"}));await user.click(screen.getByRole("button",{name:"Confirm and save"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
+ await user.click(screen.getByRole("button",{name:"Review entry"}));await user.click(screen.getByRole("button",{name:"Save & view appointment brief"}));await screen.findByRole("heading",{name:"Appointment Brief"});
  expect(screen.queryByText("Personal private words.")).toBeNull();expect((await loadEntries()).map(e=>e.id)).toEqual(["private"]);
  await navigate(user,"Appointment Brief");
  expect(document.querySelector(".monthly-report-body")?.textContent).toContain("Pelvic pain");
@@ -40,7 +42,7 @@ it("uses matching backend history and isolates a demo check-in from personal rec
 it("keeps personal absence false and unanswered null without transmitting records",async()=>{
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.click(screen.getByText("Record a symptom as absent"));await user.selectOptions(screen.getByLabelText("Bloating status"),"absent");
- await user.click(screen.getByRole("button",{name:"Save entry"}));await user.click(screen.getByRole("button",{name:"Confirm and save"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
+ await user.click(screen.getByRole("button",{name:"Review entry"}));await user.click(screen.getByRole("button",{name:"Confirm and save"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  const days=JSON.parse(localStorage.getItem("elya-confirmed-checkins-v1")!);
  expect(days[0].symptoms.bloating).toBe(false);expect(days[0].symptoms.pelvicPain).toBeNull();expect(days[0].availableAt).toBeTruthy();
  expect(vi.mocked(fetch).mock.calls.filter(([url,init])=>String(url).includes("/api/forecast")||init?.method==="POST")).toEqual([]);

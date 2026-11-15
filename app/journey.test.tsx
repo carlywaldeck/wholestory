@@ -37,9 +37,9 @@ it("saves a confirmed entry, reviews it on the calendar, and edits without dupli
  const user=userEvent.setup();render(<Home/>);await user.click(screen.getByRole("button",{name:"Check in today"}));
  await user.type(screen.getByLabelText("What are you experiencing today?"),"My lower abdomen ached this morning.");
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));
- await user.click(screen.getByRole("button",{name:"Save entry"}));await user.click(screen.getByRole("button",{name:"Confirm and save"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
+ await user.click(screen.getByRole("button",{name:"Review entry"}));await user.click(screen.getByRole("button",{name:"Confirm and save"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  await user.click(screen.getByRole("button",{name:"Edit entry"}));await user.type(screen.getByLabelText("What are you experiencing today?")," I missed a walk.");
- await user.click(screen.getByRole("button",{name:"Save changes"}));await user.click(screen.getByRole("button",{name:"Confirm and save"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
+ await user.click(screen.getByRole("button",{name:"Review entry"}));await user.click(screen.getByRole("button",{name:"Confirm and save"}));await screen.findByRole("heading",{name:"Tomorrow’s outlook"});
  const saved=await loadEntries();expect(saved).toHaveLength(1);expect(saved[0].text).toContain("I missed a walk.");expect(saved[0].facts[0].quote).toBe("I reported pelvic pain / cramps.");
 });
 it("exports the selected fictional month as a read-only brief",async()=>{
