@@ -46,7 +46,7 @@ export function AppNavigationProvider({ children }: { children: ReactNode }) {
   const current = view === "Today" ? "Outlook" : view === "Insights" ? "Your story" : view;
   const close = (restore = true) => { setOpen(false); if (restore) trigger.current?.focus(); };
   const navigate = (next: string) => {
-    const update = () => { setView(next); setSettings(false); if(next==="Today")window.dispatchEvent(new Event("elya-home")); };
+    const update = () => { setView(next); setSettings(false); window.scrollTo(0,0); if(next==="Today")window.dispatchEvent(new Event("elya-home")); };
     if (document.startViewTransition && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches && next !== view) {
       const transition = document.startViewTransition(() => flushSync(update));
       void transition.finished.catch(() => {});

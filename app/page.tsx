@@ -537,7 +537,7 @@ function HomeContent() {
   }
   async function restartDemo(){
     const request=++forecastRequest.current;setForecastLoading(true);setForecastError("");
-    try{const bundle=await restartFictionalLearning(persona,shiftDate(today(),1));if(request===forecastRequest.current){applyFictionalBundle(bundle);setView("Outlook");setNotice("");}}
+    try{const bundle=await restartFictionalLearning(persona,shiftDate(today(),1));if(request===forecastRequest.current){applyFictionalBundle(bundle);setView("Outlook");window.scrollTo(0,0);setNotice("");}}
     catch(error){setForecastError(error instanceof Error?error.message:"Demo could not restart.");}
     finally{if(request===forecastRequest.current)setForecastLoading(false);}
   }
@@ -555,7 +555,7 @@ function HomeContent() {
     setForecastLoading(true);
     setForecastError("");
     setCheckin(false);
-    if(!preservePage)setView("Outlook");
+    if(!preservePage){setView("Outlook");window.scrollTo(0,0);}
     try {
       const bundle=await loadFictionalLearning(chosen,shiftDate(today(),1));
       if(request!==forecastRequest.current)return;
