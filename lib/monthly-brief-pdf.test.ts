@@ -1,0 +1,10 @@
+import {expect,it} from 'vitest';
+import {createMonthlyBriefPdf} from './monthly-brief-pdf';
+import type {Entry} from './model';
+const entry:Entry={id:'sample',date:'2026-11-14',text:'Full private narrative that should stay in the journal. Fatigue today. Missed activities.',facts:[{kind:'Fatigue',value:'Fatigue',quote:'Fatigue today.'},{kind:'Daily-life impact',value:'Missed activities',quote:'Missed activities.'}],demo:true,persona:'maya',symptomFree:false};
+it('creates a concise one-page summary with source dates without dumping the raw journal',async()=>{
+ const pdf=await createMonthlyBriefPdf([entry],'2026-11');const output=pdf.output();expect(pdf.getNumberOfPages()).toBe(1);expect(output).toContain('APPOINTMENT SUMMARY');expect(output).toContain('Missed activities');expect(output).toContain('Nov 14');expect(output).not.toContain('Full private narrative');expect(output).toContain('FICTIONAL DEMO - SOPHIE');
+});
+it('keeps an unrecorded detail unknown instead of calling it absent',async()=>{
+ const pdf=await createMonthlyBriefPdf([{...entry,facts:[],text:'Original unstructured words.'}],'2026-11');const output=pdf.output();expect(output).toContain('Not recorded in confirmed details.');expect(output).not.toContain('No daily-life impact');expect(output).toContain('Missing days are unknown');
+});

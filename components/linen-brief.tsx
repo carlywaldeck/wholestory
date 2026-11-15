@@ -22,7 +22,7 @@ export function LinenBrief({entries,today,onSource,active=true}: {entries:Entry[
   const documentText=["elya | Appointment Brief",label,chosen.some(e=>e.demo)?"Fictional demo history":"","Source-linked journal summary",loggedDays+" logged "+(loggedDays===1?"day":"days")+". Missing entries are unknown, not symptom-free.",...sections.map(section=>section.heading+"\n"+section.statements.map(s=>s.text+" ["+s.sourceIds.map(ref).join(", ")+"]").join("\n")),"Source entries",...chosen.map((e,i)=>"["+(i+1)+"] "+dateLabel(e.date)+"\n"+e.text),"Patient-reported information. Not a diagnosis or a replacement for medical care."].filter(Boolean).join("\n\n");
   async function pdf(){
     setBusy(true);setStatus("");
-    try{const {downloadMonthlyBrief}=await import("../lib/monthly-brief-pdf");await downloadMonthlyBrief(documentText,month);}
+    try{const {downloadMonthlyBrief}=await import("../lib/monthly-brief-pdf");await downloadMonthlyBrief(chosen,month);}
     catch{setStatus("The PDF could not be saved. Try Print, then choose Save as PDF.");}
     finally{setBusy(false);}
   }
@@ -35,12 +35,12 @@ export function LinenBrief({entries,today,onSource,active=true}: {entries:Entry[
         <div className="monthly-report-title"><h2>{label}</h2><p>{loggedDays} logged {loggedDays===1?"day":"days"} · Missing entries are unknown.</p>{chosen.some(e=>e.demo)&&<span className="demo-chip">Fictional demo history</span>}</div>
         {sections.map(section=><section className="monthly-report-section" key={section.heading}><h3>{section.heading}</h3><ul>{section.statements.map((statement,i)=><li key={i}>{statement.text}<span className="brief-statement-sources">{statement.sourceIds.map(id=>{const entry=chosen.find(e=>e.id===id);return entry?<span key={id}>{sourceLink(entry,"["+ref(id)+"]")}</span>:null;})}</span></li>)}</ul></section>)}
       </div>
-      <details className="brief-method"><summary>How this report is prepared</summary><p>This report is generated locally from confirmed journal entries. Each statement links to its source. Missing entries are unknown. Forecasts are not counted as experienced symptoms.</p></details>
+      <p className="brief-download-note">The PDF is a formatted appointment summary. Full journal entries stay in Supporting Journal entries below.</p><details className="brief-method"><summary>How this report is prepared</summary><p>This report is generated locally from confirmed journal entries. Each statement links to its source. Missing entries are unknown. Forecasts are not counted as experienced symptoms.</p></details>
       <BriefAIHighlights entries={chosen} month={month} onSource={onSource}/>
       <details className="brief-sources"><summary>Supporting Journal entries ({chosen.length})</summary><ol>{chosen.map(e=><li key={e.id}>{sourceLink(e,dateLabel(e.date))}<p>{e.text}</p></li>)}</ol></details>
       <div className="brief-export-actions"><button className="button" onClick={async()=>{try{await copyText(documentText);setStatus("Brief copied.");}catch{setStatus("Copy is unavailable in this browser. Select the report text to copy it.");}}}>Copy</button><button className="button" onClick={()=>window.print()}>Print</button><button className="button primary" disabled={busy} onClick={pdf}>{busy?"Saving PDF…":"Download report"}</button></div>
       {status&&<p className="brief-status" role="status">{status}</p>}
-      {active&&<article className="brief-print-document"><h2>elya | Appointment Brief</h2><div>{documentText.split("\n\n").slice(1).join("\n\n")}</div></article>}
+      {active&&<article className="brief-print-document"><h2>elya | Appointment Brief</h2><p>{label} · {loggedDays} logged days</p>{chosen.some(e=>e.demo)&&<p>Fictional demo history</p>}{sections.map(section=><section key={section.heading}><h3>{section.heading}</h3>{section.statements.map((s,i)=><p key={i}>{s.text} ({s.sourceIds.map(id=>chosen.find(e=>e.id===id)?.date).filter(Boolean).join(", ")})</p>)}</section>)}<p>Missing entries are unknown. Patient-reported information, not a diagnosis.</p></article>}
     </>}
   </section>;
 }
