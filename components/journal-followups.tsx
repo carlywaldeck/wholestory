@@ -24,7 +24,7 @@ export function JournalFollowups({text,edits={},selected=[],absent=[],symptomFre
  if(!question&&!turns.length)return null;
  return <section className="journal-followups" aria-label="Optional follow-up">
  {!stopped&&question?<><div className="followup-topline"><span>Optional detail</span><button type="button" className="back-link" onClick={()=>proceed(false,true)}>Stop questions</button></div><p className="followup-question" aria-live="polite">{question.text}</p>
- {mode==="speak"&&<p className="followup-note">elya uses a computer-generated voice, not a person or clinician. Spoken replies stay on this device. Dictation may use your browser’s speech service.</p>}
+ {mode==="speak"&&<p className="followup-note">elya’s voice is AI-generated, not a person or clinician. Spoken questions use prepared audio. Dictation may use your browser’s speech service.</p>}
  {mode==="speak"&&<button type="button" className="button" disabled={mic.active} onClick={speaking?()=>{talking.current=false;stopVoice();}:read}>{speaking?"Stop speaking":"Read question aloud"}</button>}
  <div className="journal-symptom-bubbles">{[...question.options,...(!question.options.includes("Prefer not to answer")?["Prefer not to answer"]:[]),"Not applicable"].map(option=><button type="button" key={option} aria-pressed={answer===option} disabled={disabled||mic.active} onClick={()=>setAnswer(option)}>{answer===option?"✓ ":""}{option}</button>)}</div>
  <label htmlFor="followup-answer">Your answer</label><textarea id="followup-answer" maxLength={1000} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Choose an option or add your own words."/>

@@ -1,6 +1,16 @@
 # elya conversational voice
 
-## Current default: offline feminine device voice
+## Current website voice: prepared Kokoro af_heart recordings
+
+The user rejected Samantha and VibeVoice auditions and requested an installed, calm feminine speaking voice. The website now uses 36 fixed question/acknowledgment/reflection recordings generated locally with Kokoro-82M v1.0, preset af_heart (listed as feminine in the model voice documentation), speed 0.95. No real-person reference or voice cloning was used. This selects a published feminine preset; perceived naturalness remains subjective.
+
+VOICE_PROVIDER is recorded. Journal questions, subsequent spoken turns and Settings Play sample fetch the same prepared WAVs from /media/elya-voice and decode/play through the singleton Web Audio queue. No speech API key, credits, live inference server or model download is needed at runtime. No patient text is sent for speech. Each caption corresponds to a fixed recorded line. Audio files load on demand; decoded buffers are cached in memory. Stop/record-answer cancels pending fetch and playback. If a file cannot play, captions and an explicit error remain; it does not silently use a rejected system voice.
+
+All files are generated synthetic prompts, not stored patient audio. The 3.9 MB collection is not downloaded on initial page load. The app layout, question topics, original entry and forecast logic are unchanged. scripts/generate-question-voice.py recreates the files using kokoro-onnx and downloaded model/preset data. NOTICE and Apache license accompany the media. Credit: https://huggingface.co/hexgrad/Kokoro-82M and https://github.com/thewh1teagle/kokoro-onnx . The current voice sample page has been updated to this voice. Earlier experiments below are inactive.
+
+Validation: 184 tests, TypeScript, production build and Sites packaging passed. Manifest coverage includes every allowlisted spoken line. Browser verification uses silent audio doubles; audible quality, exact hardware Stop timing, iOS and Bluetooth require user-device testing.
+
+## Previous experiment: offline feminine device voice
 
 The user changed the requirement to avoid APIs. VOICE_PROVIDER is now local. Samantha is the first choice, and Chrome was checked to expose Samantha, Karen, Moira and Tessa as installed local voices on this Mac. The app selects a known feminine English localService voice and never silently substitutes a masculine or remote voice. No /api/tts request is made in local mode, so API credits and keys are unnecessary. If no supported feminine voice is installed, an explicit notice and captions remain. Perceived sound still requires user listening. Settings has one sample and a speed slider, with no voice picker.
 

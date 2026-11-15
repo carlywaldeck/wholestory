@@ -31,6 +31,7 @@ async function walk(dir, prefix) {
 await add(".next/server/app/index.html", "/");
 await walk(".next/static", "/_next/static");
 await walk("public/voice-samples", "/voice-samples");
+await walk("public/media/elya-voice", "/media/elya-voice");
 await fs.mkdir("work", { recursive: true });
 await fs.writeFile("work/assets.json", JSON.stringify(assets));
 await fs.mkdir("dist/server", { recursive: true });

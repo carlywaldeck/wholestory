@@ -1,4 +1,4 @@
-export const VOICE_PROVIDER:"local"|"openai"="local"; // No API calls in the default mode.
+export const VOICE_PROVIDER:"recorded"|"local"|"openai"="recorded"; // No API calls in the default mode.
 export const FEMININE_LOCAL_NAMES=["Samantha","Karen","Moira","Tessa","Serena","Ava","Victoria","Zira","Susan","Hazel","Aria","Jenny"];
 export const VOICE_ID = "marin" as const; // Single production voice. Change after listening.
 export const SPEECH_MODEL = "gpt-4o-mini-tts";

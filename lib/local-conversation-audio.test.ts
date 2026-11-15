@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import {afterEach,expect,it,vi} from "vitest";
+vi.mock("./conversation-voice-config",async importOriginal=>({...await importOriginal<object>(),VOICE_PROVIDER:"local"}));
 import {ConversationAudio} from "./conversation-audio";
 afterEach(()=>vi.unstubAllGlobals());
 it("uses installed feminine Samantha without calling any API",async()=>{const fetch=vi.fn();vi.stubGlobal("fetch",fetch);class U{onend:(()=>void)|null=null;voice:{name:string}|null=null;constructor(public text:string){}}const speak=vi.fn((u:U)=>{expect(u.voice?.name).toBe("Samantha");u.onend?.();});vi.stubGlobal("SpeechSynthesisUtterance",U);vi.stubGlobal("speechSynthesis",{cancel:vi.fn(),getVoices:()=>[{name:"Daniel",lang:"en-GB",localService:true},{name:"Samantha",lang:"en-US",localService:true}],speak});const audio=new ConversationAudio();const pending=audio.speak(["Has anything helped?"]);await vi.waitFor(()=>expect(speak).toHaveBeenCalledOnce());audio.stop();await pending;expect(fetch).not.toHaveBeenCalled();expect(audio.state.caption).toBe("Has anything helped?");});
