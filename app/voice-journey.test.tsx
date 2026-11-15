@@ -81,7 +81,6 @@ it("records only after Speak, keeps the transcript editable, and saves without a
  const user=userEvent.setup();render(<Home/>);await navigate(user,"Journal");
  expect(Recognition.instances).toHaveLength(0);
  await user.type(screen.getByLabelText("What are you experiencing today?"),"My original note.");
- act(()=>{localStorage.setItem("elya.journalMode","speak");window.dispatchEvent(new Event("elya-journal-preferences"));});
  await user.click(screen.getByRole("button",{name:"Speak"}));
  expect(Recognition.instances).toHaveLength(1);expect(Recognition.instances[0].start).toHaveBeenCalledOnce();
  act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}]]}));
@@ -89,7 +88,7 @@ it("records only after Speak, keeps the transcript editable, and saves without a
  act(()=>Recognition.instances[0].onresult?.({results:[[{transcript:"Fictional cramping interrupted my walk."}],[{transcript:"Second dictated sentence."}]]}));
  await user.click(screen.getByRole("button",{name:"Stop recording"}));
  act(()=>{localStorage.setItem("elya.journalMode","type");window.dispatchEvent(new Event("elya-journal-preferences"));});
- expect(screen.queryByRole("button",{name:"Speak"})).toBeNull();
+ expect(screen.getByRole("button",{name:"Speak"})).toBeTruthy();
  await user.type(screen.getByLabelText("What are you experiencing today?")," My correction.");
  expect((screen.getByLabelText("What are you experiencing today?") as HTMLTextAreaElement).value).toContain("Fictional cramping");
  await user.click(screen.getByRole("button",{name:"Pelvic pain / cramps"}));

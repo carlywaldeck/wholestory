@@ -666,7 +666,7 @@ function HomeContent() {
               <section className="opening-screen" aria-label="Start your story">
                 <HeroBackground />
                 <div className="opening-copy">
-                  <h1>Welcome{demo?", Sophie":preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
+                  <h1>Welcome{!demo&&preferences.name.trim()?`, ${preferences.name.trim()}`:""}. How are you feeling today?</h1>
                   <p>Learn your symptom patterns with wearable data, and turn your journal into a clear appointment brief.</p>
                 </div>
                 <button
